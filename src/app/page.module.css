@@ -1,12 +1,18 @@
+@font-face {
+  font-family: "Mukta Light";
+  src: url("../../public/fonts/Mukta-Light.ttf") format("truetype");
+}
+
 .intro {
   min-height: 100vh;
   width: 100%;
   position: relative;
 }
 .introbg {
-  background-image: url("/bg.gif");
+  background-image: url("../../public/bg.jpg");
   background-repeat: no-repeat;
   background-size: cover;
+  background-position: center right;
   position: absolute;
   top: 0;
   left: 0;
@@ -26,6 +32,16 @@
   align-items: center;
 }
 
+.title {
+  font-family: "Mukta Light", sans-serif;
+  font-size: 5rem;
+  color: #de6161;
+  line-height: 4rem;
+}
+.subtitle {
+  color: #de6161;
+  font-family: "Roboto", sans-serif;
+}
 
 @supports (height: 100dvh) {
   .intro {

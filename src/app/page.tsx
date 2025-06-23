@@ -12,7 +12,10 @@ export default async function HomePage() {
             <div className={styles.intro}>
                 <div className={styles.introbg}></div>
                 <div className={styles.introinner}>
-                    <h1>foxgirls.org</h1>
+                    <div className={styles.introtitle}>
+                        <h1 className={styles.title}>REDTAIL</h1>
+                        <h3 className={styles.subtitle}>Просто команда переводчиков</h3>
+                    </div>
                 </div>
             </div>
             <ul>
