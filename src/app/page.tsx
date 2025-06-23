@@ -14,7 +14,7 @@ export default async function HomePage() {
             <IntroSection/>
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Наши переводы</h2>
-                <ul className={styles.cardleList}>
+                <ul className={styles.cardList}>
                     {mangas.map((manga) => {
                         return (
                             <TitleCard title={manga} key={manga.id}></TitleCard>
