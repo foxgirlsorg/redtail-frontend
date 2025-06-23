@@ -1,50 +1,24 @@
-@font-face {
-  font-family: "Mukta Light";
-  src: url("../../public/fonts/Mukta-Light.ttf") format("truetype");
+.section {
+    min-height: 80vh;
+    padding: 50px 0;
+}
+.section:nth-child(odd) {
+    background-color: #121212;
 }
 
-.intro {
-  min-height: 100vh;
-  width: 100%;
-  position: relative;
-}
-.introbg {
-  background-image: url("../../public/bg.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center right;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -10;
-}
-.introinner {
-  backdrop-filter: blur(3px);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.cardList {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 10px;
+    height: 100%;
 }
 
-.title {
-  font-family: "Mukta Light", sans-serif;
-  font-size: 5rem;
-  color: #de6161;
-  line-height: 4rem;
-}
-.subtitle {
-  color: #de6161;
-  font-family: "Roboto", sans-serif;
-}
-
-@supports (height: 100dvh) {
-  .intro {
-    min-height: 100dvh;
-  }
+.sectionTitle {
+    color: #de6161;
+    text-align: center;
+    font-size: 4rem;
+    margin-bottom: 50px;
 }

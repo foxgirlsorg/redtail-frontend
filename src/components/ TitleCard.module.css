@@ -1,0 +1,81 @@
+.card {
+    display: flex;
+    width: 600px;
+    background: #232324;
+    border-radius: 10px;
+}
+
+
+.cover {
+    height: 400px;
+    width: 266px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.description {
+    flex: 1 1 auto;
+    overflow: hidden;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    text-align: justify;
+    white-space: normal;
+    mask-image: linear-gradient(to bottom, black 70%, transparent 92%);
+    font-size: 15px;
+}
+
+.description::before {
+    content: "\00a0\00a0\00a0\00a0\00a0";
+}
+
+
+.info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+.name {
+    flex-shrink: 0;
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+.links {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.links > a {
+    text-decoration: none;
+    font-size: 35px;
+    margin-bottom: 10px;
+    color: #de6161;
+}
+
+.links > a:hover {
+    text-decoration: none;
+
+    color: #de6161;
+    transition: .3s;
+}
+
+.links > a:hover {
+    color: #EC7D7D;
+}
+
+@media (max-width: 620px) {
+    .card {
+        width: calc(100% - 20px);
+        flex-direction: column;
+    }
+    .cover {
+        height: auto;
+        width: 100%;
+    }
+}

@@ -1,0 +1,66 @@
+.intro {
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+}
+.introbg {
+    background-image: url("../../public/bg.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center right;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -10;
+}
+.introinner {
+    backdrop-filter: blur(3px) brightness(85%);
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.introarrowdown {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 8vh;
+    display: flex;
+    justify-content: center;
+}
+
+.introarrowdown ion-icon {
+    color: #de6161;
+    font-size: 2.5rem;
+    background: rgba(0, 0, 0, 0.34);
+    padding: .5rem;
+    border-radius: 50%;
+    transition: .3s;
+    cursor: pointer;
+}
+
+.introarrowdown ion-icon:hover {
+    background: rgba(0, 0, 0, 0.44);
+}
+
+
+.introtitle > img {
+    width: 20vw;
+    height: auto;
+}
+
+@supports (height: 100dvh) {
+    .intro {
+        min-height: 100dvh;
+    }
+}

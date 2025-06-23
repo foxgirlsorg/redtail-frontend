@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ionic/core": "^8.6.2",
     "@strapi/client": "^1.4.0",
     "next": "15.3.4",
     "react": "^19.0.0",

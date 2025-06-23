@@ -1,0 +1,33 @@
+.btn {
+    width: 100%;
+    background-color: #de6161;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    font-family: inherit;
+    transition: background-color 0.2s ease;
+}
+.btn:hover:not(:disabled) {
+    background-color: #EC7D7D;
+}
+
+.btn_disabled {
+    background-color: #9a5757;
+    cursor: not-allowed;
+}
+
+.btn_text {
+    color: white;
+    font-weight: 600;
+}
+
+.btn_icon {
+    font-size: 20px;
+    color: #fff;
+    margin-left: 10px;
+}
