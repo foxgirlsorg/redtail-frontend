@@ -1,7 +1,8 @@
 import { getMangaList, getTeamMembers } from '@/lib/strapiClient';
-import { IntroSection } from '@/components/IndexIntro';
-import {TitleCard as TitleCard} from '@/components/TitleCard';
+import { IntroSection } from '@/components/Intro/IndexIntro';
+import {TitleCard as TitleCard} from '@/components/TitleCard/TitleCard';
 import styles from './page.module.css'
+import {MemberCard} from "@/components/MemberCard/MemberCard";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -26,9 +27,9 @@ export default async function HomePage() {
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Команда</h2>
                 <ul className={styles.cardList}>
-                    {mangas.map((manga) => {
+                    {team.map((member) => {
                         return (
-                            <TitleCard title={manga} key={manga.id}></TitleCard>
+                            <MemberCard member={member} key={member.id}></MemberCard>
                         );
                     })}
                 </ul>

@@ -1,7 +1,7 @@
 'use client';
 
-import styles from './indexIntro.module.css';
-import { IonIcon } from './IonIcons';
+import styles from './IndexIntro.module.css';
+import { IonIcon } from '../IonIcon';
 
 export const IntroSection = () => {
     return (

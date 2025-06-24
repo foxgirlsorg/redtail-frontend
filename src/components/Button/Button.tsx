@@ -1,11 +1,11 @@
 'use client';
 import React from 'react';
-import { IonIcon } from './IonIcons';
+import { IonIcon } from '../IonIcon';
 import styles from './Button.module.css';
 
 interface BtnProps {
     text: string;
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onClickAction: (event: React.MouseEvent<HTMLButtonElement>) => void;
     iconSrc?: string;
     style?: React.CSSProperties;
     textStyle?: React.CSSProperties;
@@ -15,7 +15,7 @@ interface BtnProps {
 
 export const Btn: React.FC<BtnProps> = ({
                                      text,
-                                     onClick,
+                                     onClickAction,
                                      iconSrc,
                                      style,
                                      textStyle,
@@ -25,7 +25,7 @@ export const Btn: React.FC<BtnProps> = ({
     return (
         <button
             className={`${styles.btn} ${disabled ? styles.btn_disabled : ''}`}
-            onClick={onClick}
+            onClick={onClickAction}
             disabled={disabled}
             style={style}
         >

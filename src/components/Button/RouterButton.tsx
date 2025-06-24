@@ -18,6 +18,6 @@ export const RouterButton = ({text, location, iconSrc}: rBtnProps) => {
   };
 
   return (
-      <Btn onClick={handleClick} iconSrc={iconSrc} text={text} />
+      <Btn onClickAction={handleClick} iconSrc={iconSrc} text={text} />
   );
 }

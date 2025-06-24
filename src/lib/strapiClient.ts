@@ -8,6 +8,11 @@ export async function getMangaList() {
     const manga = await client.collection('manga-titles').find({
         populate: ['cover'],
         sort: "createdAt",
+        filters: {
+            hidden: {
+                $ne: true
+            }
+        }
     });
 
     return manga.data;

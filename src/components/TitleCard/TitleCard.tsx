@@ -1,6 +1,6 @@
-import styles from "@/components/ TitleCard.module.css"
-import { IonIcon } from './IonIcons';
-import { RouterButton } from './RouterButton';
+import styles from "@/components/TitleCard/ TitleCard.module.css"
+import { IonIcon } from '../IonIcon';
+import { RouterButton } from '../Button/RouterButton';
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 type TitleCardProps = {
@@ -12,7 +12,7 @@ export const TitleCard = ({title}:TitleCardProps) => {
     const thumbnail = title.cover?.formats?.small?.url;
     return (
     <div className={styles.card}>
-        <img className={styles.cover} src={STRAPI_DOMAIN+ thumbnail} alt=""/>
+        <img className={styles.cover} src={STRAPI_DOMAIN + thumbnail} alt={title.name}/>
         <div className={styles.info}>
             <h3 className={styles.name}>
                 {title.name}

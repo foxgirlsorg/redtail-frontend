@@ -1,0 +1,27 @@
+.card {
+    display: flex;
+    width: 450px;
+    background: #232324;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.photo {
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 15px
+}
+
+.info {
+    margin: 15px
+}
+
+.nickname {
+    font-size: 25px;
+}
+
+.role {
+    font-size: 14px;
+}
