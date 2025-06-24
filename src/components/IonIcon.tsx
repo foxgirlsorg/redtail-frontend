@@ -12,7 +12,7 @@ type IonIconProps = {
 
 export const IonIcon = ({ name, src, icon, style, ...rest }: IonIconProps) => {
     useEffect(() => {
-        window.Ionicons = { url: '/icons/' };
+        // window.Ionicons = { url: '/icons/' };
         defineCustomElements(window);
     }, []);
 

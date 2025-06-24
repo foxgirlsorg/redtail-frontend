@@ -15,24 +15,28 @@ export default async function HomePage() {
             <IntroSection/>
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Наши переводы</h2>
-                <ul className={styles.cardList}>
-                    {mangas.map((manga) => {
-                        return (
-                            <TitleCard title={manga} key={manga.id}></TitleCard>
-                        );
-                    })}
-                </ul>
+                <div className={styles.cardListWrapper}>
+                    <ul className={styles.cardList}>
+                        {mangas.map((manga) => {
+                            return (
+                                <TitleCard title={manga} key={manga.id}></TitleCard>
+                            );
+                        })}
+                    </ul>
+                </div>
             </div>
 
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Команда</h2>
-                <ul className={styles.cardList}>
-                    {team.map((member) => {
-                        return (
-                            <MemberCard member={member} key={member.id}></MemberCard>
-                        );
-                    })}
-                </ul>
+                <div className={styles.cardListWrapper}>
+                    <ul className={styles.cardList}>
+                        {team.map((member) => {
+                            return (
+                                <MemberCard member={member} key={member.id}></MemberCard>
+                            );
+                        })}
+                    </ul>
+                </div>
             </div>
 
         </div>
