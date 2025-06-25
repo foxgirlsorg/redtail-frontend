@@ -10,7 +10,7 @@ export const Footer = ({footer}:FooterProps) => {
     return (
         <div className={styles.footer}>
             <div className={styles.row}>
-                <div>
+                <div className={styles.nameAndWarning}>
                     <span className={styles.teamname}>REDTAIL</span>
                     <br/>
                     <span className={styles.warning}>{footer.warning}</span>

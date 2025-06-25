@@ -16,6 +16,7 @@
     font-family: "Mukta", sans-serif;
     color: #de6161;
     font-size: 40px;
+    line-height: 40px;
 }
 
 
@@ -78,4 +79,32 @@ span.foxGirlsOrg:hover > span {
 
 .foxGirlsOrg:hover > ion-icon {
     color: #de6161;
+}
+
+@media (max-width: 1050px) {
+    .row {
+        flex-direction: column;
+        align-items: center;
+    }
+    .rowInner {
+        margin: 20px 0;
+    }
+    .nameAndWarning {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .nameAndWarning > span {
+        text-align: center;
+    }
+}
+
+@media (max-width: 450px) {
+    .rowInner {
+        flex-direction: column;
+        text-align: center;
+    }
+    .links:not(:last-child) {
+        margin: 0 0 20px;
+    }
 }
