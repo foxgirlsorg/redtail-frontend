@@ -1,23 +1,21 @@
-.links {
-    width: 100%;
+.container {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    max-width: 1000px;
+    min-height: 100vh;
+    padding-top: 15vh;
+    box-sizing: border-box;
 }
 
-.links > a {
-    text-decoration: none;
-    font-size: 35px;
-    margin-bottom: 10px;
-    color: #de6161;
+.infoBlock {
+    width: 300px;
 }
 
-.links > a:hover {
-    text-decoration: none;
-
-    color: #de6161;
-    transition: .3s;
+.coverImg {
+    width: 300px;
+    height: auto;
 }
 
-.links > a:hover {
-    color: #EC7D7D;
+.title {
+    font-size: 25px;
 }

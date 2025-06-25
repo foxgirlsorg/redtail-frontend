@@ -3,10 +3,17 @@
 import React from 'react';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
-export const ClientImage = ({ src, preview }: { src: string; preview: string }) => (
+
+type ClientImageProps = {
+    src: string;
+    thumbnail: string;
+    className?: string;
+}
+
+export const ClientImage = ({ src, thumbnail, className}:ClientImageProps) => (
     <PhotoProvider>
         <PhotoView src={src}>
-            <img src={preview} alt="" />
+            <img src={thumbnail} alt="" className={className} />
         </PhotoView>
     </PhotoProvider>
 );

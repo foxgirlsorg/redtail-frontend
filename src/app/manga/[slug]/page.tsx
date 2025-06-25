@@ -4,6 +4,8 @@ import {getManga} from "@/lib/strapiClient";
 import { ClientImage } from "@/components/ClientImage/ClientImage";
 import styles from "./page.module.css"
 import {IonIcon} from "@/components/IonIcon";
+import {RouterButton} from "@/components/Button/RouterButton";
+import {InfoBox} from "@/components/TitlePage/InfoBox";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -12,7 +14,7 @@ interface PageProps {
 }
 
 export default async function MangaPage({ params }: PageProps) {
-    const { slug } = await params;
+    const { slug } = params;
     const title_data = await getManga(slug);
     if (title_data.length === 0) {
         notFound()
@@ -25,52 +27,24 @@ export default async function MangaPage({ params }: PageProps) {
                     <div className={styles.cover}>
                         <ClientImage
                             src={STRAPI_DOMAIN + title.cover?.url}
-                            preview={STRAPI_DOMAIN + title.cover?.formats?.medium?.url}
+                            thumbnail={STRAPI_DOMAIN + title.cover?.formats?.medium?.url}
+                            className={styles.coverImg}
                         />
                     </div>
                     <div className={styles.info}>
-                        <h1>{title.name}</h1>
+                        <h1 className={styles.title}>{title.name}</h1>
+                        <RouterButton
+                            text="Читать"
+                            iconSrc="/icons/arrow-forward-outline.svg"
+                            location={`/manga/${title.slug}/`}
+                        />
 
-                        <div className={styles.links}>
-                            {title.mangalib_url && (
-                                <a href={title.mangalib_url} target="_blank">
-                                    <IonIcon src="/icons/mangalib.svg"/>
-                                </a>
-                            )}
-                            {title.readmanga_url && (
-                                <a href={title.readmanga_url} target="_blank">
-                                    <IonIcon src="/icons/readmanga.svg"/>
-                                </a>
-                            )}
-                            {title.remanga_url && (
-                                <a href={title.remanga_url} target="_blank">
-                                    <IonIcon src="/icons/remanga.svg"/>
-                                </a>
-                            )}
-                        </div>
-                        <div className={styles.infoItem}>
-                            <span className={styles.infoLabel}>Год выпуска</span>
-                            <br/>
-                            <span className={styles.infoItemValue}>{title.release_year}</span>
-                        </div>
-                        <div className={styles.infoItem}>
-                            <span className={styles.infoLabel}>Статус</span>
-                            <br/>
-                            <span className={styles.infoItemValue}>{title.release_status}</span>
-                        </div>
-                        {title.authors && (
-                            <div className={styles.infoItem}>
-                                <span className={styles.infoLabel}>Автор</span>
-                                <br/>
-                                {title.authors.map((author, i) => (
-                                    <span key={i}>{author.name}</span>
-                                ))}
-                            </div>
-                        )}
-
+                    <InfoBox title={title}/>
                     </div>
                 </div>
-                <div className={styles.chaptersBlock}></div>
+                <div className={styles.chaptersBlock}>
+
+                </div>
             </div>
         </main>
     );
