@@ -25,7 +25,7 @@ export const MemberCard = ({member}:MemberCardProps) => {
                         </a>
                     )}
                     {member.email && (
-                        <a href={"mailto://" + member.email} target="_blank">
+                        <a href={"mailto:" + member.email} target="_blank">
                             <IonIcon src="/icons/md-mail-filled.svg"/>
                         </a>
                     )}
