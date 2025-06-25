@@ -40,7 +40,7 @@ export const TitleCard = ({title}:TitleCardProps) => {
             <RouterButton
                 text="Читать у нас"
                 iconSrc="/icons/arrow-forward-outline.svg"
-                location={`/manga/${title.id}/`}
+                location={`/manga/${title.slug}/`}
             />
         </div>
     </div>
