@@ -49,6 +49,11 @@ export const Footer = ({footer}:FooterProps) => {
                                     <IonIcon src="/icons/md-mail-filled.svg"/>
                                 </a>
                             )}
+                            {footer.contact_telegram_url && (
+                                <a href={footer.contact_telegram_url} target="_blank">
+                                    <IonIcon src="/icons/telegram.svg"/>
+                                </a>
+                            )}
                         </div>
                     </div>
                 </div>
