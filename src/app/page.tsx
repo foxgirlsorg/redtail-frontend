@@ -13,7 +13,7 @@ export default async function HomePage() {
     const footer = await getFooter();
 
     return (
-        <div>
+        <main>
             <IntroSection/>
             <div className={`${styles.section} ${styles.sectionbg}`}>
                 <h2 className={styles.sectionTitle}>Наши переводы</h2>
@@ -44,6 +44,6 @@ export default async function HomePage() {
                 <Footer footer={footer}/>
             </div>
 
-        </div>
+        </main>
     );
 }

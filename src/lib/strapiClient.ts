@@ -36,3 +36,25 @@ export async function getFooter() {
     const footer = await client.single('Footer').find();
     return footer.data;
 }
+
+
+
+export async function getManga(slug: string) {
+    const manga = await client.collection('manga-titles').find({
+        filters: {
+            slug: {
+                $eq: slug,
+            },
+        },
+        populate: {
+            cover: true,
+            backdrop: true,
+            authors: true,
+            chapters: {
+                sort: ['number:asc']
+            },
+        },
+    });
+
+    return manga.data;
+}
