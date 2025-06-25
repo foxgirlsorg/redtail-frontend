@@ -31,3 +31,8 @@ export async function getTeamMembers() {
 
     return members.data;
 }
+
+export async function getFooter() {
+    const footer = await client.single('Footer').find();
+    return footer.data;
+}

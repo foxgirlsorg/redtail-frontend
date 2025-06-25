@@ -1,0 +1,81 @@
+.footer {
+    padding: 20px 50px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.rowInner {
+    display: flex;
+    align-items: flex-end;
+}
+
+.teamname {
+    font-family: "Mukta", sans-serif;
+    color: #de6161;
+    font-size: 40px;
+}
+
+
+.sectionTitle {
+    font-family: "Mukta", sans-serif;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.links:not(:last-child) {
+    margin-right: 50px;
+}
+
+.linkIcons > a {
+    text-decoration: none;
+    font-size: 25px;
+    color: #de6161;
+}
+
+.linkIcons > a:not(:first-child) {
+    margin-left: 10px;
+}
+.linkIcons > a:hover {
+    text-decoration: none;
+
+    color: #de6161;
+    transition: .3s;
+}
+
+.linkIcons > a:hover {
+    color: #EC7D7D;
+}
+
+
+.warning {
+    color: #959595;
+    font-size: 14px;
+}
+
+.foxGirlsOrg {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+}
+
+.foxGirlsOrg > span, .foxGirlsOrg  ion-icon {
+    color: #959595;
+    font-size: 16px;
+    transition: .3s;
+}
+
+.foxGirlsOrg ion-icon {
+    margin: 0 3px;
+    font-size: 18px;
+}
+
+span.foxGirlsOrg:hover > span {
+    color: #cdcdcd;
+}
+
+.foxGirlsOrg:hover > ion-icon {
+    color: #de6161;
+}

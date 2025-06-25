@@ -1,7 +1,13 @@
 @font-face {
-  font-family: "Inter";
+  font-family: "Inter", sans-serif;
   src: url("../../public/fonts/Inter.ttf") format("truetype");
 }
+
+@font-face {
+  font-family: "Mukta", sans-serif;
+  src: url("../../public/fonts/Mukta-Light.ttf") format("truetype");
+}
+
 * {
   margin: 0;
   padding: 0;
