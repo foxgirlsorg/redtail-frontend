@@ -8,7 +8,7 @@
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    color: #fff;
+    color: white;
     font-family: inherit;
     transition: background-color 0.2s ease;
 }
@@ -28,6 +28,6 @@
 
 .btn_icon {
     font-size: 20px;
-    color: #fff;
+    color: white;
     margin-left: 10px;
 }

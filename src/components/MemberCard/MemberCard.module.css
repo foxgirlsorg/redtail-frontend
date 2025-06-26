@@ -4,6 +4,8 @@
     background: #232324;
     border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+    -webkit-box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
 }
 
 @media (max-width: 500px) {
@@ -39,7 +41,7 @@
 
 .role {
     font-size: 12px;
-    color: #cccccc
+    color: #818181
 }
 
 
