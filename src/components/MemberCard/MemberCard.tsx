@@ -5,14 +5,15 @@ import { RouterButton } from '../Button/RouterButton';
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 type MemberCardProps = {
     member: any;
+    strDomain?: string;
     key?: number;
 };
 
-export const MemberCard = ({member}:MemberCardProps) => {
+export const MemberCard = ({member, strDomain}:MemberCardProps) => {
     const thumbnail = member.image?.formats?.thumbnail?.url;
     return (
         <div className={styles.card}>
-            <img className={styles.photo} src={STRAPI_DOMAIN + thumbnail} alt={member.nickname}/>
+            <img className={styles.photo} src={strDomain + thumbnail} alt={member.nickname}/>
             <div className={styles.info}>
                 <div>
                     <h5 className={styles.nickname}>{member.nickname}</h5>

@@ -2,17 +2,17 @@ import styles from "@/components/TitleCard/ TitleCard.module.css"
 import { IonIcon } from '../IonIcon';
 import { RouterButton } from '../Button/RouterButton';
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 type TitleCardProps = {
     title: any;
+    strDomain?: string;
     key?: number;
 };
 
-export const TitleCard = ({title}:TitleCardProps) => {
+export const TitleCard = ({title, strDomain}:TitleCardProps) => {
     const thumbnail = title.cover?.formats?.small?.url;
     return (
     <div className={styles.card}>
-        <img className={styles.cover} src={STRAPI_DOMAIN + thumbnail} alt={title.name}/>
+        <img className={styles.cover} src={strDomain + thumbnail} alt={title.name}/>
         <div className={styles.info}>
             <h3 className={styles.name}>
                 {title.name}

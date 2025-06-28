@@ -50,6 +50,11 @@ export async function getManga(slug: string) {
             cover: true,
             backdrop: true,
             authors: true,
+            members_worked_ons: {
+                populate: {
+                    image: true,
+                },
+            },
             chapters: {
                 sort: ['number:asc']
             },

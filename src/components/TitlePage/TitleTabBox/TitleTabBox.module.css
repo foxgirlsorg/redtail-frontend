@@ -1,39 +1,96 @@
 .titleTabBox {
     background: #232324;
-    border-radius: 10px;
-    overflow: hidden;
     box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
     -webkit-box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
-    margin-left: 15px;
-}
-.info {
-    padding: 15px;
-}
-
-.links {
-    margin: 15px 0;
-}
-
-.links > .smallTitle {
-    margin-bottom: 10px
 }
 
 
+.info, .chapterList{
+    padding: 10px 10px;
+}
 
-.links > a {
+.description::before {
+    content: "\00a0\00a0";
+}
+
+
+.smallTitle {
+    margin: 15px 0 10px;
+}
+
+.linkButtons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+
+.linkButton {
     text-decoration: none;
-    font-size: 35px;
-    margin-bottom: 10px;
-    color: #de6161;
-}
-
-.links  a:hover {
-    text-decoration: none;
-
-    color: #de6161;
+    background: #303030;
+    border-radius: 10px;
+    padding: 6px 10px;
+    color: inherit;
     transition: .3s;
+    display: flex;
+    width: fit-content;
+    align-items: center;
 }
 
-.links > a:hover {
-    color: #EC7D7D;
+
+.linkButton > ion-icon {
+    color: #de6161;
+    margin-right: 5px;
+}
+
+.linkButton:hover {
+    color: #ccc;
+    background: #404040;
+}
+
+.members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.member {
+    display: flex;
+    align-items: center;
+    border: 2px solid #404040;
+    width: fit-content;
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: #7a7a7a;
+    object-fit: cover;
+}
+
+.memberImage {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+
+
+
+@media screen and (min-width: 800px) {
+    .infoBox {
+        display: none;
+    }
+    .titleTabBox {
+        background: #232324;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+        margin-left: 15px;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .chapterList {
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
 }

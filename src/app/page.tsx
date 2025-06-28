@@ -21,7 +21,7 @@ export default async function HomePage() {
                     <ul className={styles.cardList}>
                         {mangas.map((manga) => {
                             return (
-                                <TitleCard title={manga} key={manga.id}></TitleCard>
+                                <TitleCard title={manga} key={manga.id} strDomain={STRAPI_DOMAIN}></TitleCard>
                             );
                         })}
                     </ul>
@@ -34,7 +34,7 @@ export default async function HomePage() {
                     <ul className={styles.cardList}>
                         {team.map((member) => {
                             return (
-                                <MemberCard member={member} key={member.id}></MemberCard>
+                                <MemberCard member={member} key={member.id} strDomain={STRAPI_DOMAIN}></MemberCard>
                             );
                         })}
                     </ul>

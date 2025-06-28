@@ -1,0 +1,27 @@
+.chapterButton {
+    text-decoration: none;
+    background: #303030;
+    border-radius: 10px;
+    padding: 8px 15px;
+    color: inherit;
+    transition: .3s;
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chapterButton:not(:first-child) {
+    margin-top: 10px;
+}
+
+.chapterButton:hover {
+    color: #ccc;
+    background: #404040;
+}
+
+
+.chapterName {
+    color: #7a7a7a;
+}
+
