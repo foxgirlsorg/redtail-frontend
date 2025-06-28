@@ -6,7 +6,9 @@ import styles from "./page.module.css"
 import {RouterButton} from "@/components/Button/RouterButton";
 import {InfoBox} from "@/components/TitlePage/InfoBox/InfoBox";
 import {TitleTabBox} from "@/components/TitlePage/TitleTabBox/TitleTabBox";
+import {GoBackBtn} from "@/components/TitlePage/GoBackBtn/GoBackBtn";
 import {Footer} from "@/components/Footer/Footer";
+import {IonIcon} from "@/components/IonIcon";
 
 const STRAPI_DOMAIN= process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -15,7 +17,7 @@ interface PageProps {
 }
 
 export default async function MangaPage({ params }: PageProps) {
-    const { slug } = params;
+    const { slug } = await params;
     const title_data = await getManga(slug);
     const footer = await getFooter();
     if (title_data.length === 0) {
@@ -24,6 +26,7 @@ export default async function MangaPage({ params }: PageProps) {
     const title = title_data[0]
     return (
         <main>
+            <GoBackBtn/>
             {title.backdrop && (
                 <div
                     className={styles.backdrop}

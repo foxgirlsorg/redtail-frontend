@@ -16,7 +16,7 @@ export const ChapterButton = ({chapter}: ChapterButtonProps) => {
     };
 
     return (
-        <div className={styles.chapterButton}>
+        <div className={styles.chapterButton} onClick={handleClick}>
             <span className={styles.chapterNumber}>Глава {chapter.number}
                 <span className={styles.chapterName}> - {chapter.name}</span>
             </span>
