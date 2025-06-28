@@ -20,7 +20,7 @@ export const TitleTabBox = ({title, strDomain}:TitleTabBoxProps) => {
             <Tabs>
                 <TabList>
                     <Tab>Информация</Tab>
-                    {title.chapters && (
+                    {(title.chapters.length > 0) && (
                         <Tab>Главы</Tab>
                     )}
                 </TabList>
@@ -54,7 +54,7 @@ export const TitleTabBox = ({title, strDomain}:TitleTabBoxProps) => {
                             </div>
                         )}
 
-                        {title.members_worked_ons && (
+                        {(title.members_worked_ons.length > 0) && (
                             <div>
                                 <h3 className={styles.smallTitle}>Над переводом работали</h3>
                                 <div className={styles.members}>
@@ -77,7 +77,7 @@ export const TitleTabBox = ({title, strDomain}:TitleTabBoxProps) => {
 
                     </div>
                 </TabPanel>
-                {title.chapters && (
+                {(title.chapters.length > 0) && (
                     <TabPanel>
                         <div className={styles.chapterList}>
                             {title.chapters.map((chapter:any, i:number) => (

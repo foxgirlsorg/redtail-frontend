@@ -8,7 +8,6 @@ import {InfoBox} from "@/components/TitlePage/InfoBox/InfoBox";
 import {TitleTabBox} from "@/components/TitlePage/TitleTabBox/TitleTabBox";
 import {GoBackBtn} from "@/components/TitlePage/GoBackBtn/GoBackBtn";
 import {Footer} from "@/components/Footer/Footer";
-import {IonIcon} from "@/components/IonIcon";
 
 const STRAPI_DOMAIN= process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -50,7 +49,6 @@ export default async function MangaPage({ params }: PageProps) {
                             <h1 className={styles.title}>{title.name}</h1>
                             <RouterButton
                                 text="Читать"
-                                iconSrc="/icons/arrow-forward-outline.svg"
                                 location={`/manga/${title.slug}/`}
                             />
                         </div>
