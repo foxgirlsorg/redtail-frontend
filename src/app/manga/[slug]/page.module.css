@@ -33,7 +33,9 @@
     z-index: -10;
     pointer-events: none;
 }
-
+.backdrop.mobile {
+    display: none;
+}
 
 
 .infoBlock {
@@ -89,5 +91,12 @@
     }
     .infoBox {
         display: none;
+    }
+
+    .backdrop.pc {
+        display: none;
+    }
+    .backdrop.mobile {
+        display: block;
     }
 }

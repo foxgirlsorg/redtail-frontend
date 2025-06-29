@@ -11,6 +11,7 @@ import { ReadButton } from '@/components/Button/ReadButton';
 
 import { cache } from 'react';
 import { getManga as _getManga } from '@/lib/strapiClient';
+import {Backdrop} from "@/components/TitlePage/Backdrop";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -64,12 +65,10 @@ export default async function MangaPage(
         <main>
             <GoBackBtn />
             {title.backdrop && (
-                <div
+                <Backdrop
                     className={styles.backdrop}
-                    style={{
-                        backgroundImage: `url(${STRAPI_DOMAIN + title.backdrop.url})`,
-                        aspectRatio: `${title.backdrop.width / title.backdrop.height}`,
-                    }}
+                    backdrop={title.backdrop}
+                    domain={STRAPI_DOMAIN}
                 />
             )}
             <div className={styles.container}>
