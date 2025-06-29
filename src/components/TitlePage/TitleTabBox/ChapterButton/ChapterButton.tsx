@@ -6,13 +6,14 @@ import {IonIcon} from "@/components/IonIcon";
 
 interface ChapterButtonProps {
     chapter: any;
+    slug: string;
 }
 
-export const ChapterButton = ({chapter}: ChapterButtonProps) => {
+export const ChapterButton = ({chapter, slug}: ChapterButtonProps) => {
     const router = useRouter();
 
     const handleClick = () => {
-        router.push(`/`);
+        router.push(`/manga/${slug}/reader/${chapter.number}`);
     };
 
     return (

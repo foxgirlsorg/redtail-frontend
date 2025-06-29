@@ -56,10 +56,44 @@ export async function getManga(slug: string) {
                 },
             },
             chapters: {
-                sort: ['number:asc']
+                sort: [{ number: 'desc' }],
             },
         },
     });
 
     return manga.data;
+}
+
+
+
+export async function getChaptersFromSlug(slug: string) {
+    const chapters = await client.collection('manga-chapters').find({
+        filters: {
+            title: {
+                slug: {
+                    $eq: slug,
+                },
+            },
+            hidden: {
+                $ne: true
+            }
+        },
+        populate: {
+            title: true,
+            pages: {
+                populate: {
+                    image: true,
+                },
+                sort: [{ number: 'asc' }],
+                filters: {
+                    hidden: {
+                        $ne: true
+                    }
+                }
+            },
+        },
+        sort: "number:asc",
+    });
+
+    return chapters.data;
 }

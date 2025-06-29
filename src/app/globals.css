@@ -1,10 +1,10 @@
 @font-face {
-  font-family: "Inter", sans-serif;
+  font-family: "Inter";
   src: url("../../public/fonts/Inter.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: "Mukta", sans-serif;
+  font-family: "Mukta";
   src: url("../../public/fonts/Mukta-Light.ttf") format("truetype");
 }
 
@@ -16,5 +16,5 @@ body {
   background-color: #161616;
   color: #babfba;
   position: unset!important;
-  font-family: Inter, sans-serif;
+  font-family: "Inter", sans-serif;
 }

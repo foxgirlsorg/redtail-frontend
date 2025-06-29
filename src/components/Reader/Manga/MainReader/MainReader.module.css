@@ -1,0 +1,63 @@
+.pageContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.pageImage {
+    z-index: 1;
+}
+
+.controls {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+
+}
+
+.previousPageControl, .nextPageControl {
+    height: 100%;
+    cursor: pointer;
+}
+
+.controlDisabled {
+    cursor: not-allowed;
+}
+
+.pageNumber {
+    display: flex;
+    position: fixed;
+    justify-content: center;
+    bottom: 10px;
+    right: 0;
+    left: 0;
+    font-weight: bold;
+    text-shadow:
+            -1px -1px 0 black,
+            1px -1px 0 black,
+            -1px  1px 0 black,
+            1px  1px 0 black;
+    z-index: 2;
+    transition: transform 0.3s ease;
+}
+
+.pageNumber.visible {
+    transform: translateY(0%);
+}
+.pageNumber.hidden {
+    transform: translateY(200%);
+}

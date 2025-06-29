@@ -1,0 +1,270 @@
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #222;
+    display: flex;
+    padding: 0 20px;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+.visible {
+    transform: translateY(0%);
+}
+.hidden {
+    transform: translateY(-100%);
+}
+
+.backButton, .sidebarBackButton{
+    font-size: 22px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-right: 20px;
+}
+
+.backButton:hover, .sidebarBackButton:hover {
+    color: #de6161;
+}
+
+.leftSide {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chapterTitleMobile{
+    color: #7a7a7a;
+    font-size: 16px;
+}
+
+.chapterSwitch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 20px;
+}
+
+.chapterSwitchIcon {
+    font-size: 22px;
+    margin: 0 10px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.chapterSwitchIcon.disabled {
+    color: #7a7a7a;
+    cursor: not-allowed;
+}
+
+.chapterSwitchIcon:not(.disabled):hover {
+    color: #de6161;
+}
+
+
+.chapterSwitchContentsLabel {
+    color: #7a7a7a;
+    font-size: 12px;
+    display: block;
+}
+
+.contentsSwitch {
+    cursor: pointer;
+    transition: 0.3s;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 15px
+}
+.contentsSwitch:hover {
+    background-color: #303030;
+}
+
+.slider {
+    display: flex;
+    align-items: center;
+}
+
+.widthSliderLabel {
+    color: #7a7a7a;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+
+.widthSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 150px;
+    height: 6px;
+    background: #7a7a7a;
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Chrome, Safari, Edge */
+.widthSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #7a7a7a;
+    border-radius: 50%;
+    border: none;
+    transition: 0.3s;
+}
+
+.widthSlider:hover::-webkit-slider-thumb {
+    background: #de6161;
+}
+
+/* Firefox */
+.widthSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #7a7a7a;
+    border-radius: 50%;
+    border: none;
+    transition: 0.3s;
+}
+
+.widthSlider:hover::-moz-range-thumb {
+    background: #de6161;
+}
+
+/* Firefox трек */
+.widthSlider::-moz-range-track {
+    background: #7a7a7a;
+    height: 6px;
+    border-radius: 5px;
+}
+
+/* IE */
+.widthSlider::-ms-track {
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+    height: 6px;
+}
+
+.widthSlider::-ms-fill-lower {
+    background: #7a7a7a;
+    border-radius: 5px;
+}
+
+.widthSlider::-ms-fill-upper {
+    background: #7a7a7a;
+    border-radius: 5px;
+}
+
+.widthSlider::-ms-thumb {
+    width: 16px;
+    height: 16px;
+    background: #7a7a7a;
+    border-radius: 50%;
+    border: none;
+    transition: 0.3s;
+}
+
+.widthSlider:hover::-ms-thumb {
+    background: #de6161;
+}
+
+
+
+/* --- contents sidebar --- */
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+.contentsVisible .overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.contents {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+.contentsVisible {
+    pointer-events: auto;
+}
+
+
+.sidebarVisible {
+    transform: translateX(0%);
+}
+.sidebarHidden {
+    transform: translateX(-100%);
+}
+
+.sidebar {
+    background-color: #222;
+    transition: transform 0.3s ease;
+    width: 25vw;
+    max-width: 500px;
+    min-width: 300px;
+    height: 100vh;
+    transform: translateX(-100%);
+    position: relative;
+    z-index: 1002;
+}
+
+.sidebarVisible {
+    transform: translateX(0%);
+}
+
+.sidebarTitleButton {
+    display: flex;
+    height: 50px;
+    align-items: center;
+    border-bottom: 1px solid #303030;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.sidebarChapterList {
+    margin: 15px
+}
+
+
+
+@media screen and (min-width: 800px) {
+    .chapterTitleMobile {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .rightSide, .chapterSwitch {
+        display: none;
+    }
+
+    .sidebar {
+        width: 100vw;
+        max-width: unset;
+    }
+
+}

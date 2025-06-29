@@ -15,7 +15,7 @@
     margin-top: 10px;
 }
 
-.chapterButton:hover {
+.chapterButton:not(.disabled):hover {
     color: #ccc;
     background: #404040;
 }
@@ -25,3 +25,7 @@
     color: #7a7a7a;
 }
 
+.disabled {
+    opacity: .7;
+    cursor: unset;
+}

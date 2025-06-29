@@ -15,8 +15,11 @@ interface PageProps {
     params: { slug: string };
 }
 
-export default async function MangaPage({ params }: PageProps) {
-    const { slug } = await params;
+export default async function MangaPage(props: PageProps) {
+    // noinspection ES6RedundantAwait
+    const params = await Promise.resolve(props.params);
+    const slug = params.slug;
+
     const title_data = await getManga(slug);
     const footer = await getFooter();
     if (title_data.length === 0) {
@@ -49,7 +52,7 @@ export default async function MangaPage({ params }: PageProps) {
                             <h1 className={styles.title}>{title.name}</h1>
                             <RouterButton
                                 text="Читать"
-                                location={`/manga/${title.slug}/`}
+                                location={`/manga/${title.slug}/reader/${title.chapters[title.chapters.length -1].number}`}
                             />
                         </div>
                     </div>
