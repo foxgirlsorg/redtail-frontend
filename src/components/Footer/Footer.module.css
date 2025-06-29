@@ -60,6 +60,7 @@
     cursor: pointer;
     display: flex;
     justify-content: center;
+    text-decoration: none;
 }
 
 .foxGirlsOrg > span, .foxGirlsOrg  ion-icon {
@@ -73,7 +74,7 @@
     font-size: 18px;
 }
 
-span.foxGirlsOrg:hover > span {
+a.foxGirlsOrg:hover > span {
     color: #cdcdcd;
 }
 

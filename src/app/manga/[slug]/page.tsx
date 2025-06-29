@@ -8,6 +8,7 @@ import {InfoBox} from "@/components/TitlePage/InfoBox/InfoBox";
 import {TitleTabBox} from "@/components/TitlePage/TitleTabBox/TitleTabBox";
 import {GoBackBtn} from "@/components/TitlePage/GoBackBtn/GoBackBtn";
 import {Footer} from "@/components/Footer/Footer";
+import {ReadButton} from "@/components/Button/ReadButton";
 
 const STRAPI_DOMAIN= process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -50,9 +51,8 @@ export default async function MangaPage(props: PageProps) {
                         </div>
                         <div className={styles.bTitle}>
                             <h1 className={styles.title}>{title.name}</h1>
-                            <RouterButton
-                                text="Читать"
-                                location={`/manga/${title.slug}/reader/${title.chapters[title.chapters.length -1].number}`}
+                            <ReadButton
+                                title={title}
                             />
                         </div>
                     </div>

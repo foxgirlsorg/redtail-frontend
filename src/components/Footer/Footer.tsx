@@ -60,11 +60,11 @@ export const Footer = ({footer}:FooterProps) => {
             </div>
             <div>
 
-                <span className={styles.foxGirlsOrg}>
+                <a className={styles.foxGirlsOrg} href="https://foxgirls.org" target={"_blank"}>
                     <span>{year} -</span>
                     <IonIcon src="/icons/foxgirlsorg.svg"/>
                     <span>foxgirls.org</span>
-                </span>
+                </a>
             </div>
         </div>
     );

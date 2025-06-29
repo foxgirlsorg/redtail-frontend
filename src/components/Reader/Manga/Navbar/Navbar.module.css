@@ -223,9 +223,7 @@
 .sidebar {
     background-color: #222;
     transition: transform 0.3s ease;
-    width: 25vw;
-    max-width: 500px;
-    min-width: 300px;
+    width: 500px;
     height: 100vh;
     transform: translateX(-100%);
     position: relative;
@@ -264,7 +262,6 @@
 
     .sidebar {
         width: 100vw;
-        max-width: unset;
     }
 
 }

@@ -97,3 +97,33 @@ export async function getChaptersFromSlug(slug: string) {
 
     return chapters.data;
 }
+
+
+export async function getAuthor(nickname: string) {
+    const authors = await client.collection('authors').find({
+        filters: {
+            name: {
+                $eq: nickname,
+            },
+            hidden: {
+                $ne: true,
+            },
+        },
+        populate: {
+            photo: true,
+            manga_titles: {
+                filters: {
+                    hidden: {
+                        $ne: true,
+                    },
+                },
+                sort: [{ createdAt: 'asc' }],
+                populate: {
+                    cover: true,
+                },
+            },
+        },
+    });
+
+    return authors.data;
+}

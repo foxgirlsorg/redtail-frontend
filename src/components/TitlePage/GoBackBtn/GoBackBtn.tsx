@@ -8,7 +8,11 @@ export const GoBackBtn = () => {
     const router = useRouter();
 
     const handleClick = () => {
-        router.push("/");
+        if (window.history.length > 1) {
+            router.back();
+        } else {
+            router.push('/');
+        }
     };
     return (
         <div className={styles.goBackBtn} onClick={handleClick}>

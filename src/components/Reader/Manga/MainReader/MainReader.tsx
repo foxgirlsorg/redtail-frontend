@@ -164,8 +164,13 @@ export function MainReader({ chapters, chapter, strDomain }: MainReaderProps) {
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
     };
+    if (!currentChapter || !currentPage) return (
 
-    if (!currentChapter || !currentPage) return <div>Loading...</div>;
+            <div className={styles.loaderContainer}>
+                <div className={styles.loader}></div>
+            </div>
+
+    );
 
     return (
         <div className={styles.mainReader}>

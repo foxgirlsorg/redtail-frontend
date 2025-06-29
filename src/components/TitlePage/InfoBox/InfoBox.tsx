@@ -19,9 +19,13 @@ export const InfoBox = ({title}:InfoBoxProps) => {
                 {title.authors && (
                     <div className={styles.infoItem}>
                         <span className={styles.infoLabel}>Автор</span>
-                        {title.authors.map((author:any, i:number) => (
-                            <span key={i}>{author.name}</span>
-                    ))}
+                        <span>
+                            {title.authors.map((author:any, i:number) => (
+
+                                    <a className={styles.authorUrl} key={i} href={'/author/' + author.name}>{author.name}</a>
+
+                            ))}
+                        </span>
                     </div>
                 )}
                 {title.alternative_names && (

@@ -1,5 +1,6 @@
 import {getChaptersFromSlug} from "@/lib/strapiClient";
 import {MainReader} from "@/components/Reader/Manga/MainReader/MainReader";
+import {notFound} from "next/navigation";
 
 const STRAPI_DOMAIN= process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -14,6 +15,9 @@ export default async function ReaderMangaPage(props: PageProps) {
     const chapter = params.chapter;
 
     const chapters = await getChaptersFromSlug(slug);
+    if (chapters.length === 0) {
+        notFound();
+    }
     return (
         <MainReader chapters={chapters} chapter={chapter} strDomain={STRAPI_DOMAIN} />
     )
