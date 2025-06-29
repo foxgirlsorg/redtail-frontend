@@ -1,4 +1,4 @@
-import styles from "@/components/TitleCard/ TitleCard.module.css"
+import styles from "@/components/TitleCard/TitleCard.module.css"
 import { IonIcon } from '../IonIcon';
 import { RouterButton } from '../Button/RouterButton';
 
