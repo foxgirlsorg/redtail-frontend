@@ -3,7 +3,7 @@ import "./globals.css";
 
 
 export const metadata: Metadata = {
-  title: "RedTail:TL",
+  title: "RedTail",
   description: "Команда переводчиков RedTail",
 };
 
