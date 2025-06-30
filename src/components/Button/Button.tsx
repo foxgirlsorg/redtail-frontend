@@ -5,7 +5,7 @@ import styles from './Button.module.css';
 
 interface BtnProps {
     text: string;
-    onClickAction: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onClickAction?: (event: React.MouseEvent<HTMLButtonElement>) => void;
     iconSrc?: string;
     style?: React.CSSProperties;
     textStyle?: React.CSSProperties;
@@ -25,7 +25,7 @@ export const Btn: React.FC<BtnProps> = ({
     return (
         <button
             className={`${styles.btn} ${disabled ? styles.btn_disabled : ''}`}
-            onClick={onClickAction}
+            onClick={onClickAction ? onClickAction : undefined}
             disabled={disabled}
             style={style}
         >

@@ -12,37 +12,43 @@ interface rBtnProps {
 
 
 export const ReadButton = ({title}: rBtnProps) => {
-    const router = useRouter();
+    if (title.chapters.length > 0) {
+        const router = useRouter();
 
-    const getLastReadPosition = (slug: string) => {
-        const raw = getCookie(`reader_progress_${slug}`);
-        if (!raw) return null;
+        const getLastReadPosition = (slug: string) => {
+            const raw = getCookie(`reader_progress_${slug}`);
+            if (!raw) return null;
 
-        try {
-            const parsed = JSON.parse(raw);
-            if (
-                typeof parsed.chapter === 'number' &&
-                typeof parsed.page === 'number'
-            ) {
-                return parsed;
+            try {
+                const parsed = JSON.parse(raw);
+                if (
+                    typeof parsed.chapter === 'number' &&
+                    typeof parsed.page === 'number'
+                ) {
+                    return parsed;
+                }
+            } catch (e) {
+                return null;
             }
-        } catch (e) {
             return null;
         }
-        return null;
+        let location = `/manga/${title.slug}/reader/${title.chapters[title.chapters.length -1].number}/`;
+
+        const cookies = getLastReadPosition(title.slug);
+        if (cookies) {
+            location = `/manga/${title.slug}/reader/${cookies.chapter}/?p=${cookies.page}`;
+        }
+        const handleClick = () => {
+            router.push(location);
+        };
+        return (
+            <Btn onClickAction={handleClick} iconSrc="/icons/arrow-forward-outline.svg" text={cookies ? "Продолжить" : "Читать"} />
+        );
+    } else {
+        return (
+            <Btn iconSrc="/icons/arrow-forward-outline.svg" text="Читать" disabled={true} />
+        );
     }
 
-    let location = `/manga/${title.slug}/reader/${title.chapters[title.chapters.length -1].number}/`;
 
-    const cookies = getLastReadPosition(title.slug);
-    if (cookies) {
-        location = `/manga/${title.slug}/reader/${cookies.chapter}/?p=${cookies.page}`;
-    }
-    const handleClick = () => {
-        router.push(location);
-    };
-
-    return (
-        <Btn onClickAction={handleClick} iconSrc="/icons/arrow-forward-outline.svg" text={cookies ? "Продолжить" : "Читать"} />
-    );
 }
