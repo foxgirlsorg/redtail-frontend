@@ -7,15 +7,13 @@ import { ClientImage } from '@/components/ClientImage/ClientImage';
 import { TitleCard } from '@/components/TitleCard/TitleCard';
 import { Footer } from '@/components/Footer/Footer';
 import { GoBackBtn } from '@/components/TitlePage/GoBackBtn/GoBackBtn';
-import { cache } from 'react';
+import {createScopedLoader} from "@/lib/createScopedLoader";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
-const getAuthor = cache(async (nickname: string) => {
-    return await _getAuthor(nickname);
-});
+const getAuthor = createScopedLoader((nickname: string) => _getAuthor(nickname))
 
-export async function generateMetadata(params:any) {
+export async function generateMetadata({ params }: { params: { nickname: string } }) {
     const { nickname } = await params;
     const authors = await getAuthor(nickname);
 
@@ -40,7 +38,7 @@ export async function generateMetadata(params:any) {
     };
 }
 
-export default async function MangaPage(params:any) {
+export default async function MangaPage({ params }: { params: { nickname: string } }) {
     const { nickname } = await params;
     const authors = await getAuthor(nickname);
     const footer = await getFooter();

@@ -8,21 +8,17 @@ import { TitleTabBox } from '@/components/TitlePage/TitleTabBox/TitleTabBox';
 import { GoBackBtn } from '@/components/TitlePage/GoBackBtn/GoBackBtn';
 import { Footer } from '@/components/Footer/Footer';
 import { ReadButton } from '@/components/Button/ReadButton';
-
-import { cache } from 'react';
+import { createScopedLoader } from '@/lib/createScopedLoader';
 import { getManga as _getManga } from '@/lib/strapiClient';
 import {Backdrop} from "@/components/TitlePage/Backdrop";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
-const getManga = cache(async (slug: string) => {
-    return await _getManga(slug);
-});
+const getManga = createScopedLoader((slug: string) => _getManga(slug))
 
-export async function generateMetadata(params:any) {
+export async function generateMetadata({ params }: { params: { slug: string } }) {
     const { slug } = await params;
     const title_data = await getManga(slug);
-
     if (!title_data || title_data.length === 0) {
         return {
             title: 'Манга не найдена | RedTail',
@@ -46,7 +42,7 @@ export async function generateMetadata(params:any) {
     };
 }
 
-export default async function MangaPage(params:any) {
+export default async function MangaPage({ params }:{ params: { slug: string }}) {
     const { slug } = await params;
 
     const title_data = await getManga(slug);
