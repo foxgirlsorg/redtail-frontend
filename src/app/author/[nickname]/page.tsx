@@ -15,10 +15,9 @@ const getAuthor = cache(async (nickname: string) => {
     return await _getAuthor(nickname);
 });
 
-export async function generateMetadata(
-    { params }: { params: { nickname: string } }
-) {
-    const authors = await getAuthor(params.nickname);
+export async function generateMetadata(params:any) {
+    const { nickname } = await params;
+    const authors = await getAuthor(nickname);
 
     if (!authors || authors.length === 0) {
         notFound();
@@ -41,10 +40,8 @@ export async function generateMetadata(
     };
 }
 
-export default async function MangaPage(
-    { params }: { params: { nickname: string } }
-) {
-    const { nickname } = params;
+export default async function MangaPage(params:any) {
+    const { nickname } = await params;
     const authors = await getAuthor(nickname);
     const footer = await getFooter();
 

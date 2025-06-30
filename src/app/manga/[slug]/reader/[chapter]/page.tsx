@@ -5,15 +5,13 @@ import { cache } from 'react';
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
-// ✅ Кэшируем загрузку
 const getChaptersFromSlug = cache(async (slug: string) => {
     return await _getChaptersFromSlug(slug);
 });
 
-export async function generateMetadata(
-    { params }: { params: { slug: string; chapter: string } }
-) {
-    const chapters = await getChaptersFromSlug(params.slug);
+export async function generateMetadata(params:any) {
+    const { slug, chapter } = await params;
+    const chapters = await getChaptersFromSlug(slug);
 
     if (!chapters || chapters.length === 0) {
         return {
@@ -21,20 +19,18 @@ export async function generateMetadata(
         };
     }
 
-    const currentChapter = chapters.find((c: any) => c.number.toString() === params.chapter);
+    const currentChapter = chapters.find((c: any) => c.number.toString() === chapter);
 
     return {
         title: currentChapter
             ? `${currentChapter.title.name} | Глава ${currentChapter.number} | RedTail`
-            : `Глава ${params.chapter} | RedTail`,
-        description: currentChapter ? ` Читать ${currentChapter.title.name} в переводе от RedTail` : `Глава ${params.chapter} | RedTail`,
+            : `Глава ${chapter} | RedTail`,
+        description: currentChapter ? ` Читать ${currentChapter.title.name} в переводе от RedTail` : `Глава ${chapter} | RedTail`,
     };
 }
 
-export default async function ReaderMangaPage(
-    { params }: { params: { slug: string; chapter: string } }
-) {
-    const { slug, chapter } = params;
+export default async function ReaderMangaPage(params:any) {
+    const { slug, chapter } = await params;
 
     const chapters = await getChaptersFromSlug(slug);
 

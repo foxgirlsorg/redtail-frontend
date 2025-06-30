@@ -19,10 +19,9 @@ const getManga = cache(async (slug: string) => {
     return await _getManga(slug);
 });
 
-export async function generateMetadata(
-    { params }: { params: { slug: string } }
-) {
-    const title_data = await getManga(params.slug);
+export async function generateMetadata(params:any) {
+    const { slug } = await params;
+    const title_data = await getManga(slug);
 
     if (!title_data || title_data.length === 0) {
         return {
@@ -47,10 +46,8 @@ export async function generateMetadata(
     };
 }
 
-export default async function MangaPage(
-    { params }: { params: { slug: string } }
-) {
-    const { slug } = params;
+export default async function MangaPage(params:any) {
+    const { slug } = await params;
 
     const title_data = await getManga(slug);
     const footer = await getFooter();
