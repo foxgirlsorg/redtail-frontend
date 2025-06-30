@@ -1,0 +1,37 @@
+.main {
+    display: flex;
+    width: 1200px;
+    background-image: url("/teamcard/pattern.png");
+    background-size: cover;
+    height: fit-content;
+}
+
+
+.cardList {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 600px;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+}
+
+.memberCard {
+    list-style: none;
+}
+
+.memberCard:not(:first-child) {
+    margin-top: 15px;
+}
+
+.leftSide {
+    width: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.leftSide img {
+    width: 450px;
+}
