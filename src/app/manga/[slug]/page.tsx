@@ -16,7 +16,9 @@ const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
 const getManga = createScopedLoader((slug: string) => _getManga(slug))
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+type pageProps = Promise<{ slug: string }>;
+
+export async function generateMetadata({ params }: { params: pageProps }) {
     const { slug } = await params;
     const title_data = await getManga(slug);
     if (!title_data || title_data.length === 0) {
@@ -42,7 +44,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
 }
 
-export default async function MangaPage({ params }:{ params: { slug: string }}) {
+export default async function MangaPage({ params }:{ params: pageProps}) {
     const { slug } = await params;
 
     const title_data = await getManga(slug);

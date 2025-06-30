@@ -8,7 +8,9 @@ const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
 const getChaptersFromSlug = createScopedLoader((slug: string) => _getChaptersFromSlug(slug));
 
-export async function generateMetadata({ params }: { params: { slug: string, chapter: string } }) {
+type pageProps = Promise<{ slug: string, chapter: string }>;
+
+export async function generateMetadata({ params }: { params: pageProps }) {
     const { slug, chapter } = await params;
     const chapters = await getChaptersFromSlug(slug);
 
@@ -28,7 +30,7 @@ export async function generateMetadata({ params }: { params: { slug: string, cha
     };
 }
 
-export default async function ReaderMangaPage({ params }: { params: { slug: string, chapter: string } }) {
+export default async function ReaderMangaPage({ params }: { params: pageProps }) {
     const { slug, chapter } = await params;
 
     const chapters = await getChaptersFromSlug(slug);

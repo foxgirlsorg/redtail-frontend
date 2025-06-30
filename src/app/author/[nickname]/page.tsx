@@ -13,7 +13,9 @@ const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
 const getAuthor = createScopedLoader((nickname: string) => _getAuthor(nickname))
 
-export async function generateMetadata({ params }: { params: { nickname: string } }) {
+type pageProps = Promise<{ nickname: string }>;
+
+export async function generateMetadata({ params }: { params: pageProps }) {
     const { nickname } = await params;
     const authors = await getAuthor(nickname);
 
@@ -38,7 +40,7 @@ export async function generateMetadata({ params }: { params: { nickname: string 
     };
 }
 
-export default async function MangaPage({ params }: { params: { nickname: string } }) {
+export default async function MangaPage({ params }: { params: pageProps }) {
     const { nickname } = await params;
     const authors = await getAuthor(nickname);
     const footer = await getFooter();
