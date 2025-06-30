@@ -9,7 +9,7 @@ type TitleCardProps = {
 };
 
 export const TitleCard = ({title, strDomain}:TitleCardProps) => {
-    const thumbnail = title.cover?.formats?.small?.url;
+    const thumbnail = title.cover?.formats?.medium?.url;
     return (
     <div className={styles.card}>
         <img className={styles.cover} src={strDomain + thumbnail} alt={title.name}/>
