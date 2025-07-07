@@ -17,4 +17,5 @@ body {
   color: #babfba;
   position: unset!important;
   font-family: "Inter", sans-serif;
+  min-height: 100vh;
 }

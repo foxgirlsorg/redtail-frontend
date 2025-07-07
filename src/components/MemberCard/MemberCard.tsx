@@ -2,7 +2,7 @@ import styles from "@/components/MemberCard/MemberCard.module.css"
 import { IonIcon } from '../IonIcon';
 import { RouterButton } from '../Button/RouterButton';
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
+
 type MemberCardProps = {
     member: any;
     strDomain?: string;

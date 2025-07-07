@@ -8,8 +8,8 @@ import "@/components/TitlePage/TitleTabBox/tabs.css";
 import { InfoBox } from "@/components/TitlePage/InfoBox/InfoBox";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import {SmallMemberCard} from "@/components/SmallMemberCard/SmallMemberCard";
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
 type TitleTabBoxProps = {
     title: any;
@@ -85,12 +85,12 @@ export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
                                 <h3 className={styles.smallTitle}>Над переводом работали</h3>
                                 <div className={styles.members}>
                                     {title.members_worked_ons.map((member: any, i: number) => (
-                                        <div key={i} className={styles.member}>
-                                            {member.image?.formats?.thumbnail?.url && (
-                                                <img src={strDomain + member.image.formats.thumbnail.url} className={styles.memberImage} />
-                                            )}
-                                            <span className={styles.memberNickname}>{member.nickname}</span>
-                                        </div>
+                                        <SmallMemberCard
+                                            key={i}
+                                            strDomain={strDomain}
+                                            nickname={member.nickname}
+                                            imgUrl={member.image?.formats?.thumbnail?.url}
+                                        />
                                     ))}
                                 </div>
                             </div>

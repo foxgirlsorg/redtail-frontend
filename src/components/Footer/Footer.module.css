@@ -34,16 +34,11 @@
     text-decoration: none;
     font-size: 25px;
     color: #de6161;
+    transition: .3s;
 }
 
 .linkIcons > a:not(:first-child) {
     margin-left: 10px;
-}
-.linkIcons > a:hover {
-    text-decoration: none;
-
-    color: #de6161;
-    transition: .3s;
 }
 
 .linkIcons > a:hover {

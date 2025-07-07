@@ -127,3 +127,34 @@ export async function getAuthor(nickname: string) {
 
     return authors.data;
 }
+
+
+
+export async function getArticle(slug: string) {
+    const article = await client.collection('articles').find({
+        filters: {
+            slug: {
+                $eq: slug,
+            },
+        },
+        populate: {
+            authors: {
+                populate: {
+                    photo: true,
+                },
+            },
+            related_authors: {
+                populate: {
+                    photo: true,
+                },
+            },
+            members_worked_on: {
+                populate: {
+                    image: true,
+                },
+            }
+        },
+    });
+
+    return article.data;
+}
