@@ -48,11 +48,11 @@ export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: Title
         const baseUrl = url.origin + url.pathname;
 
         if (index === 1 && hasChapters) {
-            router.replace(baseUrl + "?chapters");
+            router.replace(baseUrl + "?chapters", { scroll: false });
         } else if ((index === 1 && !hasChapters) || index === 2) {
-            router.replace(baseUrl + "?comments");
+            router.replace(baseUrl + "?comments", { scroll: false });
         } else {
-            router.replace(baseUrl);
+            router.replace(baseUrl, { scroll: false });
         }
     };
 
