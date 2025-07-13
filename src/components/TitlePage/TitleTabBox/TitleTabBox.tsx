@@ -9,14 +9,17 @@ import { InfoBox } from "@/components/TitlePage/InfoBox/InfoBox";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {SmallMemberCard} from "@/components/SmallMemberCard/SmallMemberCard";
+import CusdisComments from "@/components/CusdisComments";
 
 
 type TitleTabBoxProps = {
     title: any;
+    cusdisHost: string;
+    cusdisAppId: string;
     strDomain?: string;
 };
 
-export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
+export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: TitleTabBoxProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -25,7 +28,16 @@ export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
 
     useEffect(() => {
         if (searchParams.has("chapters") && hasChapters) {
-            setTabIndex(1);
+            if (hasChapters) {
+                setTabIndex(1);
+            }
+        }
+        if (searchParams.has("comments") && hasChapters) {
+            if (hasChapters) {
+                setTabIndex(2);
+            } else {
+                setTabIndex(1);
+            }
         }
     }, [searchParams, hasChapters]);
 
@@ -35,8 +47,10 @@ export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
         const url = new URL(window.location.href);
         const baseUrl = url.origin + url.pathname;
 
-        if (index === 1) {
+        if (index === 1 && hasChapters) {
             router.replace(baseUrl + "?chapters");
+        } else if ((index === 1 && !hasChapters) || index === 2) {
+            router.replace(baseUrl + "?comments");
         } else {
             router.replace(baseUrl);
         }
@@ -48,6 +62,7 @@ export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
                 <TabList>
                     <Tab>Информация</Tab>
                     {hasChapters && <Tab>Главы</Tab>}
+                    <Tab>Комментарии</Tab>
                 </TabList>
 
                 <TabPanel>
@@ -112,6 +127,18 @@ export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
                         </div>
                     </TabPanel>
                 )}
+
+                <TabPanel forceRender>
+                    <div className={styles.comments}>
+                        <CusdisComments
+                            host={cusdisHost}
+                            appId={cusdisAppId}
+                            pageId={title.documentId}
+                            pageTitle={`Title | ${title.name}`}
+                            bgColor="#232324"
+                        />
+                    </div>
+                </TabPanel>
             </Tabs>
         </div>
     );

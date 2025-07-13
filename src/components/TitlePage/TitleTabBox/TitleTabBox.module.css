@@ -56,6 +56,13 @@
 
 
 
+.comments {
+    box-sizing: border-box;
+    padding: 10px
+}
+
+
+
 
 
 
@@ -73,7 +80,7 @@
 }
 
 @media screen and (max-width: 800px) {
-    .chapterList {
+    .chapterList, .comments  {
         min-height: 100vh;
         box-sizing: border-box;
     }

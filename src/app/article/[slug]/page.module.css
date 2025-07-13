@@ -41,7 +41,7 @@
     align-items: center;
 }
 
-.markdown, .info {
+.markdown, .info, .comments {
     max-width: 1000px;
     width: 100%;
     padding: 15px;
@@ -50,6 +50,12 @@
 
 .info {
     border-top: 2px solid #404040;
+}
+
+.comments {
+    border-top: 2px solid #404040;
+    margin-top: 20px;
+    padding: 30px 15px;
 }
 
 
