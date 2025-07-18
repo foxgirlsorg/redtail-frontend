@@ -1,19 +1,22 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Btn } from './Button';
-import React, {useEffect} from "react";
-import {getCookie} from "@/lib/cookies";
+import React, { useEffect, useState } from "react";
+import { getCookie } from "@/lib/cookies";
 
 interface rBtnProps {
-    title:any;
+    title: any;
 }
 
+export const ReadButton = ({ title }: rBtnProps) => {
+    const [location, setLocation] = useState<string | null>(null);
+    const [hasProgress, setHasProgress] = useState(false);
+    const router = useRouter();
+    const pathname = usePathname();
 
-
-export const ReadButton = ({title}: rBtnProps) => {
-    if (title.chapters.length > 0) {
-        const router = useRouter();
+    useEffect(() => {
+        if (title.chapters.length === 0) return;
 
         const getLastReadPosition = (slug: string) => {
             const raw = getCookie(`reader_progress_${slug}`);
@@ -31,24 +34,38 @@ export const ReadButton = ({title}: rBtnProps) => {
                 return null;
             }
             return null;
-        }
-        let location = `/manga/${title.slug}/reader/${title.chapters[title.chapters.length -1].number}/`;
+        };
 
         const cookies = getLastReadPosition(title.slug);
+
         if (cookies) {
-            location = `/manga/${title.slug}/reader/${cookies.chapter}/?p=${cookies.page}`;
+            setLocation(`${pathname}/reader/${cookies.chapter}/?p=${cookies.page}`);
+            setHasProgress(true);
+        } else {
+            const lastChapter = title.chapters[title.chapters.length - 1];
+            setLocation(`${pathname}/reader/${lastChapter.number}/`);
+            setHasProgress(false);
         }
-        const handleClick = () => {
+
+    }, [title]);
+
+    const handleClick = () => {
+        if (location) {
             router.push(location);
-        };
-        return (
-            <Btn onClickAction={handleClick} iconSrc="/icons/arrow-forward-outline.svg" text={cookies ? "Продолжить" : "Читать"} />
-        );
-    } else {
+        }
+    };
+
+    if (title.chapters.length === 0) {
         return (
             <Btn iconSrc="/icons/arrow-forward-outline.svg" text="Читать" disabled={true} />
         );
     }
 
-
-}
+    return (
+        <Btn
+            onClickAction={handleClick}
+            iconSrc="/icons/arrow-forward-outline.svg"
+            text={hasProgress ? "Продолжить" : "Читать"}
+        />
+    );
+};
