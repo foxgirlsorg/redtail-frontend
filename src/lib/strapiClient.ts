@@ -4,18 +4,22 @@ const client = strapi({
     baseURL: process.env.PUBLIC_STRAPI_API_URL!,
 });
 
-export async function getMangaList() {
-    const manga = await client.collection('manga-titles').find({
-        populate: ['cover'],
-        sort: "createdAt",
-        filters: {
-            hidden: {
-                $ne: true
-            }
-        }
-    });
+export async function getTitleList() {
+    const [manga, books] = await Promise.all([
+        client.collection('manga-titles').find({
+            populate: ['cover'],
+            filters: { hidden: { $ne: true } }
+        }),
+        client.collection('book-titles').find({
+            populate: ['cover'],
+            filters: { hidden: { $ne: true } }
+        })
+    ]);
 
-    return manga.data;
+    const allTitles = [...manga.data, ...books.data].sort((a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+    return allTitles;
 }
 
 export async function getTeamMembers() {
@@ -65,8 +69,33 @@ export async function getManga(slug: string) {
 }
 
 
+export async function getBook(slug: string) {
+    const book = await client.collection('book-titles').find({
+        filters: {
+            slug: {
+                $eq: slug,
+            },
+        },
+        populate: {
+            cover: true,
+            backdrop: true,
+            authors: true,
+            members_worked_on: {
+                populate: {
+                    image: true,
+                },
+            },
+            chapters: {
+                sort: [{ number: 'desc' }],
+            },
+        },
+    });
 
-export async function getChaptersFromSlug(slug: string) {
+    return book.data;
+}
+
+
+export async function getMangaChaptersFromSlug(slug: string) {
     const chapters = await client.collection('manga-chapters').find({
         filters: {
             title: {
@@ -98,6 +127,28 @@ export async function getChaptersFromSlug(slug: string) {
     return chapters.data;
 }
 
+export async function getBookChaptersFromSlug(slug: string) {
+    const chapters = await client.collection('book-chapters').find({
+        filters: {
+            title: {
+                slug: {
+                    $eq: slug,
+                },
+            },
+            hidden: {
+                $ne: true
+            }
+        },
+        populate: {
+            title: true,
+        },
+        sort: "number:asc",
+    });
+
+    return chapters.data;
+}
+
+
 
 export async function getAuthor(nickname: string) {
     const authors = await client.collection('authors').find({
@@ -112,6 +163,17 @@ export async function getAuthor(nickname: string) {
         populate: {
             photo: true,
             manga_titles: {
+                filters: {
+                    hidden: {
+                        $ne: true,
+                    },
+                },
+                sort: [{ createdAt: 'asc' }],
+                populate: {
+                    cover: true,
+                },
+            },
+            book_titles: {
                 filters: {
                     hidden: {
                         $ne: true,

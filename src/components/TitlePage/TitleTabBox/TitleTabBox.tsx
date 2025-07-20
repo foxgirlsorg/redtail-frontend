@@ -22,9 +22,12 @@ type TitleTabBoxProps = {
 export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: TitleTabBoxProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const type = ["Книга", "Ранобэ", "Рассказ"].includes(title.type) ? "book" : "manga";
 
     const hasChapters = title.chapters.length > 0;
     const [tabIndex, setTabIndex] = useState(0);
+
+    const membersWorkedOn = title.members_worked_ons ? title.members_worked_ons : title.members_worked_on;
 
     useEffect(() => {
         if (searchParams.has("chapters") && hasChapters) {
@@ -95,11 +98,11 @@ export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: Title
                             </div>
                         )}
 
-                        {title.members_worked_ons.length > 0 && (
+                        {membersWorkedOn.length > 0 && (
                             <div>
                                 <h3 className={styles.smallTitle}>Над переводом работали</h3>
                                 <div className={styles.members}>
-                                    {title.members_worked_ons.map((member: any, i: number) => (
+                                    {membersWorkedOn.map((member: any, i: number) => (
                                         <SmallMemberCard
                                             key={i}
                                             strDomain={strDomain}
@@ -133,7 +136,7 @@ export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: Title
                         <CusdisComments
                             host={cusdisHost}
                             appId={cusdisAppId}
-                            pageId={title.documentId}
+                            pageId={`${type}_${title.documentId}`}
                             pageTitle={`Title | ${title.name}`}
                             bgColor="#232324"
                         />

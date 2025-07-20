@@ -17,8 +17,8 @@ type pageProps = Promise<{ nickname: string }>;
 
 export async function generateMetadata({ params }: { params: pageProps }) {
     const { nickname } = await params;
-    const authors = await getAuthor(nickname);
-
+    const nickname_decoded = decodeURI(nickname);
+    const authors = await getAuthor(nickname_decoded);
     if (!authors || authors.length === 0) {
         notFound();
     }
@@ -42,9 +42,10 @@ export async function generateMetadata({ params }: { params: pageProps }) {
 
 export default async function MangaPage({ params }: { params: pageProps }) {
     const { nickname } = await params;
-    const authors = await getAuthor(nickname);
+    const nickname_decoded = decodeURI(nickname);
+    const authors = await getAuthor(nickname_decoded);
     const footer = await getFooter();
-
+    console.log(authors.length);
     if (authors.length === 0) {
         notFound();
     }
@@ -67,20 +68,38 @@ export default async function MangaPage({ params }: { params: pageProps }) {
                     </div>
                 </div>
             </div>
-            <div className={styles.section}>
-                <h2 className={mainPageStyles.sectionTitle}>Манга</h2>
-                <div className={mainPageStyles.cardListWrapper}>
-                    <ul className={mainPageStyles.cardList}>
-                        {author.manga_titles.map((manga: any) => (
-                            <TitleCard
-                                title={manga}
-                                key={manga.id}
-                                strDomain={STRAPI_DOMAIN}
-                            />
-                        ))}
-                    </ul>
+            {author.manga_titles.length > 0 && (
+                <div className={styles.section}>
+                    <h2 className={mainPageStyles.sectionTitle}>Манга</h2>
+                    <div className={mainPageStyles.cardListWrapper}>
+                        <ul className={mainPageStyles.cardList}>
+                            {author.manga_titles.map((manga: any) => (
+                                <TitleCard
+                                    title={manga}
+                                    key={manga.id}
+                                    strDomain={STRAPI_DOMAIN}
+                                />
+                            ))}
+                        </ul>
+                    </div>
                 </div>
-            </div>
+            )}
+            {author.book_titles.length > 0 && (
+                <div className={styles.section}>
+                    <h2 className={mainPageStyles.sectionTitle}>Книги</h2>
+                    <div className={mainPageStyles.cardListWrapper}>
+                        <ul className={mainPageStyles.cardList}>
+                            {author.book_titles.map((book: any) => (
+                                <TitleCard
+                                    title={book}
+                                    key={book.id}
+                                    strDomain={STRAPI_DOMAIN}
+                                />
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            )}
             <Footer footer={footer} />
         </main>
     );

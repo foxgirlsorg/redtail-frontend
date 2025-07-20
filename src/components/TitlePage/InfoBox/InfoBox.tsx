@@ -7,7 +7,10 @@ type InfoBoxProps = {
 export const InfoBox = ({title}:InfoBoxProps) => {
     return (
         <div className={styles.infoBox}>
-
+            <div className={styles.infoItem}>
+                <span className={styles.infoLabel}>Тип</span>
+                <span className={styles.infoItemValue}>{title.type}</span>
+            </div>
             <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Год выпуска</span>
                 <span className={styles.infoItemValue}>{title.release_year}</span>

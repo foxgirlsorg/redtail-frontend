@@ -1,4 +1,4 @@
-import {getFooter, getMangaList, getTeamMembers} from '@/lib/strapiClient';
+import {getFooter, getTitleList, getTeamMembers} from '@/lib/strapiClient';
 import { IntroSection } from '@/components/Intro/IndexIntro';
 import {TitleCard as TitleCard} from '@/components/TitleCard/TitleCard';
 import styles from './page.module.css'
@@ -8,7 +8,7 @@ import {Footer} from "@/components/Footer/Footer";
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
 export default async function HomePage() {
-    const mangas = await getMangaList();
+    const mangas = await getTitleList();
     const team = await getTeamMembers();
     const footer = await getFooter();
 

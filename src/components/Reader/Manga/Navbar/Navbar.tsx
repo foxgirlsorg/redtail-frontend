@@ -8,14 +8,14 @@ import {useRouter} from "next/navigation";
 
 
 type NavbarProps = {
-    imageWidth: number;
-    setImageWidthAction: React.Dispatch<React.SetStateAction<number>>;
+    conetntWidth: number;
+    setContentWidthAction: React.Dispatch<React.SetStateAction<number>>;
     chapters: any;
     chapterIndex: number;
     NavigateToAction: (chapterIndex: number, pageIndex: number) => void;
 };
 
-export default function Navbar({chapters, chapterIndex, NavigateToAction, setImageWidthAction, imageWidth}: NavbarProps) {
+export default function Navbar({chapters, chapterIndex, NavigateToAction, setContentWidthAction, conetntWidth}: NavbarProps) {
     const [navbarVisible, setNavbarVisible] = useState(true);
     const [lastScroll, setLastScroll] = useState(0);
     const currentChapter = chapters[chapterIndex];
@@ -117,14 +117,15 @@ export default function Navbar({chapters, chapterIndex, NavigateToAction, setIma
 
                 <div className={styles.rightSide}>
                     <div className={styles.slider}>
-                        <span className={styles.widthSliderLabel}>Ширина: {imageWidth}%</span>
+                        <span className={styles.widthSliderLabel}>Ширина: {conetntWidth}%</span>
                         <input
                             className={styles.widthSlider}
                             type="range"
-                            min="1"
+                            min="20"
                             max="100"
-                            value={imageWidth}
-                            onChange={(e) => setImageWidthAction(Number(e.target.value))}
+                            value={conetntWidth}
+                            onChange={(e) => setContentWidthAction(Number(e.target.value))}
+
                         />
                     </div>
                 </div>
@@ -161,7 +162,9 @@ export default function Navbar({chapters, chapterIndex, NavigateToAction, setIma
                                     >
                                         <span className={stylesChapterButton.chapterNumber}>
                                             Глава {chapter.number}
-                                            <span className={stylesChapterButton.chapterName}> - {chapter.name}</span>
+                                            {chapter.name && (
+                                                <span className={stylesChapterButton.chapterName}> - {chapter.name}</span>
+                                            )}
                                         </span>
                                         <IonIcon src="/icons/chevron-forward-outline.svg" />
                                     </div>

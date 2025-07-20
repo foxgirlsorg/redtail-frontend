@@ -13,6 +13,23 @@
     width: 266px;
     object-fit: cover;
     border-radius: 10px;
+    position: relative;
+}
+
+image.cover {
+    z-index: 1;
+}
+
+.type {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    box-dizing: border-box;
+    padding: 1px 5px 2px 8px;
+    color: white;
+    background-color: #de6161;
+    border-bottom-left-radius: 10px;
 }
 
 .description {
@@ -80,5 +97,9 @@
     .cover {
         height: auto;
         width: 100%;
+    }
+    .type {
+        padding: 1px 8px 2px;
+        border-top-right-radius: 10px;
     }
 }

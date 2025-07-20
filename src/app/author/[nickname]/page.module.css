@@ -10,7 +10,6 @@
 
 .card {
     display: flex;
-    justify-content: center;
     align-items: center;
     width: 780px;
     background: #232324;

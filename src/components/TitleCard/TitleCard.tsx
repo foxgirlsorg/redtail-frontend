@@ -10,9 +10,15 @@ type TitleCardProps = {
 
 export const TitleCard = ({title, strDomain}:TitleCardProps) => {
     const thumbnail = title.cover?.formats?.medium?.url;
+
+    const type = ["Книга", "Ранобэ", "Рассказ"].includes(title.type) ? "book" : "manga";
+
     return (
     <div className={styles.card}>
-        <img className={styles.cover} src={strDomain + thumbnail} alt={title.name}/>
+        <div className={styles.cover}>
+            <img className={styles.cover} src={strDomain + thumbnail} alt={title.name}/>
+            <span className={styles.type}>{title.type}</span>
+        </div>
         <div className={styles.info}>
             <h3 className={styles.name}>
                 {title.name}
@@ -40,7 +46,7 @@ export const TitleCard = ({title, strDomain}:TitleCardProps) => {
             <RouterButton
                 text="Читать у нас"
                 iconSrc="/icons/arrow-forward-outline.svg"
-                location={`/manga/${title.slug}/`}
+                location={`/${type}/${title.slug}/`}
             />
         </div>
     </div>

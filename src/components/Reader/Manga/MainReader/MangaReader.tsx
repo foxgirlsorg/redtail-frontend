@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import styles from './MainReader.module.css';
+import styles from './Reader.module.css';
 import { getCookie, setCookie } from '@/lib/cookies';
-import Navbar from "@/components/Reader/Manga/Navbar/Navbar";
-import CusdisComments from "@/components/CusdisComments";
+import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
+import CusdisComments from '@/components/CusdisComments';
 
-type MainReaderProps = {
+type MangaReaderProps = {
     chapters: any[];
     chapter: string;
     cusdisHost: string;
@@ -15,53 +15,43 @@ type MainReaderProps = {
     strDomain?: string;
 };
 
-export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDomain }: MainReaderProps) {
+export function MangaReader({ chapters, chapter, cusdisHost, cusdisAppId, strDomain }: MangaReaderProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [pageNumberVisible, setPageNumberVisible] = useState<boolean>(true);
-    const [lastScroll, setLastScroll] = useState(0);
-    const [chapterIndex, setChapterIndex] = useState<number>(-1);
-    const [pageIndex, setPageIndex] = useState<number>(0);
-    // @ts-ignore
+
+    const [pageNumberVisible, setPageNumberVisible] = useState(true);
+    const [chapterIndex, setChapterIndex] = useState(-1);
+    const [pageIndex, setPageIndex] = useState(0);
     const [imageWidth, setImageWidth] = useState<number>(() => {
         try {
             const stored = getCookie('reader_width');
             return stored ? Number(stored) : 40;
         } catch {
-            return null;
-    }
+            return 40;
+        }
     });
 
-    const hasPrev = (() => {
-        if (pageIndex > 0) return true;
-        if (chapterIndex > 0) {
-            const prevChapter = chapters[chapterIndex - 1];
-            return prevChapter.pages && prevChapter.pages.length > 0;
-        }
-        return false;
-    })();
+    const currentChapter = chapters[chapterIndex];
+    const currentPage = currentChapter?.pages?.[pageIndex];
 
-    const hasNext = (() => {
-        const current = chapters[chapterIndex];
-        if (current && pageIndex + 1 < current.pages.length) return true;
-        if (chapterIndex + 1 < chapters.length) {
-            const nextChapter = chapters[chapterIndex + 1];
-            return nextChapter.pages && nextChapter.pages.length > 0;
-        }
-        return false;
-    })();
+    const hasPrev = pageIndex > 0 || (chapterIndex > 0 && chapters[chapterIndex - 1]?.pages?.length > 0);
+    const hasNext = (
+        currentChapter?.pages &&
+        (pageIndex + 1 < currentChapter.pages.length ||
+            (chapterIndex + 1 < chapters.length && chapters[chapterIndex + 1]?.pages?.length > 0))
+    );
+
     useEffect(() => {
         if (window.innerWidth < 800) {
             setImageWidth(100);
         }
 
         const html = document.documentElement;
-        const previousGutter = html.style.scrollbarGutter;
-
+        const prevGutter = html.style.scrollbarGutter;
         html.style.scrollbarGutter = 'stable';
 
         return () => {
-            html.style.scrollbarGutter = previousGutter;
+            html.style.scrollbarGutter = prevGutter;
         };
     }, []);
 
@@ -73,18 +63,15 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
         if (!chapters.length) return;
 
         const numericChapter = Number(chapter);
-        const availableNumbers = chapters.map((ch) => ch.number);
-        const minChapter = Math.min(...availableNumbers);
-        const maxChapter = Math.max(...availableNumbers);
+        const chapterNumbers = chapters.map(ch => ch.number);
+        const min = Math.min(...chapterNumbers);
+        const max = Math.max(...chapterNumbers);
 
-        let actualChapter = numericChapter;
-        if (isNaN(numericChapter) || numericChapter < minChapter) {
-            actualChapter = minChapter;
-        } else if (numericChapter > maxChapter) {
-            actualChapter = maxChapter;
-        }
+        let actualChapter = isNaN(numericChapter)
+            ? min
+            : Math.min(Math.max(numericChapter, min), max);
 
-        const chapterIdx = chapters.findIndex((ch) => ch.number === actualChapter);
+        const chapterIdx = chapters.findIndex(ch => ch.number === actualChapter);
         if (chapterIdx === -1) return;
 
         const pParam = searchParams.get('p');
@@ -94,10 +81,7 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
         const safePageNum = Math.min(Math.max(1, rawPageNum), totalPages);
         const safePageIndex = safePageNum - 1;
 
-        const urlCorrect =
-            actualChapter === numericChapter &&
-            rawPageNum === safePageNum;
-
+        const urlCorrect = actualChapter === numericChapter && rawPageNum === safePageNum;
         if (!urlCorrect) {
             navigateTo(chapterIdx, safePageIndex);
             return;
@@ -110,22 +94,12 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
     useEffect(() => {
         const onScroll = () => {
             const current = window.scrollY;
-
-            if (current > lastScroll && current > 100) {
-                setPageNumberVisible(false);
-            } else {
-                setPageNumberVisible(true);
-            }
-
-            setLastScroll(current);
+            setPageNumberVisible(current < 100 || current < window.scrollY);
         };
 
         window.addEventListener('scroll', onScroll);
         return () => window.removeEventListener('scroll', onScroll);
-    }, [lastScroll, setPageNumberVisible]);
-
-    const currentChapter = chapters[chapterIndex];
-    const currentPage = currentChapter?.pages?.[pageIndex];
+    }, []);
 
     const navigateTo = (targetChapterIdx: number, targetPageIdx: number) => {
         const ch = chapters[targetChapterIdx];
@@ -167,13 +141,14 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
     };
-    if (!currentChapter || !currentPage) return (
 
+    if (!currentChapter || !currentPage) {
+        return (
             <div className={styles.loaderContainer}>
                 <div className={styles.loader}></div>
             </div>
-
-    );
+        );
+    }
 
     return (
         <div className={styles.mainReader}>
@@ -181,8 +156,8 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
                 chapters={chapters}
                 chapterIndex={chapterIndex}
                 NavigateToAction={navigateTo}
-                imageWidth={imageWidth}
-                setImageWidthAction={setImageWidth}
+                conetntWidth={imageWidth}
+                setContentWidthAction={setImageWidth}
             />
 
             <div className={styles.pageContainer}>
@@ -190,12 +165,12 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
                     <div className={styles.controls}>
                         <div
                             className={`${styles.previousPageControl} ${!hasPrev && styles.controlDisabled}`}
-                            style={{ width: `${imageWidth /2 }vw` }}
+                            style={{ width: `${imageWidth / 2}vw` }}
                             onClick={hasPrev ? goToPrevPage : undefined}
                         ></div>
                         <div
                             className={`${styles.nextPageControl} ${!hasNext && styles.controlDisabled}`}
-                            style={{ width: `${imageWidth /2 }vw` }}
+                            style={{ width: `${imageWidth / 2}vw` }}
                             onClick={hasNext ? goToNextPage : undefined}
                         ></div>
                     </div>
@@ -205,20 +180,21 @@ export function MainReader({ chapters, chapter, cusdisHost, cusdisAppId, strDoma
                         className={styles.pageImage}
                     />
                 </div>
+
                 <div className={styles.comments}>
                     <CusdisComments
                         host={cusdisHost}
                         appId={cusdisAppId}
-                        pageId={currentPage.documentId}
+                        pageId={`manga_${currentChapter.documentId}`}
                         pageTitle={`${currentChapter.title.name} | Глава ${currentChapter.number} | Страница ${currentPage.number}`}
                         bgColor="#161616"
                     />
                 </div>
             </div>
-            <div className={`${styles.pageNumber} ${pageNumberVisible ? styles.visible : styles.hidden}`}>
-                <span>{pageIndex+1} / {currentChapter.pages.length}</span>
-            </div>
 
+            <div className={`${styles.pageNumber} ${pageNumberVisible ? styles.visible : styles.hidden}`}>
+                <span>{pageIndex + 1} / {currentChapter.pages.length}</span>
+            </div>
         </div>
     );
 }

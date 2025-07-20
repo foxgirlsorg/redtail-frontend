@@ -29,6 +29,54 @@
 
 }
 
+.chapterControls {
+    display: flex;
+    justify-content: space-between;
+    margin: 30px 0
+}
+
+.previousChapterControl, .nextChapterControl {
+    box-sizing: border-box;
+    padding: 10px 20px;
+    background-color: #222;
+    transition: .3s;
+    cursor: pointer;
+    width: fit-content;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    text-transform: uppercase;
+}
+
+.previousChapterControl:not(.controlDisabled):hover,
+.nextChapterControl:not(.controlDisabled):hover {
+    background-color: #272727;
+}
+
+.previousChapterControl:not(.controlDisabled):hover ion
+.nextChapterControl:not(.controlDisabled):hover ion-icon {
+    color: #de6161;
+}
+
+
+.chapterControls .controlDisabled {
+    opacity: 0.7;
+}
+
+
+.previousChapterControl > ion-icon {
+    margin-right: 8px;
+    font-size: 18px;
+    transition: .3s;
+}
+.nextChapterControl > ion-icon {
+    margin-left: 8px;
+    font-size: 18px;
+    transition: .3s;
+}
+
+
 .previousPageControl, .nextPageControl {
     height: 100%;
     cursor: pointer;
@@ -37,6 +85,12 @@
 .controlDisabled {
     cursor: not-allowed;
 }
+
+
+
+
+
+
 
 .pageNumber {
     display: flex;
@@ -84,7 +138,7 @@
 }
 
 
-    .loader {
+.loader {
     width: 50px;
     aspect-ratio: 1;
     border-radius: 50%;

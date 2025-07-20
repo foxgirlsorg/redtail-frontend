@@ -1,8 +1,7 @@
-import { getMangaChaptersFromSlug as _getChaptersFromSlug } from '@/lib/strapiClient';
-import { MangaReader } from '@/components/Reader/Manga/MainReader/MangaReader';
+import { getBookChaptersFromSlug as _getChaptersFromSlug } from '@/lib/strapiClient';
 import { notFound } from 'next/navigation';
-import { cache } from 'react';
 import {createScopedLoader} from "@/lib/createScopedLoader";
+import {BookReader} from "@/components/Reader/Manga/MainReader/BookReader";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 const CUSDIS_HOST = process.env.CUSDIS_HOST!;
@@ -42,6 +41,6 @@ export default async function ReaderMangaPage({ params }: { params: pageProps })
     }
 
     return (
-        <MangaReader chapters={chapters} chapter={chapter} strDomain={STRAPI_DOMAIN} cusdisHost={CUSDIS_HOST} cusdisAppId={CUSDIS_APP_ID} />
+        <BookReader chapters={chapters} chapter={chapter} strDomain={STRAPI_DOMAIN} cusdisHost={CUSDIS_HOST} cusdisAppId={CUSDIS_APP_ID} />
     );
 }
