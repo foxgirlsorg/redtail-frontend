@@ -45,6 +45,7 @@ const CusdisComments: React.FC<CusdisCommentsProps> = ({
             try {
                 const doc = iframe.contentDocument || iframe.contentWindow?.document
                 if (!doc) return
+
                 const body = doc.getElementsByTagName('body')[0]
                 body.style.backgroundColor = bgColor
 
@@ -63,40 +64,35 @@ const CusdisComments: React.FC<CusdisCommentsProps> = ({
                     iframe.style.height = `${height + 50}px`
                 }
 
-                const savedName = getCookie('cusdis_username')
-                const savedEmail = getCookie('cusdis_email')
+                const savedName = getCookie('cusdis_username') || ''
+                const savedEmail = getCookie('cusdis_email') || ''
 
-                const nickInputs = doc.querySelectorAll<HTMLInputElement>('input[name="nickname"]')
-                const emailInputs = doc.querySelectorAll<HTMLInputElement>('input[name="email"]')
+                const syncInput = (
+                    selector: string,
+                    savedValue: string,
+                    cookieKey: string
+                ) => {
+                    const inputs = doc.querySelectorAll<HTMLInputElement>(selector)
+                    inputs.forEach(input => {
+                        if (!input.dataset.listener) {
+                            input.dataset.listener = 'true'
+                            input.addEventListener('blur', () => {
+                                setCookie(cookieKey, input.value)
+                            })
+                        }
 
-                nickInputs.forEach(input => {
-                    if (savedName && !input.value) {
-                        input.value = savedName
-                        input.dispatchEvent(new Event('input', { bubbles: true }))
-                    }
-                    if (!input.dataset.listener) {
-                        input.dataset.listener = 'true'
-                        input.addEventListener('blur', () => {
-                            if (input.value) setCookie('cusdis_username', input.value)
-                        })
-                    }
-                })
+                        const isFocused = doc.activeElement === input
+                        if (!isFocused && input.value !== savedValue) {
+                            input.value = savedValue
+                            input.dispatchEvent(new Event('input', { bubbles: true }))
+                        }
+                    })
+                }
 
-                emailInputs.forEach(input => {
-                    if (savedEmail && !input.value) {
-                        input.value = savedEmail
-                        input.dispatchEvent(new Event('input', { bubbles: true }))
-                    }
-                    if (!input.dataset.listener) {
-                        input.dataset.listener = 'true'
-                        input.addEventListener('blur', () => {
-                            if (input.value) setCookie('cusdis_email', input.value)
-                        })
-                    }
-                })
+                syncInput('input[name="nickname"]', savedName, 'cusdis_username')
+                syncInput('input[name="email"]', savedEmail, 'cusdis_email')
 
                 if (!loaded) setLoaded(true)
-
             } catch (e) {
                 // silently ignore
             }
