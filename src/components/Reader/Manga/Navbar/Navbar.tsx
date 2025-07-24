@@ -25,7 +25,7 @@ export default function Navbar({chapters, chapterIndex, NavigateToAction, setCon
     const [sidebarOpened, setSidebarOpened] = useState(false);
     const type = ["Книга", "Ранобэ", "Рассказ"].includes(currentChapter.title.type) ? "book" : "manga";
     const handleBackButton = () => {
-        router.push(`/${type}/${currentChapter.title.slug}}`);
+        router.push(`/${type}/${currentChapter.title.slug}`);
     };
 
     useEffect(() => {
