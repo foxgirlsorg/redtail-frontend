@@ -20,14 +20,24 @@
     transform: translateY(-100%);
 }
 
-.backButton, .sidebarBackButton{
+.backButton, .sidebarBackButton {
     font-size: 22px;
     cursor: pointer;
     transition: 0.3s;
     margin-right: 20px;
 }
 
-.backButton:hover, .sidebarBackButton:hover {
+.backContainer {
+    display: flex;
+}
+
+.titleName {
+    cursor: pointer;
+    transition: 0.3s
+}
+
+
+.backContainer:hover > .backButton, .sidebarTitleButton:hover > .backButton {
     color: #de6161;
 }
 
@@ -241,6 +251,7 @@
     border-bottom: 1px solid #303030;
     padding: 0 20px;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .sidebarChapterList {

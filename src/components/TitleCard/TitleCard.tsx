@@ -10,8 +10,8 @@ type TitleCardProps = {
 
 export const TitleCard = ({title, strDomain}:TitleCardProps) => {
     const thumbnail = title.cover?.formats?.medium?.url;
-
     const type = ["Книга", "Ранобэ", "Рассказ"].includes(title.type) ? "book" : "manga";
+
 
     return (
     <div className={styles.card}>
@@ -40,6 +40,11 @@ export const TitleCard = ({title, strDomain}:TitleCardProps) => {
                 {title.remanga_url && (
                     <a href={title.remanga_url} target="_blank">
                         <IonIcon src="/icons/remanga.svg"/>
+                    </a>
+                )}
+                {title.senkuro_url && (
+                    <a href={title.senkuro_url} target="_blank">
+                        <IonIcon src="/icons/senkuro.svg"/>
                     </a>
                 )}
             </div>

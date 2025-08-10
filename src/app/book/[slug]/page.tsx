@@ -5,7 +5,6 @@ import { ClientImage } from '@/components/ClientImage/ClientImage';
 import styles from './page.module.css';
 import { InfoBox } from '@/components/TitlePage/InfoBox/InfoBox';
 import { TitleTabBox } from '@/components/TitlePage/TitleTabBox/TitleTabBox';
-import { GoBackBtn } from '@/components/TitlePage/GoBackBtn/GoBackBtn';
 import { Footer } from '@/components/Footer/Footer';
 import { ReadButton } from '@/components/Button/ReadButton';
 import { createScopedLoader } from '@/lib/createScopedLoader';
@@ -61,7 +60,6 @@ export default async function BookPage({ params }:{ params: pageProps}) {
 
     return (
         <main>
-            <GoBackBtn />
             {title.backdrop && (
                 <Backdrop
                     className={styles.backdrop}

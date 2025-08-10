@@ -94,6 +94,12 @@ export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: Title
                                             Remanga
                                         </a>
                                     )}
+                                    {title.senkuro_url && (
+                                        <a href={title.senkuro_url} target="_blank" className={styles.linkButton}>
+                                            <IonIcon src="/icons/senkuro.svg" />
+                                            Senkuro
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         )}

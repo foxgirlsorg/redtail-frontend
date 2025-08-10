@@ -81,14 +81,16 @@ export default function Navbar({chapters, chapterIndex, NavigateToAction, setCon
         <div>
             <div className={`${styles.navbar} ${navbarVisible ? styles.visible : styles.hidden}`}>
                 <div className={styles.leftSide}>
-                    <IonIcon
-                        src="/icons/arrow-back-outline.svg"
-                        onClick={() => handleBackButton()}
-                        className={styles.backButton}
-                    />
-                    <div onClick={() => {(window.innerWidth < 800) && setSidebarOpened(!sidebarOpened)}}>
-                        <h3>{currentChapter.title.name}</h3>
-                        <span className={styles.chapterTitleMobile}>Глава {currentChapter.number} - {currentChapter.name}</span>
+                    <div className={styles.backContainer}>
+                        <IonIcon
+                            src="/icons/arrow-back-outline.svg"
+                            onClick={() => handleBackButton()}
+                            className={styles.backButton}
+                        />
+                        <div onClick={() => {(window.innerWidth < 800) ? setSidebarOpened(!sidebarOpened) : handleBackButton()}}>
+                            <h3 className={styles.titleName}>{currentChapter.title.name}</h3>
+                            <span className={styles.chapterTitleMobile}>Глава {currentChapter.number} - {currentChapter.name}</span>
+                        </div>
                     </div>
 
                     <div className={styles.chapterSwitch}>
@@ -137,11 +139,10 @@ export default function Navbar({chapters, chapterIndex, NavigateToAction, setCon
                     onClick={() => setSidebarOpened(false)}
                 />
                 <div className={`${styles.sidebar} ${sidebarOpened ? styles.sidebarVisible : styles.sidebarHidden}`}>
-                    <div className={styles.sidebarTitleButton}>
+                    <div className={styles.sidebarTitleButton} onClick={() => {setSidebarOpened(!sidebarOpened)}}>
                         <IonIcon
                             src="/icons/arrow-back-outline.svg"
-                            onClick={() => {setSidebarOpened(!sidebarOpened)}}
-                            className={styles.sidebarBackButton}
+                            className={styles.backButton}
                         />
                         <h3>Список глав</h3>
 
