@@ -21,7 +21,6 @@
     background-repeat: no-repeat;
     background-position: top center;
     background-size: 100% auto;
-
     /*noinspection CssInvalidPropertyValue*/
     -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
     -webkit-mask-repeat: no-repeat;
@@ -29,7 +28,7 @@
     mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
     mask-repeat: no-repeat;
     mask-size: 100% 100%;
-
+    opacity: 0.6;
     z-index: -10;
     pointer-events: none;
 }

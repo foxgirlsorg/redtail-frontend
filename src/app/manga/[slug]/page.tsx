@@ -9,7 +9,8 @@ import { Footer } from '@/components/Footer/Footer';
 import { ReadButton } from '@/components/Button/ReadButton';
 import { createScopedLoader } from '@/lib/createScopedLoader';
 import { getManga as _getManga } from '@/lib/strapiClient';
-import {Backdrop} from "@/components/TitlePage/Backdrop";
+import { Backdrop } from "@/components/TitlePage/Backdrop";
+import { GoBackBtn } from "@/components/TitlePage/GoBackBtn/GoBackBtn";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 const CUSDIS_HOST = process.env.CUSDIS_HOST!;
@@ -60,6 +61,7 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
 
     return (
         <main>
+            <GoBackBtn/>
             {title.backdrop && (
                 <Backdrop
                     className={styles.backdrop}

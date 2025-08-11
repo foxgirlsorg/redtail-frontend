@@ -11,7 +11,7 @@ export const Footer = ({footer}:FooterProps) => {
         <div className={styles.footer}>
             <div className={styles.row}>
                 <div className={styles.nameAndWarning}>
-                    <span className={styles.teamname}>REDTAIL</span>
+                    <a href="/" className={styles.teamname}>REDTAIL</a>
                     <br/>
                     <span className={styles.warning}>{footer.warning}</span>
                 </div>

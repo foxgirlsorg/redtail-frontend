@@ -26,6 +26,10 @@
     max-width: 1900px;
 }
 
+.cardListMembers {
+    max-width: 1425px;
+}
+
 .sectionTitle {
     color: #de6161;
     text-align: center;

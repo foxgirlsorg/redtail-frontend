@@ -7,6 +7,7 @@ import { ClientImage } from '@/components/ClientImage/ClientImage';
 import { TitleCard } from '@/components/TitleCard/TitleCard';
 import { Footer } from '@/components/Footer/Footer';
 import {createScopedLoader} from "@/lib/createScopedLoader";
+import {GoBackBtn} from "@/components/TitlePage/GoBackBtn/GoBackBtn";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
@@ -53,6 +54,7 @@ export default async function MangaPage({ params }: { params: pageProps }) {
 
     return (
         <main>
+            <GoBackBtn/>
             <div className={styles.container}>
                 <div className={styles.card}>
                     <ClientImage

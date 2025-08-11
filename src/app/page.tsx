@@ -31,7 +31,7 @@ export default async function HomePage() {
             <div className={`${styles.section} ${styles.sectionbg}`}>
                 <h2 className={styles.sectionTitle}>Команда</h2>
                 <div className={styles.cardListWrapper}>
-                    <ul className={styles.cardList}>
+                    <ul className={`${styles.cardList} ${styles.cardListMembers}`}>
                         {team.map((member) => {
                             return (
                                 <MemberCard member={member} key={member.id} strDomain={STRAPI_DOMAIN}></MemberCard>
