@@ -40,9 +40,9 @@
 }
 
 .introarrowdown ion-icon {
-    color: #de6161;
+    color: var(--accent);
     font-size: 2.5rem;
-    background: rgba(0, 0, 0, 0.34);
+    background: var(--bg-card);
     padding: .5rem;
     border-radius: 50%;
     transition: .3s;
@@ -50,7 +50,7 @@
 }
 
 .introarrowdown ion-icon:hover {
-    background: rgba(0, 0, 0, 0.44);
+    background: var(--bg-card-hover);
 }
 
 

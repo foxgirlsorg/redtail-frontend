@@ -1,6 +1,6 @@
 .chapterButton {
     text-decoration: none;
-    background: #303030;
+    background: var(--bg-card);
     border-radius: 10px;
     padding: 8px 15px;
     color: inherit;
@@ -16,13 +16,13 @@
 }
 
 .chapterButton:not(.disabled):hover {
-    color: #ccc;
-    background: #404040;
+    color: var(--text-secondary);
+    background: var(--bg-card-hover);
 }
 
 
 .chapterName {
-    color: #7a7a7a;
+    color: var(--text-muted);
 }
 
 .disabled {

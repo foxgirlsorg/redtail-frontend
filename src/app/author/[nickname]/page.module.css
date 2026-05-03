@@ -12,10 +12,10 @@
     display: flex;
     align-items: center;
     width: 780px;
-    background: #232324;
+    background: var(--bg-elevated);
     border-radius: 10px;
-    box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
-    -webkit-box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+    box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
+    -webkit-box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
     padding: 15px;
     box-sizing: border-box;
 }

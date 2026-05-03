@@ -1,7 +1,7 @@
 .titleTabBox {
-    background: #232324;
-    box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
-    -webkit-box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+    background: var(--bg-elevated);
+    box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
+    -webkit-box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
 }
 
 
@@ -27,7 +27,7 @@
 
 .linkButton {
     text-decoration: none;
-    background: #303030;
+    background: var(--bg-card);
     border-radius: 10px;
     padding: 6px 10px;
     color: inherit;
@@ -39,13 +39,13 @@
 
 
 .linkButton > ion-icon {
-    color: #de6161;
+    color: var(--accent);
     margin-right: 5px;
 }
 
 .linkButton:hover {
-    color: #ccc;
-    background: #404040;
+    color: var(--text-secondary);
+    background: var(--bg-card-hover);
 }
 
 .members {
@@ -71,10 +71,10 @@
         display: none;
     }
     .titleTabBox {
-        background: #232324;
+        background: var(--bg-elevated);
         border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+        box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
         margin-left: 15px;
     }
 }

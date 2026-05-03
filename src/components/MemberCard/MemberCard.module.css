@@ -1,11 +1,11 @@
 .card {
     display: flex;
     width: 450px;
-    background: #232324;
+    background: var(--bg-elevated);
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
-    -webkit-box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+    box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
+    -webkit-box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
 }
 
 @media (max-width: 500px) {
@@ -45,14 +45,14 @@
 
 .role {
     font-size: 12px;
-    color: #818181
+    color: var(--text-muted)
 }
 
 
 .links > a {
     text-decoration: none;
     font-size: 25px;
-    color: #de6161;
+    color: var(--accent);
 }
 
 .links > a:not(:first-child) {
@@ -61,10 +61,10 @@
 .links > a:hover {
     text-decoration: none;
 
-    color: #de6161;
+    color: var(--accent);
     transition: .3s;
 }
 
 .links > a:hover {
-    color: #EC7D7D;
+    color: var(--accent-hover);
 }

@@ -38,7 +38,7 @@
 .previousChapterControl, .nextChapterControl {
     box-sizing: border-box;
     padding: 10px 20px;
-    background-color: #222;
+    background-color: var(--bg-card);
     transition: .3s;
     cursor: pointer;
     width: fit-content;
@@ -51,12 +51,12 @@
 
 .previousChapterControl:not(.controlDisabled):hover,
 .nextChapterControl:not(.controlDisabled):hover {
-    background-color: #272727;
+    background-color: var(--bg-card-hover);
 }
 
 .previousChapterControl:not(.controlDisabled):hover ion
 .nextChapterControl:not(.controlDisabled):hover ion-icon {
-    color: #de6161;
+    color: var(--accent);
 }
 
 
@@ -142,7 +142,7 @@
     width: 50px;
     aspect-ratio: 1;
     border-radius: 50%;
-    border: 8px solid #de6161;
+    border: 8px solid var(--accent);
     animation:
             l20-1 0.8s infinite linear alternate,
             l20-2 1.6s infinite linear;

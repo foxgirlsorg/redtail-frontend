@@ -14,7 +14,7 @@
 
 .teamname {
     font-family: "Mukta", sans-serif;
-    color: #de6161;
+    color: var(--accent);
     text-decoration: none;
     font-size: 40px;
     line-height: 40px;
@@ -34,7 +34,7 @@
 .linkIcons > a {
     text-decoration: none;
     font-size: 25px;
-    color: #de6161;
+    color: var(--accent);
     transition: .3s;
 }
 
@@ -43,12 +43,12 @@
 }
 
 .linkIcons > a:hover {
-    color: #EC7D7D;
+    color: var(--accent-hover);
 }
 
 
 .warning {
-    color: #959595;
+    color: var(--text-secondary);
     font-size: 14px;
 }
 
@@ -60,7 +60,7 @@
 }
 
 .foxGirlsOrg > span, .foxGirlsOrg  ion-icon {
-    color: #959595;
+    color: var(--text-secondary);
     font-size: 16px;
     transition: .3s;
 }
@@ -71,11 +71,11 @@
 }
 
 a.foxGirlsOrg:hover > span {
-    color: #cdcdcd;
+    color: var(--text-secondary);
 }
 
 .foxGirlsOrg:hover > ion-icon {
-    color: #de6161;
+    color: var(--accent);
 }
 
 @media (max-width: 1050px) {

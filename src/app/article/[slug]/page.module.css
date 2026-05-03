@@ -10,7 +10,7 @@
 
 .left {
     font-family: "Mukta", sans-serif;
-    color: #de6161;
+    color: var(--accent);
     font-size: 40px;
     line-height: 40px;
     display: flex;
@@ -28,7 +28,7 @@
 }
 
 .left:hover {
-    color: #EC7D7D;
+    color: var(--accent-hover);
 }
 .left > ion-icon {
     margin-right: 8px;
@@ -49,11 +49,11 @@
 }
 
 .info {
-    border-top: 2px solid #404040;
+    border-top: 2px solid var(--border);
 }
 
 .comments {
-    border-top: 2px solid #404040;
+    border-top: 2px solid var(--border);
     margin-top: 20px;
     padding: 30px 15px;
 }
@@ -71,10 +71,10 @@
 
 .info a {
     text-decoration: none;
-    color: #de6161;
+    color: var(--accent);
     transition: .3s;
 }
 
 .info a:hover {
-    color: #EC7D7D;
+    color: var(--accent-hover);
 }

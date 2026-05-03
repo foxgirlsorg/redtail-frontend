@@ -4,7 +4,7 @@
     left: 0;
     width: 100%;
     height: 50px;
-    background-color: #222;
+    background-color: var(--bg-card);
     display: flex;
     padding: 0 20px;
     align-items: center;
@@ -38,7 +38,7 @@
 
 
 .backContainer:hover > .backButton, .sidebarTitleButton:hover > .backButton {
-    color: #de6161;
+    color: var(--accent);
 }
 
 .leftSide {
@@ -49,7 +49,7 @@
 }
 
 .chapterTitleMobile{
-    color: #7a7a7a;
+    color: var(--text-muted);
     font-size: 16px;
 }
 
@@ -68,17 +68,17 @@
 }
 
 .chapterSwitchIcon.disabled {
-    color: #7a7a7a;
+    color: var(--text-muted);
     cursor: not-allowed;
 }
 
 .chapterSwitchIcon:not(.disabled):hover {
-    color: #de6161;
+    color: var(--accent);
 }
 
 
 .chapterSwitchContentsLabel {
-    color: #7a7a7a;
+    color: var(--text-muted);
     font-size: 12px;
     display: block;
 }
@@ -93,7 +93,7 @@
     padding: 0 15px
 }
 .contentsSwitch:hover {
-    background-color: #303030;
+    background-color: var(--bg-card);
 }
 
 .slider {
@@ -102,7 +102,7 @@
 }
 
 .widthSliderLabel {
-    color: #7a7a7a;
+    color: var(--text-muted);
     font-size: 14px;
     margin-right: 10px;
 }
@@ -113,7 +113,7 @@
     appearance: none;
     width: 150px;
     height: 6px;
-    background: #7a7a7a;
+    background: var(--text-muted);
     border-radius: 5px;
     outline: none;
     cursor: pointer;
@@ -125,33 +125,33 @@
     appearance: none;
     width: 16px;
     height: 16px;
-    background: #7a7a7a;
+    background: var(--text-muted);
     border-radius: 50%;
     border: none;
     transition: 0.3s;
 }
 
 .widthSlider:hover::-webkit-slider-thumb {
-    background: #de6161;
+    background: var(--accent);
 }
 
 /* Firefox */
 .widthSlider::-moz-range-thumb {
     width: 16px;
     height: 16px;
-    background: #7a7a7a;
+    background: var(--text-muted);
     border-radius: 50%;
     border: none;
     transition: 0.3s;
 }
 
 .widthSlider:hover::-moz-range-thumb {
-    background: #de6161;
+    background: var(--accent);
 }
 
 /* Firefox трек */
 .widthSlider::-moz-range-track {
-    background: #7a7a7a;
+    background: var(--text-muted);
     height: 6px;
     border-radius: 5px;
 }
@@ -165,26 +165,26 @@
 }
 
 .widthSlider::-ms-fill-lower {
-    background: #7a7a7a;
+    background: var(--text-muted);
     border-radius: 5px;
 }
 
 .widthSlider::-ms-fill-upper {
-    background: #7a7a7a;
+    background: var(--text-muted);
     border-radius: 5px;
 }
 
 .widthSlider::-ms-thumb {
     width: 16px;
     height: 16px;
-    background: #7a7a7a;
+    background: var(--text-muted);
     border-radius: 50%;
     border: none;
     transition: 0.3s;
 }
 
 .widthSlider:hover::-ms-thumb {
-    background: #de6161;
+    background: var(--accent);
 }
 
 
@@ -194,7 +194,7 @@
 .overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: var(--border);
     backdrop-filter: blur(2px);
     transition: opacity 0.3s ease;
     z-index: 1000;
@@ -231,7 +231,7 @@
 }
 
 .sidebar {
-    background-color: #222;
+    background-color: var(--bg-card);
     transition: transform 0.3s ease;
     width: 500px;
     height: 100vh;
@@ -248,7 +248,7 @@
     display: flex;
     height: 50px;
     align-items: center;
-    border-bottom: 1px solid #303030;
+    border-bottom: 1px solid var(--bg-card);
     padding: 0 20px;
     box-sizing: border-box;
     cursor: pointer;

@@ -1,6 +1,6 @@
 .btn {
     width: 100%;
-    background-color: #de6161;
+    background-color: var(--accent);
     padding: 10px;
     display: flex;
     align-items: center;
@@ -8,26 +8,26 @@
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    color: white;
+    color: var(--text-primary);
     font-family: inherit;
     transition: background-color 0.2s ease;
 }
 .btn:hover:not(:disabled) {
-    background-color: #EC7D7D;
+    background-color: var(--accent-hover);
 }
 
 .btn_disabled {
-    background-color: #9a5757;
+    background-color: var(--accent-hover);
     cursor: not-allowed;
 }
 
 .btn_text {
-    color: white;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
 .btn_icon {
     font-size: 20px;
-    color: white;
+    color: var(--text-primary);
     margin-left: 10px;
 }

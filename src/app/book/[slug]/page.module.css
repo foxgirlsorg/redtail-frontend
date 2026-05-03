@@ -61,11 +61,11 @@
 
 .coverBlock {
     height: fit-content;
-    background: #232324;
+    background: var(--bg-elevated);
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
-    -webkit-box-shadow: 0 2px 6px 0 #0e0e0e, 0 0 10px 0 #0e0e0e;
+    box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
+    -webkit-box-shadow: 0 2px 6px 0 var(--border), 0 0 10px 0 var(--border);
     margin-bottom: 15px;
 }
 
