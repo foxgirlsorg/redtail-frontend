@@ -16,7 +16,8 @@
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "react-photo-view": "^1.2.7",
-    "react-tabs": "^6.1.0"
+    "react-tabs": "^6.1.0",
+    "rehype-raw": "^7.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",

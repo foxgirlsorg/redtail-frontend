@@ -9,6 +9,7 @@ import {IonIcon} from "@/components/IonIcon";
 import '@/styles/markdown.css';
 
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import {SmallMemberCard} from "@/components/SmallMemberCard/SmallMemberCard";
 import CusdisComments from "@/components/CusdisComments";
 
@@ -70,7 +71,9 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
 
             <div className={styles.container}>
                 <div className={`markdown-body ${styles.markdown}`}>
-                    <ReactMarkdown>{article.content}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                        {article.content}
+                    </ReactMarkdown>
                 </div>
 
 
