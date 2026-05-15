@@ -1,13 +1,9 @@
 .goBackBtn {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
+    height: 27px;
 }
 
 .goBackBtn > ion-icon {
-    font-size: 30px;
-    margin: 15px 0 0 15px;
+    font-size: 25px;
     cursor: pointer;
     transition: 0.3s;
     color: var(--text-primary);

@@ -7,7 +7,7 @@ import { ClientImage } from '@/components/ClientImage/ClientImage';
 import { TitleCard } from '@/components/TitleCard/TitleCard';
 import { Footer } from '@/components/Footer/Footer';
 import {createScopedLoader} from "@/lib/createScopedLoader";
-import {GoBackBtn} from "@/components/TitlePage/GoBackBtn/GoBackBtn";
+import {GoBackBtn} from "@/components/SiteNavbar/GoBackBtn/GoBackBtn";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 

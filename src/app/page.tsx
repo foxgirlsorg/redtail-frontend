@@ -1,49 +1,78 @@
-import {getFooter, getTitleList, getTeamMembers} from '@/lib/strapiClient';
-import { IntroSection } from '@/components/Intro/IndexIntro';
-import {TitleCard as TitleCard} from '@/components/TitleCard/TitleCard';
-import styles from './page.module.css'
-import {MemberCard} from "@/components/MemberCard/MemberCard";
-import {Footer} from "@/components/Footer/Footer";
+import { getFooter, getTitleList, getTeamMembers, getArticleList } from '@/lib/strapiClient';
+import { TitleCard } from '@/components/TitleCard/TitleCard';
+import { MemberCard } from '@/components/MemberCard/MemberCard';
+import { Footer } from '@/components/Footer/Footer';
+import styles from './page.module.css';
+import { IonIcon } from '@/components/IonIcon';
+import {BgVideo} from "@/components/BgVideo/BgVIdeo";
+import { ArticleCard } from '@/components/ArticleCard/ArticleCard';
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
 export default async function HomePage() {
     const mangas = await getTitleList();
+    const articles = await getArticleList();
     const team = await getTeamMembers();
     const footer = await getFooter();
 
+
     return (
         <main>
-            <IntroSection/>
-            <div className={`${styles.section} ${styles.sectionbg}`}>
-                <h2 className={styles.sectionTitle}>Наши переводы</h2>
+            <div className={styles.bg}>
+                <BgVideo
+                    className={styles.bgVideo}
+                    src="/bg.webm"
+                    poster="/bg-poster.jpg"
+                />
+                <div className={styles.videoOverlay} />
+                <div className={styles.bgNoise} />
+            </div>
+
+            {/* HERO */}
+            <section className={styles.hero} id="home">
+                <div className={styles.heroContent}>
+                    <img src="/redtail.svg" alt="REDTAIL" className={styles.heroLogo} />
+                </div>
+                <a href="#titles" className={styles.scrollIndicator} aria-label="Прокрутить вниз">
+                    <IonIcon src="/icons/arrow-down-outline.svg" />
+                </a>
+            </section>
+
+            {/* TITLES */}
+            <section className={styles.section} id="titles">
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                        переводы <span className={styles.highlight}>тайтлов</span>
+                    </h2>
+                </div>
                 <div className={styles.cardListWrapper}>
                     <ul className={styles.cardList}>
-                        {mangas.map((manga) => {
-                            return (
-                                <TitleCard title={manga} key={manga.id} strDomain={STRAPI_DOMAIN}></TitleCard>
-                            );
-                        })}
+                        {mangas.map((manga, key) => (
+                            <TitleCard title={manga} key={key} strDomain={STRAPI_DOMAIN} />
+                        ))}
                     </ul>
                 </div>
-            </div>
+            </section>
 
-            <div className={`${styles.section} ${styles.sectionbg}`}>
-                <h2 className={styles.sectionTitle}>Команда</h2>
+
+
+            {/* TEAM */}
+            <section className={styles.section} id="team">
+                <div className={styles.sectionHeader}>
+                    <h2 className={styles.sectionTitle}>
+                        наша <span className={styles.highlight}>команда</span>
+                    </h2>
+                </div>
                 <div className={styles.cardListWrapper}>
                     <ul className={`${styles.cardList} ${styles.cardListMembers}`}>
-                        {team.map((member) => {
-                            return (
-                                <MemberCard member={member} key={member.id} strDomain={STRAPI_DOMAIN}></MemberCard>
-                            );
-                        })}
+                        {team.map((member) => (
+                            <MemberCard member={member} key={member.id} strDomain={STRAPI_DOMAIN} />
+                        ))}
                     </ul>
                 </div>
-            </div>
-            <div className={styles.sectionbg}>
-                <Footer footer={footer}/>
-            </div>
+            </section>
 
+            <Footer footer={footer} />
         </main>
     );
 }

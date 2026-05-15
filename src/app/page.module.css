@@ -1,38 +1,172 @@
-.section {
-    min-height: 80vh;
-    padding: 50px 0;
+/* GLOBAL BG — fixed, underlies the entire page like foxgirls.org */
+
+.bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.bgVideo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    min-width: 100%;
+    min-height: 100%;
+    filter: blur(3px);
+    transform: scale(1.05);
+    object-fit: cover;
+    object-position: right center;
+}
+
+.videoOverlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(22, 22, 22, 0.29) 0%, rgba(22, 22, 22, 0.83) 100%);
+}
+
+.bgNoise {
+    position: absolute;
+    inset: 0;
+    background-image: url('/noise.svg');
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+}
+
+/* HERO */
+
+.hero {
+    position: relative;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-}
-.sectionbg:nth-child(odd) {
-    background-color: var(--bg-primary);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1.5rem;
 }
 
+@supports (min-height: 100dvh) {
+    .hero { min-height: 100dvh; }
+}
+
+.heroContent {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 56rem;
+    width: 100%;
+}
+
+.heroLogo {
+    width: 22vw;
+    height: auto;
+}
+
+.heroSub {
+    color: #babfba;
+    font-size: 1rem;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+/* Scroll arrow — foxgirls.org style: plain, no bg circle */
+.scrollIndicator {
+    position: absolute;
+    z-index: 10;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #6b7280;
+    font-size: 1.75rem;
+    line-height: 0;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    animation: bounce 1s infinite;
+}
+
+.scrollIndicator:hover {
+    color: white;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateX(-50%) translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+    50% {
+        transform: translateX(-50%) translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+/* SECTIONS */
+
+.section {
+    padding: 6rem 1.5rem;
+    position: relative;
+}
+
+.sectionHeader {
+    max-width: 72rem;
+    margin: 0 auto 3rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sectionTitle {
+    font-family: "Mukta", sans-serif;
+    font-size: 3rem;
+    font-weight: 300;
+    color: white;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.highlight {
+    color: var(--accent);
+    font-weight: 400;
+}
+
+/* Card lists */
 .cardListWrapper {
     display: flex;
-    flex: 1;
     justify-content: center;
-    align-items: center;
-
 }
 
 .cardList {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
-    margin: 10px;
-    height: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
     justify-content: center;
     max-width: 1900px;
 }
 
 .cardListMembers {
-    max-width: 1425px;
+    max-width: 1000px;
 }
 
-.sectionTitle {
-    color: var(--accent);
-    text-align: center;
-    font-size: 4rem;
-    margin-bottom: 50px;
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+    .heroLogo { width: 40vw; }
+}
+
+@media (max-width: 650px) {
+    .bgVideo { object-position: center right -200px; }
+}
+
+@media (max-width: 500px) {
+    .heroLogo { width: 80vw; }
+    .bgVideo { right: -50vw; object-position: center; }
+    .sectionTitle { font-size: 2rem; }
 }
