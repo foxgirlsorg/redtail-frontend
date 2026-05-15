@@ -54,7 +54,7 @@
     background-color: var(--bg-card-hover);
 }
 
-.previousChapterControl:not(.controlDisabled):hover ion
+.previousChapterControl:not(.controlDisabled):hover ion-icon,
 .nextChapterControl:not(.controlDisabled):hover ion-icon {
     color: var(--accent);
 }
