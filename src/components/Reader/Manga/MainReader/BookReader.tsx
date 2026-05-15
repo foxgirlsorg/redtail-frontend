@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { getCookie, setCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
-import CusdisComments from '@/components/CusdisComments';
 import ReactMarkdown from 'react-markdown';
 import '@/styles/markdown.css';
 import { IonIcon } from '@/components/IonIcon';
@@ -13,8 +12,6 @@ import { IonIcon } from '@/components/IonIcon';
 type BookReaderProps = {
     chapters: any[];
     chapter: string;
-    cusdisHost: string;
-    cusdisAppId: string;
     strDomain?: string;
 };
 
@@ -50,8 +47,6 @@ const ChapterControls = ({
 export function BookReader({
                                chapters,
                                chapter,
-                               cusdisHost,
-                               cusdisAppId,
                            }: BookReaderProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -152,16 +147,6 @@ export function BookReader({
                         hasNext={hasNext}
                         onPrev={() => navigateTo(chapterIndex - 1)}
                         onNext={() => navigateTo(chapterIndex + 1)}
-                    />
-                </div>
-
-                <div className={styles.comments}>
-                    <CusdisComments
-                        host={cusdisHost}
-                        appId={cusdisAppId}
-                        pageId={`book_${currentChapter.documentId}`}
-                        pageTitle={`${currentChapter.title.name} | Глава ${currentChapter.number}`}
-                        bgColor="#161616"
                     />
                 </div>
             </div>

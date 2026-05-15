@@ -5,8 +5,6 @@ import { cache } from 'react';
 import {createScopedLoader} from "@/lib/createScopedLoader";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
-const CUSDIS_HOST = process.env.CUSDIS_HOST!;
-const CUSDIS_APP_ID = process.env.CUSDIS_APP_ID!;
 
 const getChaptersFromSlug = createScopedLoader((slug: string) => _getChaptersFromSlug(slug));
 
@@ -42,6 +40,6 @@ export default async function ReaderMangaPage({ params }: { params: pageProps })
     }
 
     return (
-        <MangaReader chapters={chapters} chapter={chapter} strDomain={STRAPI_DOMAIN} cusdisHost={CUSDIS_HOST} cusdisAppId={CUSDIS_APP_ID} />
+        <MangaReader chapters={chapters} chapter={chapter} strDomain={STRAPI_DOMAIN}/>
     );
 }

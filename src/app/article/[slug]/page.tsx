@@ -11,11 +11,8 @@ import '@/styles/markdown.css';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import {SmallMemberCard} from "@/components/SmallMemberCard/SmallMemberCard";
-import CusdisComments from "@/components/CusdisComments";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN!;
-const CUSDIS_HOST = process.env.CUSDIS_HOST!;
-const CUSDIS_APP_ID = process.env.CUSDIS_APP_ID!;
 
 
 const getArticle = createScopedLoader((slug: string) => _getArticle(slug))
@@ -118,16 +115,6 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
                     )}
 
                 </div>
-                <div className={styles.comments}>
-                    <CusdisComments
-                        host={CUSDIS_HOST}
-                        appId={CUSDIS_APP_ID}
-                        pageId={article.documentId}
-                        pageTitle={`Article |  ${article.name}`}
-                        bgColor="#161616"
-                    />
-                </div>
-
             </div>
             <Footer footer={footer} />
         </main>

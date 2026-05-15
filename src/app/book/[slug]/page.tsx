@@ -13,9 +13,6 @@ import {Backdrop} from "@/components/TitlePage/Backdrop";
 import {GoBackBtn} from "@/components/TitlePage/GoBackBtn/GoBackBtn";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
-const CUSDIS_HOST = process.env.CUSDIS_HOST!;
-const CUSDIS_APP_ID = process.env.CUSDIS_APP_ID!;
-
 
 const getBook = createScopedLoader((slug: string) => _getBook(slug))
 
@@ -89,7 +86,7 @@ export default async function BookPage({ params }:{ params: pageProps}) {
                     </div>
                 </div>
                 <div className={styles.titleTabBox}>
-                    <TitleTabBox title={title} strDomain={STRAPI_DOMAIN} cusdisHost={CUSDIS_HOST} cusdisAppId={CUSDIS_APP_ID} />
+                    <TitleTabBox title={title} strDomain={STRAPI_DOMAIN}/>
                 </div>
             </div>
             <Footer footer={footer} />

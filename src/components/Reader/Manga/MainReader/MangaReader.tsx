@@ -5,17 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { getCookie, setCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
-import CusdisComments from '@/components/CusdisComments';
 
 type MangaReaderProps = {
     chapters: any[];
     chapter: string;
-    cusdisHost: string;
-    cusdisAppId: string;
     strDomain?: string;
 };
 
-export function MangaReader({ chapters, chapter, cusdisHost, cusdisAppId, strDomain }: MangaReaderProps) {
+export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -178,16 +175,6 @@ export function MangaReader({ chapters, chapter, cusdisHost, cusdisAppId, strDom
                         src={strDomain + currentPage.image.url}
                         style={{ width: '100%' }}
                         className={styles.pageImage}
-                    />
-                </div>
-
-                <div className={styles.comments}>
-                    <CusdisComments
-                        host={cusdisHost}
-                        appId={cusdisAppId}
-                        pageId={`manga_${currentChapter.documentId}`}
-                        pageTitle={`${currentChapter.title.name} | Глава ${currentChapter.number} | Страница ${currentPage.number}`}
-                        bgColor="#161616"
                     />
                 </div>
             </div>

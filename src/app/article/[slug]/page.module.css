@@ -41,7 +41,7 @@
     align-items: center;
 }
 
-.markdown, .info, .comments {
+.markdown, .info {
     max-width: 1000px;
     width: 100%;
     padding: 15px;
@@ -52,11 +52,6 @@
     border-top: 2px solid var(--border);
 }
 
-.comments {
-    border-top: 2px solid var(--border);
-    margin-top: 20px;
-    padding: 30px 15px;
-}
 
 
 .smallCards {

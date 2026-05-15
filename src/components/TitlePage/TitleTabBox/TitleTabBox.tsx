@@ -9,17 +9,14 @@ import { InfoBox } from "@/components/TitlePage/InfoBox/InfoBox";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {SmallMemberCard} from "@/components/SmallMemberCard/SmallMemberCard";
-import CusdisComments from "@/components/CusdisComments";
 
 
 type TitleTabBoxProps = {
     title: any;
-    cusdisHost: string;
-    cusdisAppId: string;
     strDomain?: string;
 };
 
-export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: TitleTabBoxProps) => {
+export const TitleTabBox = ({ title, strDomain }: TitleTabBoxProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const type = ["Книга", "Ранобэ", "Рассказ"].includes(title.type) ? "book" : "manga";
@@ -65,7 +62,6 @@ export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: Title
                 <TabList>
                     <Tab>Информация</Tab>
                     {hasChapters && <Tab>Главы</Tab>}
-                    <Tab>Комментарии</Tab>
                 </TabList>
 
                 <TabPanel>
@@ -136,18 +132,6 @@ export const TitleTabBox = ({ title, cusdisHost, cusdisAppId, strDomain }: Title
                         </div>
                     </TabPanel>
                 )}
-
-                <TabPanel forceRender>
-                    <div className={styles.comments}>
-                        <CusdisComments
-                            host={cusdisHost}
-                            appId={cusdisAppId}
-                            pageId={`${type}_${title.documentId}`}
-                            pageTitle={`Title | ${title.name}`}
-                            bgColor="#232324"
-                        />
-                    </div>
-                </TabPanel>
             </Tabs>
         </div>
     );
