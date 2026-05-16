@@ -23,7 +23,6 @@
     background-size: cover;
     /* mirror: flip horizontally so it reads as a reflection */
     background-position: right center;
-    transform: scaleX(-1);
     filter: blur(18px) brightness(0.45) saturate(1.3);
     /* scale slightly so blur edges don't show */
     transform: scaleX(-1) scale(1.08);

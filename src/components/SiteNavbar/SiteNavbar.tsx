@@ -42,7 +42,6 @@ const innerLinks: NavLink[] = [
 
 export const SiteNavbar = () => {
     const pathname = usePathname();
-    const router = useRouter();
     const [scrolled, setScrolled]     = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
 
