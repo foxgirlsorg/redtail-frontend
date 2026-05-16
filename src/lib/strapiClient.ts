@@ -220,3 +220,20 @@ export async function getArticle(slug: string) {
 
     return article.data;
 }
+
+export async function getArticleList() {
+    const articles = await client.collection('articles').find({
+        filters: { hidden: { $ne: true } },
+        sort: 'publishedAt:desc',
+        populate: {
+            card_bg: true,
+            authors: {
+                populate: { photo: true },
+            },
+            related_authors: {
+                populate: { photo: true },
+            }
+        },
+    });
+    return articles.data;
+}

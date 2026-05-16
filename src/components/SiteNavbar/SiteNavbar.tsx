@@ -24,19 +24,19 @@ function resolveNav(pathname: string): { variant: NavVariant; backHref: string }
 
 const homeLinks: NavLink[] = [
     { name: 'Тайтлы', href: '#titles' },
-    { name: 'Статьи',  href: '#team'   },
+    { name: 'Другое',  href: '#articles'   },
     { name: 'Команда',  href: '#team'   },
 ];
 
 const titleLinks: NavLink[] = [
     { name: 'Главная', href: '/' },
-    { name: 'Тайтлы', href: '/#titles' },
+    { name: 'Другое', href: '/#articles' },
     { name: 'Команда',  href: '/#team'   },
 ];
 
 const innerLinks: NavLink[] = [
     { name: 'Главная', href: '/' },
-    { name: 'Тайтлы', href: '/#titles' },
+    { name: 'Другое', href: '/#articles' },
     { name: 'Команда',  href: '/#team'   },
 ];
 

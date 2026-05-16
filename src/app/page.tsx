@@ -54,7 +54,24 @@ export default async function HomePage() {
                 </div>
             </section>
 
+            {/* ARTICLES */}
 
+            {articles.length > 0 && (
+                <section className={styles.section} id="articles">
+                    <div className={styles.sectionHeader}>
+                        <h2 className={styles.sectionTitle}>
+                            другие <span className={styles.highlight}>переводы</span>
+                        </h2>
+                    </div>
+                    <div className={styles.cardListWrapper}>
+                        <ul className={styles.cardList}>
+                            {articles.map((article) => (
+                                <ArticleCard article={article} key={article.id} strDomain={STRAPI_DOMAIN} />
+                            ))}
+                        </ul>
+                    </div>
+                </section>
+            )}
 
             {/* TEAM */}
             <section className={styles.section} id="team">
