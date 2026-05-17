@@ -39,9 +39,18 @@ body {
   --text-primary: #e8e8e8;
   --text-secondary: #babfba;
   --text-muted: #6b7280;
-  --font-display: "Mukta", sans-serif;
   --font-body: "Inter", sans-serif;
   --radius: 10px;
   --radius-lg: 14px;
   --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+::selection {
+  background-color: var(--border-hover);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--border-hover);
+  color: white;
 }

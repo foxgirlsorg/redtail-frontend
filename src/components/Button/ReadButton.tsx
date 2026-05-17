@@ -42,7 +42,7 @@ export const ReadButton = ({ title }: rBtnProps) => {
             setLocation(`${pathname}/reader/${cookies.chapter}/?p=${cookies.page}`);
             setHasProgress(true);
         } else {
-            const lastChapter = title.chapters[title.chapters.length - 1];
+            const lastChapter = title.chapters[0];
             setLocation(`${pathname}/reader/${lastChapter.number}/`);
             setHasProgress(false);
         }

@@ -1,16 +1,16 @@
-import { getMangaChaptersFromSlug as _getChaptersFromSlug } from '@/lib/strapiClient';
+import { getMangaChaptersFromSlug as getChaptersFromSlug } from '@/lib/strapiClient';
 import { MangaReader } from '@/components/Reader/Manga/MainReader/MangaReader';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
-import {createScopedLoader} from "@/lib/createScopedLoader";
+
+import {Metadata} from "next";
+import type { Chapter } from '@/components/Reader/Manga/MainReader/MangaReader';
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
-const getChaptersFromSlug = createScopedLoader((slug: string) => _getChaptersFromSlug(slug));
-
 type pageProps = Promise<{ slug: string, chapter: string }>;
 
-export async function generateMetadata({ params }: { params: pageProps }) {
+export async function generateMetadata({ params }: { params: pageProps })  : Promise<Metadata> {
     const { slug, chapter } = await params;
     const chapters = await getChaptersFromSlug(slug);
 
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: pageProps }) {
 export default async function ReaderMangaPage({ params }: { params: pageProps }) {
     const { slug, chapter } = await params;
 
-    const chapters = await getChaptersFromSlug(slug);
+    const chapters = await getChaptersFromSlug(slug) as any as Chapter[]
 
     if (chapters.length === 0) {
         notFound();

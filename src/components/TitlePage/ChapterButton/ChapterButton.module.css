@@ -1,0 +1,65 @@
+.chapterButton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+
+    padding: 0.75rem 1rem;
+    margin-bottom: 4px;
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid transparent;
+
+    cursor: pointer;
+    color: var(--text-secondary);
+    text-decoration: none;
+
+    transition:
+            background 0.18s ease,
+            border-color 0.18s ease,
+            color 0.18s ease;
+}
+.chapterButton:last-child {
+    margin-bottom: 0;
+}
+
+.chapterButton:hover:not(.disabled) {
+    background: rgba(222, 97, 97, 0.07);
+    border-color: rgba(222, 97, 97, 0.2);
+    color: var(--text-primary);
+}
+
+.chapterButton:hover:not(.disabled) :global(ion-icon) {
+    color: var(--accent);
+    transform: translateX(2px);
+}
+.disabled {
+    background: rgba(222, 97, 97, 0.06);
+    border-color: rgba(222, 97, 97, 0.18);
+    color: var(--accent);
+    cursor: default;
+    opacity: 0.8;
+}
+
+.chapterNumber {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.chapterName {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+:global(ion-icon) {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    transition: color 0.18s, transform 0.18s;
+}

@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RedTail site frontend
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Getting Started
+> **The official website for the RedTail translation team.**
 
-First, run the development server:
+This repository contains the source code for the RedTail reader frontend — a site for browsing and reading manga, light novel, and book translations produced by the team.
+
+The CMS backend powering the content is maintained in a separate repository: [foxgirlsorg/redtail-backend](https://github.com/foxgirlsorg/redtail-backend).
+
+## 🛠️ Technical Overview
+
+* **Framework:** [Next.js](https://nextjs.org/) 16 (App Router)
+* **Language:** [TypeScript](https://www.typescriptlang.org/)
+* **Styling:** CSS Modules
+* **CMS Client:** [@strapi/client](https://www.npmjs.com/package/@strapi/client)
+* **Markdown:** [react-markdown](https://github.com/remarkjs/react-markdown) + rehype-raw
+* **Icons:** [Ionic Icons](https://ionic.io/ionicons) via `@ionic/core`
+* **Image Lightbox:** [react-photo-view](https://github.com/MinJieLiu/react-photo-view)
+
+## 🚀 Local Development
+
+### Prerequisites
+
+* Node.js v20+
+* A running instance of the [RedTail backend](https://github.com/foxgirlsorg/redtail-backend)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/foxgirlsorg/redtail.git
+   cd redtail
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+
+   Create a `.env.local` file at the project root:
+   ```env
+   PUBLIC_STRAPI_API_URL=http://localhost:1337/api
+   PUBLIC_STRAPI_DOMAIN=http://localhost:1337
+   ```
+
+   | Variable | Description |
+      |---|---|
+   | `PUBLIC_STRAPI_API_URL` | Full URL to the Strapi API (with `/api`) |
+   | `PUBLIC_STRAPI_DOMAIN` | Strapi domain used to resolve media URLs |
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+   The site will be available at `http://localhost:3000`.
+
+## 📦 Building & Deployment
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📂 Project Structure
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+src/
+├── app/                    # Next.js App Router pages & layouts
+│   ├── page.tsx            # Home — title grid, articles, team
+│   ├── manga/[slug]/       # Manga title page + reader
+│   ├── book/[slug]/        # Book/novel title page + reader
+│   ├── article/[slug]/     # Article page (Markdown)
+│   ├── author/[nickname]/  # Author profile page
+│   ├── not-found.tsx       # 404 page
+│   └── error.tsx           # 500 page
+├── components/             # Reusable UI components
+│   ├── Reader/             # Manga and book reader (client-side)
+│   ├── TitlePage/          # Title detail page layout
+│   ├── SiteNavbar/         # Top navigation bar
+│   ├── Footer/             # Site footer
+│   └── ...
+├── lib/
+│   ├── strapiClient.ts     # All Strapi data-fetching functions
+│   ├── cookies.ts          # Cookie read/write helpers
+│   ├── NavigationLoader    # Route-change progress bar
+│   └── SmoothScroll        # Anchor smooth-scroll handler
+└── styles/
+    └── markdown.css        # GitHub-style dark markdown theme
+public/
+├── bg.webm / bg-poster.jpg # Hero background video
+├── error-bg.jpg            # Error page background image
+├── redtail.svg             # Logo
+├── noise.svg               # Grain texture overlay
+├── fonts/                  # Inter, Mukta, Roboto
+└── icons/                  # SVG icon set
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 License
 
-## Learn More
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Copyright © 2026 **foxgirls.org** . All rights reserved.

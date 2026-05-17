@@ -1,0 +1,173 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    padding: 2rem 0;
+    background: transparent;
+    transition: background 0.45s ease, padding 0.45s ease;
+}
+
+.header.scrolled {
+    padding: 1rem 0;
+    background: rgba(22, 22, 22, 0.55);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.backButton {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    padding: 0;
+    line-height: 0;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.backButton:hover {
+    color: var(--accent);
+}
+
+.backIcon {
+    font-size: 1.6rem;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+.logo.logoInner {
+    margin-right: auto;
+}
+.logo:not(.logoInner) {
+    margin-right: auto;
+}
+
+.logoIcon {
+    height: 2rem;
+    width: 2rem;
+    font-size: 2rem;
+    color: var(--accent);
+}
+
+.logoTitle {
+    color: var(--accent);
+    font-family: "Mukta", sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 1;
+    margin-top: 0.15rem;
+}
+.desktopNav {
+    display: none;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+.desktopNav a {
+    color: #ccc;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.desktopNav a:hover {
+    color: var(--accent);
+}
+.mobileButton {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    line-height: 0;
+    flex-shrink: 0;
+}
+
+.menuIcon {
+    font-size: 1.8rem;
+    color: white;
+}
+.mobileMenu {
+    position: fixed;
+    inset: 0;
+    z-index: 51;
+    background: rgba(22, 22, 22, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.mobileMenu.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.mobileCloseButton {
+    position: absolute;
+    top: 2.5rem;
+    right: 2rem;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    line-height: 0;
+}
+
+.mobileMenu.scrolled .mobileCloseButton {
+    top: 1.5rem;
+}
+
+.mobileMenuContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.mobileMenuContent a {
+    color: #ccc;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+}
+
+.mobileMenuContent a:hover {
+    color: var(--accent);
+}
+
+@media (min-width: 768px) {
+    .desktopNav  { display: flex; }
+    .mobileButton { display: none; }
+}
