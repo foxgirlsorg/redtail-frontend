@@ -10,10 +10,6 @@ const nextConfig: NextConfig = {
                 source: "/stats/script.js",
                 destination: `${umamiServer}/script.js`,
             },
-            {
-                source: "/stats/api/send",
-                destination: `${umamiServer}/api/send`,
-            },
         ];
     },
 };
