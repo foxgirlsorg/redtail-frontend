@@ -30,13 +30,13 @@ const homeLinks: NavLink[] = [
 
 const titleLinks: NavLink[] = [
     { name: 'Главная', href: '/' },
-    { name: 'Другое', href: '/#articles' },
+    { name: 'Переводы', href: '#titles' },
     { name: 'Команда',  href: '/#team'   },
 ];
 
 const innerLinks: NavLink[] = [
     { name: 'Главная', href: '/' },
-    { name: 'Другое', href: '/#articles' },
+    { name: 'Переводы', href: '#titles' },
     { name: 'Команда',  href: '/#team'   },
 ];
 

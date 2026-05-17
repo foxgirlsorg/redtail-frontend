@@ -1,6 +1,6 @@
 import styles from './ArticleCard.module.css';
 import { RouterButton } from '@/components/Button/RouterButton';
-import { SmallMemberCard } from '@/components/SmallMemberCard/SmallMemberCard';
+import { MemberPill } from '@/components/MemberPill/MemberPill';
 
 type ArticleCardProps = {
     article: any;
@@ -13,13 +13,11 @@ export const ArticleCard = ({ article, strDomain }: ArticleCardProps) => {
     }).replace(',', '');
 
     const bgUrl = article.card_bg?.formats?.medium?.url ?? article.card_bg?.url;
-
-    // Merge authors and related_authors into one deduplicated list,
-    // tagging each so SmallMemberCard knows which field to pull the image from
     const authors = (article.authors ?? []).map((a: any) => ({
         nickname: a.name,
         imgUrl: a.photo?.formats?.thumbnail?.url,
         isAuthor: true,
+        hidden: a.hidden,
     }));
     const related = (article.related_authors ?? []).map((a: any) => ({
         nickname: a.name,
@@ -31,7 +29,7 @@ export const ArticleCard = ({ article, strDomain }: ArticleCardProps) => {
 
     return (
         <div className={styles.card}>
-            {/* Background image */}
+          
             {bgUrl && (
                 <>
                     <div
@@ -42,7 +40,7 @@ export const ArticleCard = ({ article, strDomain }: ArticleCardProps) => {
                 </>
             )}
 
-            {/* Content */}
+          
             <div className={styles.content}>
                 <span className={styles.date}>{published}</span>
                 <h3 className={styles.name}>{article.name}</h3>
@@ -55,11 +53,12 @@ export const ArticleCard = ({ article, strDomain }: ArticleCardProps) => {
                     {allPeople.length > 0 && (
                         <div className={styles.people}>
                             {allPeople.map((person, i) => (
-                                <SmallMemberCard
+                                <MemberPill
                                     key={i}
                                     strDomain={strDomain}
                                     nickname={person.nickname}
                                     imgUrl={person.imgUrl}
+                                    url={!person.hidden ? `/author/${person.nickname}` : undefined}
                                 />
                             ))}
                         </div>

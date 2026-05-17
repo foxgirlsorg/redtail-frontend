@@ -9,6 +9,9 @@ import { ArticleCard } from '@/components/ArticleCard/ArticleCard';
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
+export const dynamic = 'force-dynamic';
+
+
 export default async function HomePage() {
     const mangas = await getTitleList();
     const articles = await getArticleList();
@@ -28,7 +31,7 @@ export default async function HomePage() {
                 <div className={styles.bgNoise} />
             </div>
 
-            {/* HERO */}
+
             <section className={styles.hero} id="home">
                 <div className={styles.heroContent}>
                     <img src="/redtail.svg" alt="REDTAIL" className={styles.heroLogo} />
@@ -38,7 +41,7 @@ export default async function HomePage() {
                 </a>
             </section>
 
-            {/* TITLES */}
+
             <section className={styles.section} id="titles">
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>
@@ -54,7 +57,7 @@ export default async function HomePage() {
                 </div>
             </section>
 
-            {/* ARTICLES */}
+
 
             {articles.length > 0 && (
                 <section className={styles.section} id="articles">
@@ -73,7 +76,7 @@ export default async function HomePage() {
                 </section>
             )}
 
-            {/* TEAM */}
+
             <section className={styles.section} id="team">
                 <div className={styles.sectionHeader}>
                     <h2 className={styles.sectionTitle}>

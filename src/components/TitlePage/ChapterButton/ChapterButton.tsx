@@ -1,6 +1,6 @@
 'use client';
 import { useRouter, usePathname } from 'next/navigation';
-import styles from '@/components/TitlePage/TitleTabBox/ChapterButton/ChapterButton.module.css'
+import styles from '@/components/TitlePage/ChapterButton/ChapterButton.module.css'
 import React from "react";
 import {IonIcon} from "@/components/IonIcon";
 interface ChapterButtonProps {

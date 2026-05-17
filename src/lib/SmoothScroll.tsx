@@ -10,15 +10,11 @@ export const SmoothScroll = () => {
 
             const href = link.getAttribute('href');
             if (!href) return;
-
-            // Extract the hash — handles both '#titles' and '/#titles'
             const hashIndex = href.indexOf('#');
             if (hashIndex === -1) return;
 
             const hash = href.slice(hashIndex);
             const targetId = hash.slice(1);
-
-            // If there's a pathname before the hash and it's not current page, let browser navigate normally
             const pathPart = href.slice(0, hashIndex);
             if (pathPart && pathPart !== '/' && pathPart !== window.location.pathname) return;
 
@@ -37,12 +33,10 @@ export const SmoothScroll = () => {
             const windowHeight = window.innerHeight;
 
             if (elementHeight > windowHeight) {
-                // Section taller than viewport — align to top with navbar offset
                 const offset = 3 * parseFloat(getComputedStyle(document.documentElement).fontSize);
                 const top = target.getBoundingClientRect().top + window.scrollY - offset;
                 window.scrollTo({ top, behavior: 'smooth' });
             } else {
-                // Section fits in viewport — center it
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 

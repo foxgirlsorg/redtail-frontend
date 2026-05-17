@@ -12,8 +12,8 @@
 .header.scrolled {
     padding: 1rem 0;
     background: rgba(22, 22, 22, 0.55);
-    backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -25,8 +25,6 @@
     align-items: center;
     gap: 1rem;
 }
-
-/* Back button — left of logo on inner pages */
 .backButton {
     background: none;
     border: none;
@@ -45,8 +43,6 @@
 .backIcon {
     font-size: 1.6rem;
 }
-
-/* Logo */
 .logo {
     display: flex;
     align-items: center;
@@ -54,13 +50,9 @@
     text-decoration: none;
     flex-shrink: 0;
 }
-
-/* On inner pages logo is not the first item, push nav to the right */
 .logo.logoInner {
     margin-right: auto;
 }
-
-/* On home, logo on left, nav pushed right */
 .logo:not(.logoInner) {
     margin-right: auto;
 }
@@ -82,8 +74,6 @@
     line-height: 1;
     margin-top: 0.15rem;
 }
-
-/* Desktop nav */
 .desktopNav {
     display: none;
     align-items: center;
@@ -103,8 +93,6 @@
 .desktopNav a:hover {
     color: var(--accent);
 }
-
-/* Mobile hamburger */
 .mobileButton {
     background: none;
     border: none;
@@ -119,8 +107,6 @@
     font-size: 1.8rem;
     color: white;
 }
-
-/* Mobile overlay */
 .mobileMenu {
     position: fixed;
     inset: 0;
@@ -173,7 +159,7 @@
     letter-spacing: 0.3em;
     text-decoration: none;
     transition: color 0.2s;
-    font-family: "Mukta", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 300;
 }
 

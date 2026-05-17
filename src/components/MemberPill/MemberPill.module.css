@@ -1,0 +1,46 @@
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 5px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    cursor: default;
+    white-space: nowrap;
+    width: fit-content;
+}
+
+.nopfp {
+    padding: 4px 10px 4px 10px;
+    height: 30px;
+}
+
+.pill:hover {
+    border-color: rgba(222,97,97,0.28);
+    color: var(--text-secondary);
+    background: rgba(222,97,97,0.04);
+}
+
+.pillImage {
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+}
+
+.pillNickname {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+a.pill {
+    text-decoration: none;
+    cursor: pointer;
+}

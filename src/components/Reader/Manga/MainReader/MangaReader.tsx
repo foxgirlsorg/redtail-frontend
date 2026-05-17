@@ -1,148 +1,135 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
-import { getCookie, setCookie } from '@/lib/cookies';
+import { setCookie, getCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
 
+type Page = {
+    image: { url: string };
+};
+
+type Title = {
+    slug: string;
+    name: string;
+    type: string;
+};
+
+export type Chapter = {
+    number: number;
+    name?: string;
+    title: Title;
+    pages: Page[];
+};
+
 type MangaReaderProps = {
-    chapters: any[];
+    chapters: Chapter[];
     chapter: string;
     strDomain?: string;
 };
 
 export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) {
-    const router = useRouter();
+    const router       = useRouter();
     const searchParams = useSearchParams();
 
-    const [pageNumberVisible, setPageNumberVisible] = useState(true);
     const [chapterIndex, setChapterIndex] = useState(-1);
-    const [pageIndex, setPageIndex] = useState(0);
+    const [pageIndex,    setPageIndex]    = useState(0);
+    const [pageNumVisible, setPageNumVisible] = useState(true);
     const [imageWidth, setImageWidth] = useState<number>(() => {
-        try {
-            const stored = getCookie('reader_width');
-            return stored ? Number(stored) : 40;
-        } catch {
-            return 40;
-        }
+        if (typeof window === 'undefined') return 40;
+        const stored = getCookie('reader_width');
+        return stored ? Number(stored) : 40;
     });
 
-    const currentChapter = chapters[chapterIndex];
-    const currentPage = currentChapter?.pages?.[pageIndex];
+    const currentChapter = chapters[chapterIndex] as Chapter | undefined;
+    const currentPage    = currentChapter?.pages?.[pageIndex];
 
-    const hasPrev = pageIndex > 0 || (chapterIndex > 0 && chapters[chapterIndex - 1]?.pages?.length > 0);
-    const hasNext = (
-        currentChapter?.pages &&
+    const hasPrevPage = pageIndex > 0 || chapterIndex > 0;
+    const hasNextPage =
+        currentChapter !== undefined &&
         (pageIndex + 1 < currentChapter.pages.length ||
-            (chapterIndex + 1 < chapters.length && chapters[chapterIndex + 1]?.pages?.length > 0))
-    );
-
-    useEffect(() => {
-        if (window.innerWidth < 800) {
-            setImageWidth(100);
-        }
-
-        const html = document.documentElement;
-        const prevGutter = html.style.scrollbarGutter;
-        html.style.scrollbarGutter = 'stable';
-
-        return () => {
-            html.style.scrollbarGutter = prevGutter;
-        };
-    }, []);
-
+            chapterIndex + 1 < chapters.length);
     useEffect(() => {
         setCookie('reader_width', imageWidth.toString());
     }, [imageWidth]);
+    useEffect(() => {
+        if (window.innerWidth < 800) setImageWidth(100);
 
+        const html = document.documentElement;
+        const prev = html.style.scrollbarGutter;
+        html.style.scrollbarGutter = 'stable';
+        return () => { html.style.scrollbarGutter = prev; };
+    }, []);
+    useEffect(() => {
+        let lastY = window.scrollY;
+        const onScroll = () => {
+            const y = window.scrollY;
+            setPageNumVisible(y < 100 || y < lastY);
+            lastY = y;
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+    const navigateTo = useCallback((targetChapterIdx: number, targetPageIdx: number) => {
+        const ch = chapters[targetChapterIdx];
+        if (!ch) return;
+        setCookie(`reader_progress_${ch.title.slug}`, JSON.stringify({
+            chapter: ch.number,
+            page:    targetPageIdx + 1,
+        }));
+        router.push(`/manga/${ch.title.slug}/reader/${ch.number}?p=${targetPageIdx + 1}`);
+    }, [chapters, router]);
     useEffect(() => {
         if (!chapters.length) return;
 
-        const numericChapter = Number(chapter);
-        const chapterNumbers = chapters.map(ch => ch.number);
-        const min = Math.min(...chapterNumbers);
-        const max = Math.max(...chapterNumbers);
+        const nums    = chapters.map(c => c.number);
+        const minNum  = Math.min(...nums);
+        const maxNum  = Math.max(...nums);
+        const numeric = Number(chapter);
+        const actual  = isNaN(numeric) ? minNum : Math.min(Math.max(numeric, minNum), maxNum);
+        const idx     = chapters.findIndex(c => c.number === actual);
+        if (idx === -1) return;
 
-        let actualChapter = isNaN(numericChapter)
-            ? min
-            : Math.min(Math.max(numericChapter, min), max);
+        const pParam   = searchParams.get('p');
+        const rawPage  = pParam !== null && !isNaN(Number(pParam)) ? Number(pParam) : 1;
+        const total    = chapters[idx]?.pages?.length ?? 1;
+        const safePage = Math.min(Math.max(1, rawPage), total);
 
-        const chapterIdx = chapters.findIndex(ch => ch.number === actualChapter);
-        if (chapterIdx === -1) return;
-
-        const pParam = searchParams.get('p');
-        const rawPageNum = pParam !== null && !isNaN(Number(pParam)) ? Number(pParam) : 1;
-
-        const totalPages = chapters[chapterIdx]?.pages?.length || 1;
-        const safePageNum = Math.min(Math.max(1, rawPageNum), totalPages);
-        const safePageIndex = safePageNum - 1;
-
-        const urlCorrect = actualChapter === numericChapter && rawPageNum === safePageNum;
-        if (!urlCorrect) {
-            navigateTo(chapterIdx, safePageIndex);
+        if (actual !== numeric || rawPage !== safePage) {
+            navigateTo(idx, safePage - 1);
             return;
         }
 
-        setChapterIndex(chapterIdx);
-        setPageIndex(safePageIndex);
-    }, [chapter, chapters, searchParams]);
-
-    useEffect(() => {
-        const onScroll = () => {
-            const current = window.scrollY;
-            setPageNumberVisible(current < 100 || current < window.scrollY);
-        };
-
-        window.addEventListener('scroll', onScroll);
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
-
-    const navigateTo = (targetChapterIdx: number, targetPageIdx: number) => {
-        const ch = chapters[targetChapterIdx];
-        const slug = ch.title.slug;
-        const chapterNumber = ch.number;
-
-        setCookie(`reader_progress_${slug}`, JSON.stringify({
-            chapter: chapterNumber,
-            page: targetPageIdx + 1
-        }));
-
-        router.push(`/manga/${slug}/reader/${chapterNumber}?p=${targetPageIdx + 1}`);
-    };
-
-    const goToNextPage = () => {
+        setChapterIndex(idx);
+        setPageIndex(safePage - 1);
+    }, [chapter, chapters, searchParams, navigateTo]);
+    const goNext = useCallback(() => {
         if (!currentChapter) return;
-        const next = pageIndex + 1;
-
-        if (next < currentChapter.pages.length) {
-            navigateTo(chapterIndex, next);
+        if (pageIndex + 1 < currentChapter.pages.length) {
+            navigateTo(chapterIndex, pageIndex + 1);
         } else if (chapterIndex + 1 < chapters.length) {
             navigateTo(chapterIndex + 1, 0);
         } else {
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
-    };
+    }, [currentChapter, pageIndex, chapterIndex, chapters.length, navigateTo, router]);
 
-    const goToPrevPage = () => {
+    const goPrev = useCallback(() => {
         if (!currentChapter) return;
-        const prev = pageIndex - 1;
-
-        if (prev >= 0) {
-            navigateTo(chapterIndex, prev);
+        if (pageIndex > 0) {
+            navigateTo(chapterIndex, pageIndex - 1);
         } else if (chapterIndex > 0) {
-            const prevChapter = chapters[chapterIndex - 1];
-            const lastPage = prevChapter.pages.length - 1;
-            navigateTo(chapterIndex - 1, lastPage);
+            const prev = chapters[chapterIndex - 1];
+            navigateTo(chapterIndex - 1, prev.pages.length - 1);
         } else {
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
-    };
-
+    }, [currentChapter, pageIndex, chapterIndex, chapters, navigateTo, router]);
     if (!currentChapter || !currentPage) {
         return (
             <div className={styles.loaderContainer}>
-                <div className={styles.loader}></div>
+                <div className={styles.loader} />
             </div>
         );
     }
@@ -161,25 +148,24 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
                 <div className={styles.page} style={{ maxWidth: `${imageWidth}vw` }}>
                     <div className={styles.controls}>
                         <div
-                            className={`${styles.previousPageControl} ${!hasPrev && styles.controlDisabled}`}
-                            style={{ width: `${imageWidth / 2}vw` }}
-                            onClick={hasPrev ? goToPrevPage : undefined}
-                        ></div>
+                            className={`${styles.previousPageControl} ${!hasPrevPage ? styles.controlDisabled : ''}`}
+                            onClick={hasPrevPage ? goPrev : undefined}
+                        />
                         <div
-                            className={`${styles.nextPageControl} ${!hasNext && styles.controlDisabled}`}
-                            style={{ width: `${imageWidth / 2}vw` }}
-                            onClick={hasNext ? goToNextPage : undefined}
-                        ></div>
+                            className={`${styles.nextPageControl} ${!hasNextPage ? styles.controlDisabled : ''}`}
+                            onClick={hasNextPage ? goNext : undefined}
+                        />
                     </div>
                     <img
                         src={strDomain + currentPage.image.url}
-                        style={{ width: '100%' }}
                         className={styles.pageImage}
+                        alt={`Страница ${pageIndex + 1}`}
+                        draggable={false}
                     />
                 </div>
             </div>
 
-            <div className={`${styles.pageNumber} ${pageNumberVisible ? styles.visible : styles.hidden}`}>
+            <div className={`${styles.pageNumber} ${pageNumVisible ? styles.visible : styles.hidden}`}>
                 <span>{pageIndex + 1} / {currentChapter.pages.length}</span>
             </div>
         </div>

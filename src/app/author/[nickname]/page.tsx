@@ -1,21 +1,19 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { getFooter, getAuthor as _getAuthor } from '@/lib/strapiClient';
-import styles from './page.module.css';
-import mainPageStyles from '@/app/page.module.css';
+import { getFooter, getAuthor } from '@/lib/strapiClient';
+
 import { ClientImage } from '@/components/ClientImage/ClientImage';
 import { TitleCard } from '@/components/TitleCard/TitleCard';
+import { ArticleCard } from '@/components/ArticleCard/ArticleCard';
 import { Footer } from '@/components/Footer/Footer';
-import {createScopedLoader} from "@/lib/createScopedLoader";
-import {GoBackBtn} from "@/components/SiteNavbar/GoBackBtn/GoBackBtn";
+import styles from './page.module.css';
+import {Metadata} from "next";
 
 const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
 
-const getAuthor = createScopedLoader((nickname: string) => _getAuthor(nickname))
-
 type pageProps = Promise<{ nickname: string }>;
 
-export async function generateMetadata({ params }: { params: pageProps }) {
+export async function generateMetadata({ params }: { params: pageProps })  : Promise<Metadata> {
     const { nickname } = await params;
     const nickname_decoded = decodeURI(nickname);
     const authors = await getAuthor(nickname_decoded);
@@ -40,66 +38,93 @@ export async function generateMetadata({ params }: { params: pageProps }) {
     };
 }
 
-export default async function MangaPage({ params }: { params: pageProps }) {
+export default async function AuthorPage({ params }: { params: pageProps }) {
     const { nickname } = await params;
-    const nickname_decoded = decodeURI(nickname);
-    const authors = await getAuthor(nickname_decoded);
+    const authors = await getAuthor(decodeURI(nickname));
     const footer = await getFooter();
-    console.log(authors.length);
-    if (authors.length === 0) {
-        notFound();
-    }
+
+    if (!authors || authors.length === 0) notFound();
 
     const author = authors[0];
+    const hasManga    = author.manga_titles?.length > 0;
+    const hasBooks    = author.book_titles?.length > 0;
+    const hasArticles = author.articles?.length > 0;
+    const hasRelatedArticles = author.related_articles?.length > 0;
 
     return (
-        <main>
-            <GoBackBtn/>
+        <main className={styles.page}>
+
+
+            <div className={styles.backdrop}>
+                <div
+                    className={styles.backdropImage}
+                    style={{ backgroundImage: `url(${STRAPI_DOMAIN + author.photo?.url})` }}
+                />
+                <div className={styles.backdropVignette} />
+                <div className={styles.backdropNoise} />
+            </div>
+
+
             <div className={styles.container}>
-                <div className={styles.card}>
-                    <ClientImage
-                        className={styles.photo}
-                        src={STRAPI_DOMAIN + author.photo.url}
-                        thumbnail={STRAPI_DOMAIN + author.photo.formats.small.url}
-                    />
-                    <div className={styles.description}>
-                        <h1>{author.name}</h1>
-                        <p>{author.description}</p>
+                <div className={styles.hero}>
+                    <div className={styles.avatarWrapper}>
+                        <ClientImage
+                            src={STRAPI_DOMAIN + author.photo?.url}
+                            thumbnail={STRAPI_DOMAIN + (author.photo?.formats?.small?.url ?? author.photo?.url)}
+                            className={styles.avatar}
+                        />
                     </div>
+
+                    <div className={styles.authorMeta}>
+                        <h1 className={styles.authorName}>{author.name}</h1>
+                        {author.description && (
+                            <p className={styles.authorBio}>{author.description}</p>
+                        )}
+                    </div>
+                </div>
+
+              
+                <div className={styles.body}>
+
+                    {(hasManga || hasBooks) && (
+                        <section>
+                            <div className={styles.sectionHeader}>
+                                <h2 className={styles.sectionTitle}>
+                                    тайтлы <span>автора</span>
+                                </h2>
+                            </div>
+                            <ul className={styles.titleGrid}>
+                                {author.manga_titles.map((manga: any) => (
+                                    <TitleCard title={manga} key={manga.id} strDomain={STRAPI_DOMAIN} />
+                                ))}
+                                {author.book_titles.map((book: any) => (
+                                    <TitleCard title={book} key={book.id} strDomain={STRAPI_DOMAIN} />
+                                ))}
+                            </ul>
+                        </section>
+                    )}
+
+                    {(hasArticles || hasRelatedArticles) && (
+                        <section>
+                            <div className={styles.sectionHeader}>
+                                <h2 className={styles.sectionTitle}>
+                                    статьи <span>&amp; другое</span>
+                                </h2>
+                            </div>
+                            <ul className={styles.articleGrid}>
+                                {author.articles.map((article: any) => (
+                                    <ArticleCard article={article} key={article.id} strDomain={STRAPI_DOMAIN} />
+                                ))}
+                                {author.related_articles.map((article: any) => (
+                                    <ArticleCard article={article} key={article.id} strDomain={STRAPI_DOMAIN} />
+                                ))}
+                            </ul>
+                        </section>
+                    )}
+
                 </div>
             </div>
-            {author.manga_titles.length > 0 && (
-                <div className={styles.section}>
-                    <h2 className={mainPageStyles.sectionTitle}>Манга</h2>
-                    <div className={mainPageStyles.cardListWrapper}>
-                        <ul className={mainPageStyles.cardList}>
-                            {author.manga_titles.map((manga: any) => (
-                                <TitleCard
-                                    title={manga}
-                                    key={manga.id}
-                                    strDomain={STRAPI_DOMAIN}
-                                />
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            )}
-            {author.book_titles.length > 0 && (
-                <div className={styles.section}>
-                    <h2 className={mainPageStyles.sectionTitle}>Книги</h2>
-                    <div className={mainPageStyles.cardListWrapper}>
-                        <ul className={mainPageStyles.cardList}>
-                            {author.book_titles.map((book: any) => (
-                                <TitleCard
-                                    title={book}
-                                    key={book.id}
-                                    strDomain={STRAPI_DOMAIN}
-                                />
-                            ))}
-                        </ul>
-                    </div>
-                </div>
-            )}
+
             <Footer footer={footer} />
         </main>
     );

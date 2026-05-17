@@ -1,21 +1,33 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 import styles from './Reader.module.css';
 import { getCookie, setCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
-import ReactMarkdown from 'react-markdown';
-import '@/styles/markdown.css';
 import { IonIcon } from '@/components/IonIcon';
+import '@/styles/markdown.css';
+
+type Title = {
+    slug: string;
+    name: string;
+    type: string;
+};
+
+export type Chapter = {
+    number: number;
+    name?: string;
+    content: string;
+    title: Title;
+};
 
 type BookReaderProps = {
-    chapters: any[];
+    chapters: Chapter[];
     chapter: string;
     strDomain?: string;
 };
-
-const ChapterControls = ({
+function ChapterControls({
                              hasPrev,
                              hasNext,
                              onPrev,
@@ -25,96 +37,80 @@ const ChapterControls = ({
     hasNext: boolean;
     onPrev: () => void;
     onNext: () => void;
-}) => (
-    <div className={styles.chapterControls}>
-        <div
-            className={`${styles.previousChapterControl} ${!hasPrev && styles.controlDisabled}`}
-            onClick={hasPrev ? onPrev : undefined}
-        >
-            <IonIcon src="/icons/chevron-back-outline.svg" />
-            <span>Назад</span>
+}) {
+    return (
+        <div className={styles.chapterControls}>
+            <div
+                className={`${styles.previousChapterControl} ${!hasPrev ? styles.controlDisabled : ''}`}
+                onClick={hasPrev ? onPrev : undefined}
+            >
+                <IonIcon src="/icons/chevron-back-outline.svg" />
+                <span>Назад</span>
+            </div>
+            <div
+                className={`${styles.nextChapterControl} ${!hasNext ? styles.controlDisabled : ''}`}
+                onClick={hasNext ? onNext : undefined}
+            >
+                <span>Вперёд</span>
+                <IonIcon src="/icons/chevron-forward-outline.svg" />
+            </div>
         </div>
-        <div
-            className={`${styles.nextChapterControl} ${!hasNext && styles.controlDisabled}`}
-            onClick={hasNext ? onNext : undefined}
-        >
-            <span>Вперёд</span>
-            <IonIcon src="/icons/chevron-forward-outline.svg" />
-        </div>
-    </div>
-);
+    );
+}
 
-export function BookReader({
-                               chapters,
-                               chapter,
-                           }: BookReaderProps) {
-    const router = useRouter();
+export function BookReader({ chapters, chapter }: BookReaderProps) {
+    const router       = useRouter();
     const searchParams = useSearchParams();
 
-    const [chapterIndex, setChapterIndex] = useState<number>(-1);
+    const [chapterIndex, setChapterIndex] = useState(-1);
     const [textWidth, setTextWidth] = useState<number>(() => {
-        try {
-            const stored = getCookie('reader_text_width');
-            return stored ? Number(stored) : 40;
-        } catch {
-            return 40;
-        }
+        if (typeof window === 'undefined') return 40;
+        const stored = getCookie('reader_text_width');
+        return stored ? Number(stored) : 40;
     });
 
-    const currentChapter = chapters[chapterIndex];
+    const currentChapter = chapters[chapterIndex] as Chapter | undefined;
     const hasPrev = chapterIndex > 0;
     const hasNext = chapterIndex + 1 < chapters.length;
-
-    useEffect(() => {
-        if (window.innerWidth < 800) {
-            setTextWidth(90);
-        }
-
-        const html = document.documentElement;
-        const prevGutter = html.style.scrollbarGutter;
-        html.style.scrollbarGutter = 'stable';
-
-        return () => {
-            html.style.scrollbarGutter = prevGutter;
-        };
-    }, []);
-
     useEffect(() => {
         setCookie('reader_text_width', textWidth.toString());
     }, [textWidth]);
+    useEffect(() => {
+        if (window.innerWidth < 800) setTextWidth(90);
 
+        const html = document.documentElement;
+        const prev = html.style.scrollbarGutter;
+        html.style.scrollbarGutter = 'stable';
+        return () => { html.style.scrollbarGutter = prev; };
+    }, []);
+    const navigateTo = useCallback((targetChapterIdx: number) => {
+        const ch = chapters[targetChapterIdx];
+        if (!ch) return;
+        setCookie(`reader_progress_${ch.title.slug}`, JSON.stringify({
+            chapter: ch.number,
+            page:    1,
+        }));
+        router.push(`/book/${ch.title.slug}/reader/${ch.number}`);
+    }, [chapters, router]);
+    const navigateToForNavbar = useCallback(
+        (chapterIdx: number, _pageIdx: number) => navigateTo(chapterIdx),
+        [navigateTo],
+    );
     useEffect(() => {
         if (!chapters.length) return;
 
+        const nums   = chapters.map(c => c.number);
+        const minNum = Math.min(...nums);
+        const maxNum = Math.max(...nums);
         const numeric = Number(chapter);
-        const chapterNumbers = chapters.map(ch => ch.number);
-        const min = Math.min(...chapterNumbers);
-        const max = Math.max(...chapterNumbers);
-
-        let actual = isNaN(numeric) ? min : Math.min(Math.max(numeric, min), max);
-        const idx = chapters.findIndex(ch => ch.number === actual);
-        if (idx !== -1) {
-            setChapterIndex(idx);
-        }
+        const actual  = isNaN(numeric) ? minNum : Math.min(Math.max(numeric, minNum), maxNum);
+        const idx     = chapters.findIndex(c => c.number === actual);
+        if (idx !== -1) setChapterIndex(idx);
     }, [chapter, chapters, searchParams]);
-
-    const navigateTo = (targetChapterIdx: number) => {
-        const ch = chapters[targetChapterIdx];
-        const { slug } = ch.title;
-        const chapterNumber = ch.number;
-
-        setCookie(`reader_progress_${slug}`, JSON.stringify({
-            chapter: chapterNumber,
-            page: 1,
-        }));
-
-        router.push(`/book/${slug}/reader/${chapterNumber}`);
-    };
-
     if (!currentChapter) {
         return (
             <div className={styles.loaderContainer}>
-                <div className={styles.loader}></div>
+                <div className={styles.loader} />
             </div>
         );
     }
@@ -126,7 +122,7 @@ export function BookReader({
                 chapterIndex={chapterIndex}
                 conetntWidth={textWidth}
                 setContentWidthAction={setTextWidth}
-                NavigateToAction={navigateTo}
+                NavigateToAction={navigateToForNavbar}
             />
 
             <div className={styles.pageContainer}>

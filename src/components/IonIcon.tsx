@@ -1,7 +1,10 @@
+// src/components/IonIcon.tsx
 'use client';
 
 import { useEffect } from 'react';
 import { defineCustomElements } from '@ionic/core/loader';
+
+let defined = false;
 
 type IonIconProps = {
     name?: string;
@@ -12,18 +15,18 @@ type IonIconProps = {
 
 export const IonIcon = ({ name, src, icon, style, ...rest }: IonIconProps) => {
     useEffect(() => {
-        // window.Ionicons = { url: '/icons/' };
+        if (defined) return;
+        defined = true;
         defineCustomElements(window);
+
+        // Re-register after bfcache restore
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) defineCustomElements(window);
+        });
     }, []);
 
     return (
         // @ts-ignore
-        <ion-icon
-            name={name}
-            src={src}
-            icon={icon}
-            style={style}
-            {...rest}
-        />
+        <ion-icon name={name} src={src} icon={icon} style={style} {...rest} />
     );
 };

@@ -14,15 +14,12 @@ export const TitleCard = ({ title, strDomain }: TitleCardProps) => {
 
     return (
         <div className={styles.card}>
-            {/* Blurred mirror cover — bleeds from left, fades into card bg */}
             <div
                 className={styles.mirrorBg}
                 style={{ backgroundImage: `url(${strDomain + thumbnail})` }}
             />
-            {/* Gradient overlay that fades mirror into card bg */}
             <div className={styles.mirrorFade} />
 
-            {/* Info — left side */}
             <div className={styles.info}>
                 <h3 className={styles.name}>{title.name}</h3>
                 <span className={styles.description}>{title.description}</span>
@@ -55,7 +52,7 @@ export const TitleCard = ({ title, strDomain }: TitleCardProps) => {
                 />
             </div>
 
-            {/* Cover — right side, same crop as before */}
+          
             <div className={styles.coverWrapper}>
                 <div className={styles.typeBadge}>{title.type}</div>
                 <img
