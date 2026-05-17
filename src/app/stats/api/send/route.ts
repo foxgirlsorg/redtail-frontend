@@ -11,8 +11,9 @@ export async function POST(request: NextRequest) {
             'Content-Type': request.headers.get('Content-Type') ?? 'application/json',
             'User-Agent': request.headers.get('User-Agent') ?? '',
             'X-Forwarded-For':
-                request.headers.get('x-forwarded-for') ??
-                request.headers.get('x-real-ip') ??
+                request.headers.get('cf-connecting-ip') ||
+                request.headers.get('x-forwarded-for') ||
+                request.headers.get('x-real-ip') ||
                 '',
         },
         body,
