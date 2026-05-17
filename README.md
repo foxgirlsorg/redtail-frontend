@@ -50,11 +50,30 @@ The CMS backend powering the content is maintained in a separate repository: [fo
    | `PUBLIC_STRAPI_API_URL` | Full URL to the Strapi API (with `/api`) |
    | `PUBLIC_STRAPI_DOMAIN` | Strapi domain used to resolve media URLs |
 
+
+
 4. **Start the development server**
    ```bash
    npm run dev
    ```
    The site will be available at `http://localhost:3000`.
+
+## 📊 Analytics
+
+Analytics are handled via [Umami](https://umami.is/) using
+[next-umami](https://github.com/kdcokenny/next-umami). They are entirely
+optional — if `NEXT_PUBLIC_UMAMI_WEBSITE_ID` is not set, no analytics script
+is loaded.
+
+Traffic is proxied through the Next.js server (`/stats/*`) to avoid
+adblockers and avoid exposing the Umami server URL to the client.
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | No | Website ID from the Umami dashboard. Analytics are disabled if unset. |
+| `NEXT_PUBLIC_UMAMI_SERVER_URL` | No | URL of your Umami instance. Defaults to Umami Cloud. |
+| `NEXT_PUBLIC_UMAMI_DOMAINS` | No | Comma-separated list of domains to track. Tracks all if unset. |
+
 
 ## 📦 Building & Deployment
 
