@@ -17,9 +17,11 @@ export const IonIcon = ({ name, src, icon, style, ...rest }: IonIconProps) => {
     useEffect(() => {
         if (defined) return;
         defined = true;
+
+        (window as any).Ionicons = { resourcesUrl: '/' };
+
         defineCustomElements(window);
 
-        // Re-register after bfcache restore
         window.addEventListener('pageshow', (e) => {
             if (e.persisted) defineCustomElements(window);
         });
