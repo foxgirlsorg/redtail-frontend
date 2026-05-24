@@ -50,6 +50,7 @@
     text-decoration: none;
     flex-shrink: 0;
     color: var(--accent);
+    font-size: 1.6rem;
 }
 .logo.logoInner {
     margin-right: auto;
@@ -68,7 +69,6 @@
 .logoTitle {
     color: var(--accent);
     font-family: "Mukta", sans-serif;
-    font-size: 1.6rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 400;

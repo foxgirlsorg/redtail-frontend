@@ -67,6 +67,7 @@ body {
   box-sizing: content-box !important;
   vertical-align: -0.125em;
   color: inherit;
+  font-size: inherit;
 }
 
 .app-ion-icon .icon-inner,

@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 type IconMode = 'ios' | 'md';
 
-type IonIconProps = Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'> & {
+type IonIconProps = Omit<React.HTMLAttributes<HTMLElement>, 'color'> & {
     name?: string;
     ios?: string;
     md?: string;
@@ -19,7 +19,7 @@ type IonIconProps = Omit<React.HTMLAttributes<HTMLSpanElement>, 'color'> & {
     decorative?: boolean;
 };
 
-const ICON_BASE_PATH = '/public/icons';
+const ICON_BASE_PATH = '/icons';
 
 const cache = new Map<string, Promise<string>>();
 
@@ -91,11 +91,9 @@ function sanitizeSvg(svgText: string) {
     svg.querySelectorAll('*').forEach((node) => {
         [...node.attributes].forEach((attr) => {
             const name = attr.name.toLowerCase();
+            const value = attr.value.toLowerCase();
 
-            if (
-                name.startsWith('on') ||
-                attr.value.toLowerCase().includes('javascript:')
-            ) {
+            if (name.startsWith('on') || value.includes('javascript:')) {
                 node.removeAttribute(attr.name);
             }
         });
@@ -160,35 +158,27 @@ export function IonIcon({
         };
     }, [url]);
 
-    return (
-        <span
-            {...rest}
-            role={decorative ? undefined : 'img'}
-            aria-hidden={decorative ? true : undefined}
-            aria-label={decorative ? undefined : title}
-            title={title}
-            className={clsx(
-                'app-ion-icon',
-                size === 'small' && 'icon-small',
-                size === 'large' && 'icon-large',
-                flipRtl && 'flip-rtl',
-                color && `ion-color ion-color-${color}`,
-                className
-            )}
-            style={
-                {
-                    ...style,
-                    '--ionicon-size':
-                        size && size !== 'small' && size !== 'large' ? size : undefined,
-                } as React.CSSProperties
-            }
-        >
-      <span
-          className="icon-inner"
-          dangerouslySetInnerHTML={{ __html: svg }}
-      />
-    </span>
-    );
+    return React.createElement('ion-icon', {
+        ...rest,
+        role: decorative ? undefined : 'img',
+        'aria-hidden': decorative ? true : undefined,
+        'aria-label': decorative ? undefined : title,
+        title,
+        class: clsx(
+            'app-ion-icon',
+            size === 'small' && 'icon-small',
+            size === 'large' && 'icon-large',
+            flipRtl && 'flip-rtl',
+            color && `ion-color ion-color-${color}`,
+            className
+        ),
+        style: {
+            ...style,
+            '--ionicon-size':
+                size && size !== 'small' && size !== 'large' ? size : undefined,
+        } as React.CSSProperties,
+        dangerouslySetInnerHTML: { __html: svg },
+    });
 }
 
 export default IonIcon;
