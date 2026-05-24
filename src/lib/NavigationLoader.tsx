@@ -76,12 +76,18 @@ export function NavigationLoader() {
             const href = anchor.getAttribute('href');
             if (!href) return;
             if (
-                href.startsWith('#') ||
-                href.startsWith('http') ||
                 href.startsWith('mailto') ||
                 anchor.hasAttribute('download') ||
                 anchor.getAttribute('target') === '_blank'
             ) return;
+
+            if (href.startsWith('#')) return;
+            try {
+                const url = new URL(href, window.location.href);
+                if (url.pathname === window.location.pathname && url.hash) return;
+            } catch {}
+
+            if (href.startsWith('http')) return;
             start();
         };
 
