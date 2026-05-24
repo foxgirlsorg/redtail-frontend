@@ -216,7 +216,7 @@
 }
 .card {
     width: 680px;
-    min-height: 400px;
+    min-height: 440px;
     height: auto;
     position: relative;
     border: 3px solid var(--text-primary);
