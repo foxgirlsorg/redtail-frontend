@@ -7,7 +7,9 @@ import { MemberPill } from '@/components/MemberPill/MemberPill';
 import { ChapterButton } from '@/components/TitlePage/ChapterButton/ChapterButton';
 import { Footer } from '@/components/Footer/Footer';
 import { IonIcon } from '@/components/IonIcon';
+import { DownloadCard } from '@/components/DownloadCard/DownloadCard';
 import styles from './TitlePage.module.css';
+
 
 type TitlePageProps = {
     title: any;
@@ -153,6 +155,7 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
     const thumbnail = title.cover?.formats?.medium?.url;
     const backdropUrl = title.backdrop?.url ?? title.cover?.url;
     const membersWorkedOn = title.members_worked_ons ?? title.members_worked_on ?? [];
+    const bookFiles = title.book_files ?? [];
 
     return (
         <main className={styles.container}>
@@ -177,6 +180,10 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                             className={styles.coverImg}
                         />
                     </div>
+
+                    {bookFiles.length > 0 && (
+                        <DownloadCard files={bookFiles} strDomain={strDomain} />
+                    )}
 
                     {membersWorkedOn.length > 0 && (
                         <div className={styles.sideCard}>
@@ -267,6 +274,12 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                     <div className={styles.panel}>
                         {title.description && (
                             <p className={styles.description}>{title.description}</p>
+                        )}
+
+                        {bookFiles.length > 0 && (
+                            <div className={styles.mobileDownloads}>
+                                <DownloadCard files={bookFiles} strDomain={strDomain} />
+                            </div>
                         )}
 
                         {membersWorkedOn.length > 0 && (

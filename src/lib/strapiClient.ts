@@ -67,6 +67,10 @@ export const getBook = cache(async (slug: string) => {
             chapters: {
                 sort: [{ number: 'desc' }],
             },
+            book_files: {
+                filters: { hidden: { $ne: true } },
+                populate: { file: true },
+            },
         },
     });
     return book.data;
