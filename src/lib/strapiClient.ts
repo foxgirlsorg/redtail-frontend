@@ -31,6 +31,14 @@ export const getTeamMembers = cache(async () => {
     return members.data;
 });
 
+export const getTeamMembersAll = cache(async () => {
+    const members = await client.collection('team-members').find({
+        populate: ['image'],
+        sort: 'createdAt',
+    });
+    return members.data;
+});
+
 export const getFooter = cache(async () => {
     const footer = await client.single('Footer').find();
     return footer.data;
