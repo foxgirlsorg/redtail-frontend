@@ -1,7 +1,8 @@
-/* ── Wrapper (controls + card side by side) ── */
+/* ── Wrapper ── */
 .wrapper {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
     gap: 24px;
     padding: 20px;
     min-height: 100vh;
@@ -10,7 +11,7 @@
 
 /* ── Controls panel ── */
 .controls {
-    width: 220px;
+    width: 240px;
     flex-shrink: 0;
     background: var(--bg-card);
     border: 1px solid var(--border);
@@ -21,6 +22,16 @@
     gap: 0.75rem;
     position: sticky;
     top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.controlsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
 }
 
 .controlsLabel {
@@ -29,11 +40,41 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--text-muted);
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
+}
+
+.controlsActions {
+    display: flex;
+    gap: 4px;
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 15px;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.actionBtn:hover {
+    color: var(--accent);
+    border-color: rgba(222, 97, 97, 0.35);
+    background: rgba(222, 97, 97, 0.06);
 }
 
 .toggleList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.memberControl {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -44,7 +85,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 6px 4px;
+    padding: 4px 4px;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.15s;
@@ -81,6 +122,29 @@
     flex-shrink: 0;
 }
 
+.roleOverride {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.roleOverride::placeholder {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.roleOverride:focus {
+    border-color: rgba(222, 97, 97, 0.35);
+}
+
 /* ── Toggle switch ── */
 .switch {
     flex-shrink: 0;
@@ -115,6 +179,49 @@
 .switchOn .switchThumb {
     transform: translateX(14px);
     background: var(--accent);
+}
+
+/* ── Exit fullscreen button ── */
+.exitFullscreen {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(22, 22, 22, 0.85);
+    backdrop-filter: blur(10px);
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.exitFullscreen:hover {
+    color: var(--accent);
+    border-color: rgba(222, 97, 97, 0.35);
+}
+
+/* ── Card wrapper (handles scaling) ── */
+.cardWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardWrapperFullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ── Card ── */
