@@ -10,7 +10,7 @@ type NavLink = { name: string; href: string };
 type NavVariant = 'home' | 'title' | 'inner';
 
 function resolveNav(pathname: string): { variant: NavVariant; backHref: string } | null {
-    if (pathname.startsWith('/article/') || pathname.includes('/reader/')) {
+    if (pathname.startsWith('/article/') || pathname.includes('/reader/') || pathname.includes('/teamcard')) {
         return null;
     }
     if (pathname === '/' || pathname === '') {
