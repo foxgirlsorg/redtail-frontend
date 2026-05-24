@@ -221,7 +221,7 @@
     position: relative;
     border: 3px solid var(--text-primary);
     overflow: hidden;
-    padding: 2.5rem 2.5rem 2rem;
+    padding: 2.5rem;
     display: flex;
     flex-direction: column;
     gap: 0;
