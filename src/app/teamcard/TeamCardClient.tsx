@@ -29,8 +29,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setOverrides(prev => ({ ...prev, [id]: value }));
 
     const visibleMembers = team.filter(m => visible[m.id]);
-
-    // Compute scale to fill viewport when fullscreen
     const computeScale = useCallback(() => {
         if (!cardRef.current) return;
         const cardH = cardRef.current.offsetHeight;
@@ -45,8 +43,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         window.addEventListener('resize', computeScale);
         return () => window.removeEventListener('resize', computeScale);
     }, [fullscreen, computeScale, visibleMembers.length]);
-
-    // Recompute when members change while in fullscreen
     useEffect(() => {
         if (fullscreen) computeScale();
     }, [visibleMembers.length, fullscreen, computeScale]);
@@ -54,7 +50,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     return (
         <div className={styles.wrapper}>
 
-            {/* ── Controls panel ── */}
+            {}
             {!controlsHidden && (
                 <div className={styles.controls}>
                     <div className={styles.controlsHeader}>
@@ -100,7 +96,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 </div>
             )}
 
-            {/* ── Fullscreen exit button ── */}
+            {}
             {fullscreen && (
                 <button
                     className={styles.exitFullscreen}
@@ -111,7 +107,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 </button>
             )}
 
-            {/* ── Card ── */}
+            {}
             <div
                 className={`${styles.cardWrapper} ${fullscreen ? styles.cardWrapperFullscreen : ''}`}
                 style={fullscreen ? { transform: `scale(${scale})`, transformOrigin: 'center center' } : undefined}
