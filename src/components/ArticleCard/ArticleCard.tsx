@@ -13,8 +13,6 @@ export const ArticleCard = ({ article, strDomain }: ArticleCardProps) => {
     }).replace(',', '');
 
     const bgUrl = article.card_bg?.formats?.medium?.url ?? article.card_bg?.url;
-    console.log(article)
-    console.log(bgUrl)
     const authors = (article.authors ?? []).map((a: any) => ({
         nickname: a.name,
         imgUrl: a.photo?.formats?.thumbnail?.url,
