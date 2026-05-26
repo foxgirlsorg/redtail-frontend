@@ -160,6 +160,7 @@ export const getArticle = cache(async (slug: string) => {
     const article = await client.collection('articles').find({
         filters: { slug: { $eq: slug } },
         populate: {
+            card_bg: true,
             authors:         { populate: { photo: true } },
             related_authors: { populate: { photo: true } },
             members_worked_on: { populate: { image: true } },

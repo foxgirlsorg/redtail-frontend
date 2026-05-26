@@ -31,7 +31,7 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
             <meta property="article:author" content={authors} />
             <meta property="article:published_time" content={article.publishedAt} />
             <meta property="telegram:channel" content={TELEGRAM_CHANNEL} />
-            <meta property="tg:site_verification" content="" />
+            <meta property="tg:site_verification" content="g7j8/rPFXfhyrq5q0QQV7EsYWv4=" />
         </head>
         <body>
         <div className="article">
