@@ -31,6 +31,7 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
                 <meta property="article:author" content={authors} />
                 <meta property="article:published_time" content={article.publishedAt} />
                 <meta property="telegram:channel" content={TELEGRAM_CHANNEL} />
+                <meta property="telegram:title" content={article.name} />
                 <meta property="tg:site_verification" content="g7j8/rPFXfhyrq5q0QQV7EsYWv4=" />
             </head>
             <div className="article">
@@ -41,8 +42,6 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
                             <img src={`${STRAPI_DOMAIN}${article.card_bg.url}`} alt={article.name} />
                         </figure>
                     )}
-
-                    <h1>{article.name}</h1>
 
                     <div className="markdown-body">
                         <ReactMarkdown rehypePlugins={[rehypeRaw]}>
