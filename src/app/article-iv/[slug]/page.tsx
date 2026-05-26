@@ -46,7 +46,7 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
 
                     <div className="markdown-body">
                         <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                            {article.content}
+                            {article.content.replace(/^#\s+.+\n?/, '')}
                         </ReactMarkdown>
                     </div>
 
