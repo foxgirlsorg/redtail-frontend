@@ -51,6 +51,11 @@ The CMS backend powering the content is maintained in a separate repository: [fo
    | `PUBLIC_STRAPI_DOMAIN` | Strapi domain used to resolve media URLs |
 
 
+| Variable | Description |
+   |---|---|
+| `PUBLIC_STRAPI_API_URL` | Full URL to the Strapi API (with `/api`) |
+| `PUBLIC_STRAPI_DOMAIN` | Strapi domain used to resolve media URLs |
+| `TELEGRAM_CHANNEL` | Telegram channel handle used for Instant View meta tags |
 
 4. **Start the development server**
    ```bash
@@ -91,6 +96,7 @@ src/
 │   ├── manga/[slug]/       # Manga title page + reader
 │   ├── book/[slug]/        # Book/novel title page + reader
 │   ├── article/[slug]/     # Article page (Markdown)
+│   ├── article-iv/[slug]/  # Telegram Instant View page (TelegramBot only)
 │   ├── author/[nickname]/  # Author profile page
 │   ├── not-found.tsx       # 404 page
 │   └── error.tsx           # 500 page
@@ -107,6 +113,7 @@ src/
 │   └── SmoothScroll        # Anchor smooth-scroll handler
 └── styles/
     └── markdown.css        # GitHub-style dark markdown theme
+middleware.ts               # Routes TelegramBot to /article-iv
 public/
 ├── bg.webm / bg-poster.jpg # Hero background video
 ├── error-bg.jpg            # Error page background image
