@@ -33,12 +33,8 @@ export async function generateMetadata({ params }: { params: pageProps }) : Prom
         title: `${article.name} | RedTail`,
         description: article.description?.slice(0, 150),
         openGraph: {
-            title: `${article.name}`,
+            title: `${article.name} — Перевод от RedTail`,
             description: article.description?.slice(0, 150),
-            publishedTime: article.publishedAt,
-            images: article.card_bg?.url
-                ? [`${STRAPI_DOMAIN}${article.card_bg.url}`]
-                : [],
         },
     };
 }
