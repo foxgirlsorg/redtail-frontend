@@ -8,6 +8,14 @@ const TELEGRAM_CHANNEL = process.env.TELEGRAM_CHANNEL!;
 
 type pageProps = Promise<{ slug: string }>;
 
+function removeFirstMarkdownTitle(content: string) {
+    return content.replace(
+        /^(\s*(?:<style[\s\S]*?<\/style>|<!--[\s\S]*?-->|<[^>]+>\s*)*)#\s+.*(?:\r?\n|$)/i,
+        '$1'
+    )
+}
+
+
 export default async function ArticleIVPage({ params }: { params: pageProps }) {
     const { slug } = await params;
     const article_data = await getArticle(slug);
@@ -31,7 +39,7 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
                 <meta property="article:author" content={authors} />
                 <meta property="article:published_time" content={article.publishedAt} />
                 <meta property="telegram:channel" content={TELEGRAM_CHANNEL} />
-                <meta property="telegram:title" content={article.name} />
+                <meta property="og:title" content={article.name} />
                 <meta property="tg:site_verification" content="g7j8/rPFXfhyrq5q0QQV7EsYWv4=" />
             </head>
             <div className="article">
@@ -45,7 +53,7 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
 
                     <div className="markdown-body">
                         <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                            {article.content.replace(/^#\s+.+\n?/, '')}
+                            {removeFirstMarkdownTitle(article.content)}
                         </ReactMarkdown>
                     </div>
 
