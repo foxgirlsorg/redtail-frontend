@@ -10,9 +10,9 @@ type pageProps = Promise<{ slug: string }>;
 
 function removeFirstMarkdownTitle(content: string) {
     return content.replace(
-        /^(\s*(?:<style[\s\S]*?<\/style>|<!--[\s\S]*?-->|<[^>]+>\s*)*)#\s+.*(?:\r?\n|$)/i,
+        /^([\s\S]*?<style[\s\S]*?<\/style>\s*)?#\s+.*(?:\r?\n|$)/i,
         '$1'
-    )
+    );
 }
 
 
