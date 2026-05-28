@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { setCookie, getCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
 
 type Page = {
+    number: number;
     image: { url: string };
 };
 
@@ -43,16 +44,21 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
     });
 
     const currentChapter = chapters[chapterIndex] as Chapter | undefined;
-    const currentPage    = currentChapter?.pages?.[pageIndex];
+    const sortedPages = useMemo(
+        () => currentChapter ? [...currentChapter.pages].sort((a, b) => a.number - b.number) : [],
+        [currentChapter],
+    );
+    const currentPage = sortedPages[pageIndex];
 
     const hasPrevPage = pageIndex > 0 || chapterIndex > 0;
     const hasNextPage =
         currentChapter !== undefined &&
-        (pageIndex + 1 < currentChapter.pages.length ||
-            chapterIndex + 1 < chapters.length);
+        (pageIndex + 1 < sortedPages.length || chapterIndex + 1 < chapters.length);
+
     useEffect(() => {
         setCookie('reader_width', imageWidth.toString());
     }, [imageWidth]);
+
     useEffect(() => {
         if (window.innerWidth < 800) setImageWidth(100);
 
@@ -61,6 +67,7 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         html.style.scrollbarGutter = 'stable';
         return () => { html.style.scrollbarGutter = prev; };
     }, []);
+
     useEffect(() => {
         let lastY = window.scrollY;
         const onScroll = () => {
@@ -71,6 +78,7 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
+
     const navigateTo = useCallback((targetChapterIdx: number, targetPageIdx: number) => {
         const ch = chapters[targetChapterIdx];
         if (!ch) return;
@@ -80,6 +88,7 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         }));
         router.push(`/manga/${ch.title.slug}/reader/${ch.number}?p=${targetPageIdx + 1}`);
     }, [chapters, router]);
+
     useEffect(() => {
         if (!chapters.length) return;
 
@@ -104,16 +113,17 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         setChapterIndex(idx);
         setPageIndex(safePage - 1);
     }, [chapter, chapters, searchParams, navigateTo]);
+
     const goNext = useCallback(() => {
         if (!currentChapter) return;
-        if (pageIndex + 1 < currentChapter.pages.length) {
+        if (pageIndex + 1 < sortedPages.length) {
             navigateTo(chapterIndex, pageIndex + 1);
         } else if (chapterIndex + 1 < chapters.length) {
             navigateTo(chapterIndex + 1, 0);
         } else {
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
-    }, [currentChapter, pageIndex, chapterIndex, chapters.length, navigateTo, router]);
+    }, [currentChapter, sortedPages.length, pageIndex, chapterIndex, chapters.length, navigateTo, router]);
 
     const goPrev = useCallback(() => {
         if (!currentChapter) return;
@@ -126,6 +136,7 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
     }, [currentChapter, pageIndex, chapterIndex, chapters, navigateTo, router]);
+
     if (!currentChapter || !currentPage) {
         return (
             <div className={styles.loaderContainer}>
@@ -166,7 +177,7 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
             </div>
 
             <div className={`${styles.pageNumber} ${pageNumVisible ? styles.visible : styles.hidden}`}>
-                <span>{pageIndex + 1} / {currentChapter.pages.length}</span>
+                <span>{pageIndex + 1} / {sortedPages.length}</span>
             </div>
         </div>
     );
