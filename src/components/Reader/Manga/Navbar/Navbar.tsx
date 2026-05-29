@@ -35,8 +35,10 @@ export default function Navbar({
     const type    = ['Книга', 'Ранобэ', 'Рассказ'].includes(currentChapter?.title.type)
         ? 'book'
         : 'manga';
-
-    // ── Hide navbar on scroll down ────────────────────────────
+    const sortedChapters = React.useMemo(
+        () => [...chapters].sort((a, b) => b.number - a.number),
+        [chapters],
+    );
     useEffect(() => {
         const onScroll = () => {
             const y = window.scrollY;
@@ -46,8 +48,6 @@ export default function Navbar({
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, [lastScroll]);
-
-    // ── Lock body scroll when sidebar is open ─────────────────
     useEffect(() => {
         const body = document.body;
         if (sidebarOpened) {
@@ -67,20 +67,19 @@ export default function Navbar({
 
     const handleBack = () => router.push(`/${type}/${currentChapter.title.slug}`);
 
-    const closeSidebarAndNavigate = (chapterIdx: number) => {
+    const closeSidebarAndNavigate = (realIndex: number) => {
         setSidebarOpened(false);
-        // Wait for sidebar close animation before navigating.
-        setTimeout(() => NavigateToAction(chapterIdx, 0), 300);
+        setTimeout(() => NavigateToAction(realIndex, 0), 300);
     };
 
     if (!currentChapter) return null;
 
     return (
         <>
-            {/* ── Top bar ─────────────────────────────────────── */}
+            {}
             <div className={`${styles.navbar} ${navbarVisible ? styles.visible : styles.hidden}`}>
 
-                {/* Left: back + title (+ desktop chapter switcher) */}
+                {}
                 <div className={styles.leftSide}>
                     <div className={styles.backContainer} onClick={handleBack}>
                         <IonIcon src="/icons/arrow-back-outline.svg" className={styles.backButton} />
@@ -90,7 +89,7 @@ export default function Navbar({
                         </div>
                     </div>
 
-                    {/* Desktop chapter prev/contents/next */}
+                    {}
                     <div className={styles.chapterSwitch}>
                         <IonIcon
                             src="/icons/chevron-back-outline.svg"
@@ -112,7 +111,7 @@ export default function Navbar({
                     </div>
                 </div>
 
-                {/* Right: slider (desktop) + burger (mobile) */}
+                {}
                 <div className={styles.rightSide}>
                     <div className={styles.slider}>
                         <span className={styles.widthSliderLabel}>
@@ -129,7 +128,7 @@ export default function Navbar({
                     </div>
                 </div>
 
-                {/* Mobile burger — only visible on small screens via CSS */}
+                {}
                 <div
                     className={styles.burgerButton}
                     onClick={() => setSidebarOpened(true)}
@@ -139,7 +138,7 @@ export default function Navbar({
                 </div>
             </div>
 
-            {/* ── Sidebar overlay ──────────────────────────────── */}
+            {}
             <div className={`${styles.contents} ${sidebarOpened ? styles.contentsVisible : ''}`}>
                 <div
                     className={styles.overlay}
@@ -157,11 +156,11 @@ export default function Navbar({
                     </div>
 
                     <div className={styles.sidebarChapterList}>
-                        {[...chapters].reverse().map((chapter, i) => {
-                            const realIndex = chapters.length - 1 - i;
+                        {sortedChapters.map((chapter) => {
+                            const realIndex = chapters.findIndex(c => c.number === chapter.number);
                             return (
                                 <div
-                                    key={realIndex}
+                                    key={chapter.number}
                                     className={`${stylesChapterButton.chapterButton} ${
                                         realIndex === chapterIndex ? stylesChapterButton.disabled : ''
                                     }`}

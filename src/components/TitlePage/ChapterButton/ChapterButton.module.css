@@ -57,6 +57,26 @@
     font-weight: 400;
 }
 
+.chapterRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.newBadge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: rgba(222, 97, 97, 0.15);
+    border: 1px solid rgba(222, 97, 97, 0.4);
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
 :global(ion-icon) {
     flex-shrink: 0;
     font-size: 14px;

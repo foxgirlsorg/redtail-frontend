@@ -157,6 +157,10 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
     const membersWorkedOn = title.members_worked_ons ?? title.members_worked_on ?? [];
     const bookFiles = title.book_files ?? [];
 
+    const sortedChapters = [...(title.chapters ?? [])].sort(
+        (a: any, b: any) => b.number - a.number,
+    );
+
     return (
         <main className={styles.container}>
             <div className={styles.backdrop}>
@@ -230,10 +234,10 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                                 </div>
                             )}
 
-                            {title.chapters?.length > 0 && (
+                            {sortedChapters.length > 0 && (
                                 <div className={styles.quickItem}>
                                     <span className={styles.quickLabel}>Глав</span>
-                                    <span className={styles.quickValue}>{title.chapters.length}</span>
+                                    <span className={styles.quickValue}>{sortedChapters.length}</span>
                                 </div>
                             )}
                         </div>
@@ -289,15 +293,15 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                             </div>
                         )}
 
-                        {title.chapters?.length > 0 && (
+                        {sortedChapters.length > 0 && (
                             <>
                                 <div className={styles.chapterHeader}>
                                     <span className={styles.chapterHeaderTitle}>Главы</span>
-                                    <span className={styles.chapterCount}>{title.chapters.length}</span>
+                                    <span className={styles.chapterCount}>{sortedChapters.length}</span>
                                 </div>
 
                                 <div className={styles.chapterList}>
-                                    {title.chapters.map((chapter: any, i: number) => (
+                                    {sortedChapters.map((chapter: any, i: number) => (
                                         <ChapterButton slug={title.slug} chapter={chapter} key={i} />
                                     ))}
                                 </div>
