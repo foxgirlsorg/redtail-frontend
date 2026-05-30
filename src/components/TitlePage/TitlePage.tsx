@@ -302,7 +302,7 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
 
                                 <div className={styles.chapterList}>
                                     {sortedChapters.map((chapter: any, i: number) => (
-                                        <ChapterButton slug={title.slug} chapter={chapter} key={i} />
+                                        <ChapterButton chapter={chapter} key={i} />
                                     ))}
                                 </div>
                             </>

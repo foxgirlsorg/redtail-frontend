@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { setCookie, getCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
 
 type Page = {
-    number: number;
     image: { url: string };
 };
 
@@ -43,17 +42,17 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         return stored ? Number(stored) : 40;
     });
 
+    // Track which control is hovered; cleared on every navigation
+    const [hoveredControl, setHoveredControl] = useState<'prev' | 'next' | null>(null);
+
     const currentChapter = chapters[chapterIndex] as Chapter | undefined;
-    const sortedPages = useMemo(
-        () => currentChapter ? [...currentChapter.pages].sort((a, b) => a.number - b.number) : [],
-        [currentChapter],
-    );
-    const currentPage = sortedPages[pageIndex];
+    const currentPage    = currentChapter?.pages?.[pageIndex];
 
     const hasPrevPage = pageIndex > 0 || chapterIndex > 0;
     const hasNextPage =
         currentChapter !== undefined &&
-        (pageIndex + 1 < sortedPages.length || chapterIndex + 1 < chapters.length);
+        (pageIndex + 1 < currentChapter.pages.length ||
+            chapterIndex + 1 < chapters.length);
 
     useEffect(() => {
         setCookie('reader_width', imageWidth.toString());
@@ -80,6 +79,9 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
     }, []);
 
     const navigateTo = useCallback((targetChapterIdx: number, targetPageIdx: number) => {
+        // Clear hover state before navigating so the gradient never gets stuck
+        setHoveredControl(null);
+
         const ch = chapters[targetChapterIdx];
         if (!ch) return;
         setCookie(`reader_progress_${ch.title.slug}`, JSON.stringify({
@@ -116,14 +118,14 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
 
     const goNext = useCallback(() => {
         if (!currentChapter) return;
-        if (pageIndex + 1 < sortedPages.length) {
+        if (pageIndex + 1 < currentChapter.pages.length) {
             navigateTo(chapterIndex, pageIndex + 1);
         } else if (chapterIndex + 1 < chapters.length) {
             navigateTo(chapterIndex + 1, 0);
         } else {
             router.push(`/manga/${currentChapter.title.slug}/`);
         }
-    }, [currentChapter, sortedPages.length, pageIndex, chapterIndex, chapters.length, navigateTo, router]);
+    }, [currentChapter, pageIndex, chapterIndex, chapters.length, navigateTo, router]);
 
     const goPrev = useCallback(() => {
         if (!currentChapter) return;
@@ -159,11 +161,23 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
                 <div className={styles.page} style={{ maxWidth: `${imageWidth}vw` }}>
                     <div className={styles.controls}>
                         <div
-                            className={`${styles.previousPageControl} ${!hasPrevPage ? styles.controlDisabled : ''}`}
+                            className={[
+                                styles.previousPageControl,
+                                !hasPrevPage ? styles.controlDisabled : '',
+                                hoveredControl === 'prev' ? styles.hovered : '',
+                            ].join(' ')}
+                            onMouseEnter={() => hasPrevPage && setHoveredControl('prev')}
+                            onMouseLeave={() => setHoveredControl(null)}
                             onClick={hasPrevPage ? goPrev : undefined}
                         />
                         <div
-                            className={`${styles.nextPageControl} ${!hasNextPage ? styles.controlDisabled : ''}`}
+                            className={[
+                                styles.nextPageControl,
+                                !hasNextPage ? styles.controlDisabled : '',
+                                hoveredControl === 'next' ? styles.hovered : '',
+                            ].join(' ')}
+                            onMouseEnter={() => hasNextPage && setHoveredControl('next')}
+                            onMouseLeave={() => setHoveredControl(null)}
                             onClick={hasNextPage ? goNext : undefined}
                         />
                     </div>
@@ -177,7 +191,7 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
             </div>
 
             <div className={`${styles.pageNumber} ${pageNumVisible ? styles.visible : styles.hidden}`}>
-                <span>{pageIndex + 1} / {sortedPages.length}</span>
+                <span>{pageIndex + 1} / {currentChapter.pages.length}</span>
             </div>
         </div>
     );

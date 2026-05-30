@@ -8,10 +8,9 @@ const NEW_CHAPTER_THRESHOLD_MS = 120 * 60 * 60 * 1000;
 
 interface ChapterButtonProps {
     chapter: any;
-    slug: string;
 }
 
-export const ChapterButton = ({chapter, slug}: ChapterButtonProps) => {
+export const ChapterButton = ({chapter}: ChapterButtonProps) => {
     const router = useRouter();
     const pathname = usePathname();
 

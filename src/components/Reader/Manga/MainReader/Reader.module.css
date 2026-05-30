@@ -41,13 +41,14 @@
     height: 100%;
     cursor: pointer;
     transition: background 0.2s ease;
+    background: transparent;
 }
 
-.previousPageControl:not(.controlDisabled):hover {
+.previousPageControl.hovered {
     background: linear-gradient(to right, rgba(222, 97, 97, 0.06), transparent);
 }
 
-.nextPageControl:not(.controlDisabled):hover {
+.nextPageControl.hovered {
     background: linear-gradient(to left, rgba(222, 97, 97, 0.06), transparent);
 }
 
@@ -77,12 +78,6 @@
 
 .previousChapterControl, .nextChapterControl {
     box-sizing: border-box;
-    padding: 10px 20px;
-    background-color: var(--bg-card);
-    transition: .3s;
-    cursor: pointer;
-    width: fit-content;
-    border-radius: 9999px;
     display: flex;
     align-items: center;
     gap: 8px;
