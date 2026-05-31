@@ -122,12 +122,10 @@ export function NavigationLoader() {
         };
 
         window.addEventListener('click', handleClick, true);
-        window.addEventListener('popstate', start);
         window.addEventListener('pageshow', handlePageShow);
 
         return () => {
             window.removeEventListener('click', handleClick, true);
-            window.removeEventListener('popstate', start);
             window.removeEventListener('pageshow', handlePageShow);
             history.pushState    = originalPush;
             history.replaceState = originalReplace;
