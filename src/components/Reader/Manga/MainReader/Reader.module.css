@@ -11,11 +11,16 @@
     padding-top: 50px;
 }
 .page {
-    position: relative;
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
+}
+
+.pageImageWrap {
+    position: relative;
+    width: 100%;
 }
 
 .pageImage {
@@ -25,12 +30,16 @@
     user-select: none;
     -webkit-user-drag: none;
 }
+
+.pageComments {
+    width: min(100%, 900px);
+    padding: 0 1rem 3rem;
+    box-sizing: border-box;
+}
+
 .controls {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: 0;
     z-index: 10;
     display: flex;
 }

@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { setCookie, getCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
+import {Comments} from "@/components/Comments";
 
 type Page = {
+    documentId: string;
     image: { url: string };
 };
 
@@ -17,6 +19,7 @@ type Title = {
 };
 
 export type Chapter = {
+    documentId: string;
     number: number;
     name?: string;
     title: Title;
@@ -41,8 +44,6 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         const stored = getCookie('reader_width');
         return stored ? Number(stored) : 40;
     });
-
-    // Track which control is hovered; cleared on every navigation
     const [hoveredControl, setHoveredControl] = useState<'prev' | 'next' | null>(null);
 
     const currentChapter = chapters[chapterIndex] as Chapter | undefined;
@@ -79,7 +80,6 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
     }, []);
 
     const navigateTo = useCallback((targetChapterIdx: number, targetPageIdx: number) => {
-        // Clear hover state before navigating so the gradient never gets stuck
         setHoveredControl(null);
 
         const ch = chapters[targetChapterIdx];
@@ -159,35 +159,47 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
 
             <div className={styles.pageContainer}>
                 <div className={styles.page} style={{ maxWidth: `${imageWidth}vw` }}>
-                    <div className={styles.controls}>
-                        <div
-                            className={[
-                                styles.previousPageControl,
-                                !hasPrevPage ? styles.controlDisabled : '',
-                                hoveredControl === 'prev' ? styles.hovered : '',
-                            ].join(' ')}
-                            onMouseEnter={() => hasPrevPage && setHoveredControl('prev')}
-                            onMouseLeave={() => setHoveredControl(null)}
-                            onClick={hasPrevPage ? goPrev : undefined}
-                        />
-                        <div
-                            className={[
-                                styles.nextPageControl,
-                                !hasNextPage ? styles.controlDisabled : '',
-                                hoveredControl === 'next' ? styles.hovered : '',
-                            ].join(' ')}
-                            onMouseEnter={() => hasNextPage && setHoveredControl('next')}
-                            onMouseLeave={() => setHoveredControl(null)}
-                            onClick={hasNextPage ? goNext : undefined}
+                    <div className={styles.pageImageWrap}>
+                        <div className={styles.controls}>
+                            <div
+                                className={[
+                                    styles.previousPageControl,
+                                    !hasPrevPage ? styles.controlDisabled : '',
+                                    hoveredControl === 'prev' ? styles.hovered : '',
+                                ].join(' ')}
+                                onMouseEnter={() => hasPrevPage && setHoveredControl('prev')}
+                                onMouseLeave={() => setHoveredControl(null)}
+                                onClick={hasPrevPage ? goPrev : undefined}
+                            />
+                            <div
+                                className={[
+                                    styles.nextPageControl,
+                                    !hasNextPage ? styles.controlDisabled : '',
+                                    hoveredControl === 'next' ? styles.hovered : '',
+                                ].join(' ')}
+                                onMouseEnter={() => hasNextPage && setHoveredControl('next')}
+                                onMouseLeave={() => setHoveredControl(null)}
+                                onClick={hasNextPage ? goNext : undefined}
+                            />
+                        </div>
+                        <img
+                            src={strDomain + currentPage.image.url}
+                            className={styles.pageImage}
+                            alt={`Страница ${pageIndex + 1}`}
+                            draggable={false}
                         />
                     </div>
-                    <img
-                        src={strDomain + currentPage.image.url}
-                        className={styles.pageImage}
-                        alt={`Страница ${pageIndex + 1}`}
-                        draggable={false}
-                    />
+                    <div className={styles.pageComments}>
+                        <Comments
+                            contentType="api::manga-page.manga-page"
+                            contentId={currentPage.documentId}
+                        />
+                    </div>
                 </div>
+
+
+
+
             </div>
 
             <div className={`${styles.pageNumber} ${pageNumVisible ? styles.visible : styles.hidden}`}>

@@ -3,7 +3,7 @@ import { getArticle } from '@/lib/strapiClient';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN!;
+const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN!;
 const TELEGRAM_CHANNEL = process.env.TELEGRAM_CHANNEL!;
 
 type pageProps = Promise<{ slug: string }>;

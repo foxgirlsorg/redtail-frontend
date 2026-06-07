@@ -8,6 +8,7 @@ import { getCookie, setCookie } from '@/lib/cookies';
 import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
 import { IonIcon } from '@/components/IonIcon';
 import '@/styles/markdown.css';
+import {Comments} from "@/components/Comments";
 
 type Title = {
     slug: string;
@@ -16,6 +17,7 @@ type Title = {
 };
 
 export type Chapter = {
+    documentId: string;
     number: number;
     name?: string;
     content: string;
@@ -143,6 +145,10 @@ export function BookReader({ chapters, chapter }: BookReaderProps) {
                         hasNext={hasNext}
                         onPrev={() => navigateTo(chapterIndex - 1)}
                         onNext={() => navigateTo(chapterIndex + 1)}
+                    />
+                    <Comments
+                        contentType="api::book-chapter.book-chapter"
+                        contentId={currentChapter.documentId}
                     />
                 </div>
             </div>
