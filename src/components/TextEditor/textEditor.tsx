@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { IonIcon } from '@/components/IonIcon';
@@ -32,6 +32,21 @@ export function TextEditor({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const didPlaceInitialCursor = useRef(false);
+
+    useEffect(() => {
+        if (didPlaceInitialCursor.current || !initialValue) return;
+
+        const textarea = textareaRef.current;
+        if (!textarea) return;
+
+        didPlaceInitialCursor.current = true;
+
+        requestAnimationFrame(() => {
+            const cursor = textarea.value.length;
+            textarea.setSelectionRange(cursor, cursor);
+        });
+    }, [initialValue]);
 
     const insert = (before: string, after = '') => {
         const textarea = textareaRef.current;
