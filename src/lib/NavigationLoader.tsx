@@ -151,13 +151,11 @@ export function NavigationLoader() {
             return originalReplace(...args);
         };
 
-        window.addEventListener('click',    handleClick,            true);
-        window.addEventListener('popstate', handleBrowserNavigation);
+        window.addEventListener('click', handleClick, true);
         window.addEventListener('pageshow', handlePageShow);
 
         return () => {
-            window.removeEventListener('click',    handleClick,            true);
-            window.removeEventListener('popstate', handleBrowserNavigation);
+            window.removeEventListener('click', handleClick, true);
             window.removeEventListener('pageshow', handlePageShow);
             history.pushState    = originalPush;
             history.replaceState = originalReplace;
