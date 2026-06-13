@@ -5,6 +5,10 @@ import { usePathname, useSearchParams } from 'next/navigation';
 
 const BAR_ID = '__nav-progress-bar__';
 
+const FINISH_COMPLETE_MS   = 180;
+const FINISH_RESET_MS      = 450;
+const BROWSER_NAV_GUARD_MS = 1000;
+
 function getBar(): HTMLDivElement {
     let bar = document.getElementById(BAR_ID) as HTMLDivElement | null;
     if (!bar) {
@@ -32,8 +36,12 @@ function getBar(): HTMLDivElement {
 export function NavigationLoader() {
     const pathname     = usePathname();
     const searchParams = useSearchParams();
-    const finishTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-    const started      = useRef(false);
+
+    const finishTimers     = useRef<ReturnType<typeof setTimeout>[]>([]);
+    const started          = useRef(false);
+    const isBrowserNav     = useRef(false);
+    const browserNavTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
+
     const start = () => {
         finishTimers.current.forEach(clearTimeout);
         finishTimers.current = [];
@@ -42,6 +50,7 @@ export function NavigationLoader() {
         bar.style.transition = 'none';
         bar.style.width      = '0%';
         bar.style.opacity    = '1';
+
         requestAnimationFrame(() => {
             bar.style.transition = 'width 10s cubic-bezier(0.05, 0.5, 0.1, 1)';
             bar.style.width      = '75%';
@@ -50,6 +59,7 @@ export function NavigationLoader() {
         document.documentElement.style.cursor = 'wait';
         started.current = true;
     };
+
     const finish = () => {
         if (!started.current) return;
         started.current = false;
@@ -57,87 +67,110 @@ export function NavigationLoader() {
         const bar = getBar();
         bar.style.transition = 'width 0.15s ease';
         bar.style.width      = '100%';
+
         const t1 = setTimeout(() => {
             bar.style.transition = 'opacity 0.25s ease';
             bar.style.opacity    = '0';
-        }, 180);
+        }, FINISH_COMPLETE_MS);
+
         const t2 = setTimeout(() => {
             bar.style.transition = 'none';
             bar.style.width      = '0%';
-        }, 450);
+        }, FINISH_RESET_MS);
 
         finishTimers.current = [t1, t2];
         document.documentElement.style.cursor = '';
     };
+
+    const reset = () => {
+        finishTimers.current.forEach(clearTimeout);
+        finishTimers.current = [];
+        started.current = false;
+        document.documentElement.style.cursor = '';
+
+        const bar = document.getElementById(BAR_ID) as HTMLDivElement | null;
+        if (!bar) return;
+        bar.style.transition = 'none';
+        bar.style.opacity    = '0';
+        bar.style.width      = '0%';
+    };
+
+    const clearBrowserNavGuard = () => {
+        clearTimeout(browserNavTimer.current ?? undefined);
+        browserNavTimer.current = null;
+        isBrowserNav.current    = false;
+    };
+
+    const handleBrowserNavigation = () => {
+        isBrowserNav.current = true;
+        clearTimeout(browserNavTimer.current ?? undefined);
+        browserNavTimer.current = setTimeout(clearBrowserNavGuard, BROWSER_NAV_GUARD_MS);
+        reset();
+    };
+
     useEffect(() => {
+        const shouldStartForUrl = (value: string | URL | null | undefined): boolean => {
+            if (!value || isBrowserNav.current) return false;
+            const url = new URL(value.toString(), location.href);
+            return url.pathname !== location.pathname || url.search !== location.search;
+        };
+
         const handleClick = (e: MouseEvent) => {
             const anchor = (e.target as Element).closest('a');
             if (!anchor) return;
+
             const href = anchor.getAttribute('href');
             if (!href) return;
-            if (
-                href.startsWith('mailto') ||
-                anchor.hasAttribute('download') ||
-                anchor.getAttribute('target') === '_blank'
-            ) return;
-
             if (href.startsWith('#')) return;
+            if (href.startsWith('mailto')) return;
+            if (href.startsWith('http')) return;
+            if (anchor.getAttribute('target') === '_blank') return;
+            if (anchor.hasAttribute('download')) return;
+
             try {
-                const url = new URL(href, window.location.href);
-                if (url.pathname === window.location.pathname && url.hash) return;
+                const url = new URL(href, location.href);
+                if (url.pathname === location.pathname && url.hash) return;
             } catch {}
 
-            if (href.startsWith('http')) return;
             start();
         };
 
-        const handlePageShow = (e: PageTransitionEvent) => { // ← add here
-            if (e.persisted) {
-                finishTimers.current.forEach(clearTimeout);
-                finishTimers.current = [];
-                started.current = false;
-                document.documentElement.style.cursor = '';
-                const bar = document.getElementById('__nav-progress-bar__') as HTMLDivElement | null;
-                if (bar) {
-                    bar.style.transition = 'none';
-                    bar.style.opacity = '0';
-                    bar.style.width = '0%';
-                }
-            }
+        const handlePageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) handleBrowserNavigation();
         };
 
         const originalPush    = history.pushState.bind(history);
         const originalReplace = history.replaceState.bind(history);
 
         history.pushState = (...args) => {
-            start();
+            if (shouldStartForUrl(args[2])) start();
             return originalPush(...args);
         };
         history.replaceState = (...args) => {
-            const newUrl = args[2]?.toString() ?? '';
-            if (newUrl && new URL(newUrl, location.href).pathname !== location.pathname) {
-                start();
-            }
+            if (shouldStartForUrl(args[2])) start();
             return originalReplace(...args);
         };
 
-        window.addEventListener('click', handleClick, true);
-        window.addEventListener('popstate', start);
+        window.addEventListener('click',    handleClick,            true);
+        window.addEventListener('popstate', handleBrowserNavigation);
         window.addEventListener('pageshow', handlePageShow);
 
         return () => {
-            window.removeEventListener('click', handleClick, true);
-            window.removeEventListener('popstate', start);
+            window.removeEventListener('click',    handleClick,            true);
+            window.removeEventListener('popstate', handleBrowserNavigation);
             window.removeEventListener('pageshow', handlePageShow);
             history.pushState    = originalPush;
             history.replaceState = originalReplace;
             finishTimers.current.forEach(clearTimeout);
+            clearBrowserNavGuard();
             document.documentElement.style.cursor = '';
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
+
     useEffect(() => {
         finish();
-    }, [pathname, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+        clearBrowserNavGuard();
+    }, [pathname, searchParams]);
 
     return null;
 }
