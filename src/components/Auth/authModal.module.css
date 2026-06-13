@@ -508,6 +508,10 @@
     box-shadow: 0 0 20px rgba(222, 60, 60, 0.15);
 }
 
+.submitBtn > ion-icon{
+    font-size: 18px;
+}
+
 .switchRow {
     display: flex;
     align-items: center;
@@ -526,8 +530,7 @@
     font-family: inherit;
     padding: 0;
     transition: color 0.2s;
-    text-decoration: underline;
-    text-underline-offset: 2px;
+
 }
 
 .switchLink:hover {
@@ -586,8 +589,6 @@
     padding: 0;
     align-self: flex-end;
     transition: color 0.2s;
-    text-decoration: underline;
-    text-underline-offset: 2px;
 }
 
 .forgotLink:hover {
