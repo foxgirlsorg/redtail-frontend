@@ -14,7 +14,7 @@ The CMS backend powering the content is maintained in a separate repository: [fo
 * **Styling:** CSS Modules
 * **CMS Client:** [@strapi/client](https://www.npmjs.com/package/@strapi/client)
 * **Markdown:** [react-markdown](https://github.com/remarkjs/react-markdown) + rehype-raw
-* **Icons:** [Ionic Icons](https://ionic.io/ionicons) via `@ionic/core`
+* **Icons:** [Ionic Icons](https://ionic.io/ionicons) via custom SVG loader
 * **Image Lightbox:** [react-photo-view](https://github.com/MinJieLiu/react-photo-view)
 
 ## 🚀 Local Development
@@ -43,19 +43,14 @@ The CMS backend powering the content is maintained in a separate repository: [fo
    ```env
    PUBLIC_STRAPI_API_URL=http://localhost:1337/api
    PUBLIC_STRAPI_DOMAIN=http://localhost:1337
+   NEXT_PUBLIC_STRAPI_DOMAIN=http://localhost:1337
    ```
 
-   | Variable | Description |
-      |---|---|
-   | `PUBLIC_STRAPI_API_URL` | Full URL to the Strapi API (with `/api`) |
-   | `PUBLIC_STRAPI_DOMAIN` | Strapi domain used to resolve media URLs |
-
-
-| Variable | Description |
-   |---|---|
-| `PUBLIC_STRAPI_API_URL` | Full URL to the Strapi API (with `/api`) |
-| `PUBLIC_STRAPI_DOMAIN` | Strapi domain used to resolve media URLs |
-| `TELEGRAM_CHANNEL` | Telegram channel handle used for Instant View meta tags |
+   | Variable | Required | Description |
+      |---|---|---|
+   | `PUBLIC_STRAPI_API_URL` | Yes | Full URL to the Strapi API (with `/api`) — used server-side |
+   | `NEXT_PUBLIC_STRAPI_DOMAIN` | Yes | Strapi domain exposed to the browser (auth, comments, image URLs) |
+   | `TELEGRAM_CHANNEL` | No | Telegram channel handle used for Instant View meta tags |
 
 4. **Start the development server**
    ```bash
@@ -79,7 +74,6 @@ adblockers and avoid exposing the Umami server URL to the client.
 | `NEXT_PUBLIC_UMAMI_SERVER_URL` | No | URL of your Umami instance. Defaults to Umami Cloud. |
 | `NEXT_PUBLIC_UMAMI_DOMAINS` | No | Comma-separated list of domains to track. Tracks all if unset. |
 
-
 ## 📦 Building & Deployment
 
 ```bash
@@ -98,17 +92,23 @@ src/
 │   ├── article/[slug]/     # Article page (Markdown)
 │   ├── article-iv/[slug]/  # Telegram Instant View page (TelegramBot only)
 │   ├── author/[nickname]/  # Author profile page
+│   ├── auth/               # Login, register, profile, password-reset pages
 │   ├── not-found.tsx       # 404 page
 │   └── error.tsx           # 500 page
 ├── components/             # Reusable UI components
+│   ├── Auth/               # Auth modal, forms, profile view
+│   ├── Comments/           # Comment section with threading and Markdown support
 │   ├── Reader/             # Manga and book reader (client-side)
+│   ├── TextEditor/         # Markdown editor used in comments
 │   ├── TitlePage/          # Title detail page layout
 │   ├── SiteNavbar/         # Top navigation bar
 │   ├── Footer/             # Site footer
 │   └── ...
 ├── lib/
-│   ├── strapiClient.ts     # All Strapi data-fetching functions
-│   ├── cookies.ts          # Cookie read/write helpers
+│   ├── strapiClient.ts     # All Strapi data-fetching functions (server-side)
+│   ├── authContext.tsx     # Auth state, login/register/profile/password logic
+│   ├── commentsApi.ts      # Comments CRUD against Strapi Comments plugin
+│   ├── cookies.ts          # Cookie read/write helpers (reader progress)
 │   ├── NavigationLoader    # Route-change progress bar
 │   └── SmoothScroll        # Anchor smooth-scroll handler
 └── styles/
@@ -122,6 +122,21 @@ public/
 ├── fonts/                  # Inter, Mukta, Roboto
 └── icons/                  # SVG icon set
 ```
+
+## 🔐 Authentication & Password Changes
+
+Strapi's `/api/auth/change-password` endpoint does not reliably verify the
+current password across all versions and configurations. Password changes
+therefore use a two-step approach:
+
+1. A login attempt is made against `/api/auth/local` with the user's current
+   email and the supplied current password. If Strapi rejects it, the request
+   is aborted immediately with an "incorrect current password" error.
+2. Only after a successful login does the code apply the new password via
+   `PUT /api/users/:id`.
+
+Profile field updates (username, email, avatar) are a separate `PUT` request
+and are unaffected by the password flow.
 
 ## 📄 License
 

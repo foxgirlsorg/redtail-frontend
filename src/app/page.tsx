@@ -7,7 +7,7 @@ import { IonIcon } from '@/components/IonIcon';
 import {BgVideo} from "@/components/BgVideo/BgVIdeo";
 import { ArticleCard } from '@/components/ArticleCard/ArticleCard';
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
+const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN;
 
 export const dynamic = 'force-dynamic';
 

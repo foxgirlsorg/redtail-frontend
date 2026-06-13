@@ -16,7 +16,8 @@ export const ReadButton = ({ title }: rBtnProps) => {
     const pathname = usePathname();
 
     useEffect(() => {
-        if (title.chapters.length === 0) return;
+        console.log(title);
+        if (title.chapters === undefined || title.chapters.length === 0) return;
 
         const getLastReadPosition = (slug: string) => {
             const raw = getCookie(`reader_progress_${slug}`);
@@ -55,7 +56,7 @@ export const ReadButton = ({ title }: rBtnProps) => {
         }
     };
 
-    if (title.chapters.length === 0) {
+    if (title.chapters === undefined || title.chapters.length === 0) {
         return (
             <Btn iconSrc="/icons/arrow-forward-outline.svg" text="Читать" disabled={true} />
         );

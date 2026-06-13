@@ -8,6 +8,8 @@ import { ChapterButton } from '@/components/TitlePage/ChapterButton/ChapterButto
 import { Footer } from '@/components/Footer/Footer';
 import { IonIcon } from '@/components/IonIcon';
 import { DownloadCard } from '@/components/DownloadCard/DownloadCard';
+import { Comments } from '@/components/Comments';
+import { fetchComments } from '@/lib/commentsApi';
 import styles from './TitlePage.module.css';
 
 
@@ -18,7 +20,6 @@ type TitlePageProps = {
 };
 
 const GAP = 5;
-
 
 type Member = { nickname: string; image?: { formats?: { thumbnail?: { url?: string } } } };
 
@@ -150,16 +151,43 @@ export const MemberPills = ({ members, strDomain }: MemberPillsProps) => {
     );
 };
 
+function contentTypeFromTitle(title: any): string {
+    const bookTypes = ['Книга', 'Ранобэ', 'Рассказ'];
+    return bookTypes.includes(title.type)
+        ? 'api::book-title.book-title'
+        : 'api::manga-title.manga-title';
+}
+
+function countComments(items: any[] = []): number {
+    return items.reduce(
+        (sum: number, item: any) => sum + 1 + countComments(item.children ?? []),
+        0,
+    );
+}
+
+type Tab = 'chapters' | 'comments';
 
 export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
-    const thumbnail = title.cover?.formats?.medium?.url;
-    const backdropUrl = title.backdrop?.url ?? title.cover?.url;
+    const thumbnail       = title.cover?.formats?.medium?.url;
+    const backdropUrl     = title.backdrop?.url ?? title.cover?.url;
     const membersWorkedOn = title.members_worked_ons ?? title.members_worked_on ?? [];
-    const bookFiles = title.book_files ?? [];
+    const bookFiles       = title.book_files ?? [];
 
     const sortedChapters = [...(title.chapters ?? [])].sort(
         (a: any, b: any) => b.number - a.number,
     );
+
+    const contentType = contentTypeFromTitle(title);
+    const contentId   = title.documentId as string;
+
+    const [activeTab, setActiveTab]       = React.useState<Tab>('chapters');
+    const [commentCount, setCommentCount] = React.useState<number | null>(null);
+
+    React.useEffect(() => {
+        fetchComments(contentType, contentId, null)
+            .then(data => setCommentCount(countComments(data)))
+            .catch(() => setCommentCount(0));
+    }, [contentType, contentId]);
 
     return (
         <main className={styles.container}>
@@ -293,19 +321,49 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                             </div>
                         )}
 
-                        {sortedChapters.length > 0 && (
-                            <>
-                                <div className={styles.chapterHeader}>
-                                    <span className={styles.chapterHeaderTitle}>Главы</span>
-                                    <span className={styles.chapterCount}>{sortedChapters.length}</span>
-                                </div>
+                        <div className={styles.tabs}>
+                            <button
+                                className={`${styles.tabBtn} ${activeTab === 'chapters' ? styles.tabBtnActive : ''}`}
+                                onClick={() => setActiveTab('chapters')}
+                            >
+                                Главы
+                                {sortedChapters.length > 0 && (
+                                    <span className={styles.tabBadge}>{sortedChapters.length}</span>
+                                )}
+                            </button>
+                            <button
+                                className={`${styles.tabBtn} ${activeTab === 'comments' ? styles.tabBtnActive : ''}`}
+                                onClick={() => setActiveTab('comments')}
+                            >
+                                Комментарии
+                                {commentCount !== null && commentCount > 0 && (
+                                    <span className={styles.tabBadge}>{commentCount}</span>
+                                )}
+                            </button>
+                        </div>
 
+                        {activeTab === 'chapters' && (
+                            sortedChapters.length > 0 ? (
                                 <div className={styles.chapterList}>
                                     {sortedChapters.map((chapter: any, i: number) => (
                                         <ChapterButton chapter={chapter} key={i} />
                                     ))}
                                 </div>
-                            </>
+                            ) : (
+                                <div className={styles.emptyChapters}>
+                                    Главы пока не добавлены.
+                                </div>
+                            )
+                        )}
+
+                        {activeTab === 'comments' && (
+                            <div className={styles.commentsPanel}>
+                                <Comments
+                                    contentType={contentType}
+                                    contentId={contentId}
+                                    embedded
+                                />
+                            </div>
                         )}
                     </div>
                 </div>

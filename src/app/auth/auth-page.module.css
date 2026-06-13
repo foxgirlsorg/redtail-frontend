@@ -1,0 +1,200 @@
+.page {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.bgImg {
+    position: absolute;
+    inset: 0;
+    background-image: url('/bg-poster.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px) brightness(0.3);
+    transform: scale(1.05);
+}
+
+.bgOverlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+            circle at center,
+            rgba(15, 15, 17, 0.45) 0%,
+            rgba(15, 15, 17, 0.93) 100%
+    );
+}
+
+.card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 460px;
+    background: rgba(20, 20, 22, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow:
+            0 32px 80px rgba(0, 0, 0, 0.75),
+            0 0 0 1px rgba(222, 97, 97, 0.06) inset;
+    animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cardWide {
+    max-width: 520px;
+}
+.card::before {
+    content: '';
+    display: block;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), rgba(222, 97, 97, 0.3), transparent);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.5rem 1.75rem 0;
+}
+
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.title {
+    font-family: "Inter", sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.subtitle {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.backBtn:hover {
+    color: var(--accent);
+    border-color: rgba(222, 97, 97, 0.3);
+    background: rgba(222, 97, 97, 0.05);
+}
+
+.statusCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+}
+
+.statusIcon {
+    font-size: 3.5rem;
+    line-height: 1;
+}
+
+.statusIconSuccess { color: #7dd87d; }
+.statusIconError   { color: var(--accent); opacity: 0.8; }
+
+.statusTitle {
+    font-family: "Inter", sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.statusDesc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    max-width: 280px;
+    margin: 0;
+}
+
+.statusBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 22px;
+    border-radius: 9px;
+    border: 1px solid rgba(222, 97, 97, 0.4);
+    background: rgba(222, 97, 97, 0.1);
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    text-decoration: none;
+}
+
+.statusBtn:hover {
+    background: rgba(222, 97, 97, 0.2);
+    border-color: rgba(222, 97, 97, 0.65);
+}
+
+.bigSpinner {
+    display: block;
+    width: 44px;
+    height: 44px;
+    border: 3px solid rgba(222, 97, 97, 0.15);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.redirectHint {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+}

@@ -8,12 +8,12 @@ import { getArticle } from '@/lib/strapiClient';
 import styles from './page.module.css'
 import {IonIcon} from "@/components/IonIcon";
 import '@/styles/markdown.css';
-
+import { Comments } from '@/components/Comments';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import {MemberPill} from "@/components/MemberPill/MemberPill";
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN!;
+const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN!;
 
 type pageProps = Promise<{ slug: string }>;
 
@@ -131,6 +131,12 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
                         </div>
                     )}
 
+                </div>
+                <div className={styles.markdown} style={{ marginTop: 0, paddingTop: 0 }}>
+                    <Comments
+                        contentType="api::article.article"
+                        contentId={article.documentId}
+                    />
                 </div>
             </div>
             <Footer footer={footer} />

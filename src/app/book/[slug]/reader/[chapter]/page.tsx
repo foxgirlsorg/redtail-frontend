@@ -5,7 +5,7 @@ import {BookReader} from "@/components/Reader/Manga/MainReader/BookReader";
 import {Metadata} from "next";
 import type { Chapter } from '@/components/Reader/Manga/MainReader/BookReader';
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
+const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN;
 
 type pageProps = Promise<{ slug: string, chapter: string }>;
 

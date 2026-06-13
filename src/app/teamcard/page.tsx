@@ -1,7 +1,7 @@
 import { getTeamMembersAll } from '@/lib/strapiClient';
 import TeamCardClient from './TeamCardClient';
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
+const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN;
 
 export const dynamic = 'force-dynamic';
 

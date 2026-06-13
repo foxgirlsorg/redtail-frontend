@@ -4,7 +4,7 @@ import { getFooter, getManga } from '@/lib/strapiClient';
 import { TitlePage } from '@/components/TitlePage/TitlePage';
 import {Metadata} from "next";
 
-const STRAPI_DOMAIN = process.env.PUBLIC_STRAPI_DOMAIN;
+const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN;
 
 type pageProps = Promise<{ slug: string }>;
 
