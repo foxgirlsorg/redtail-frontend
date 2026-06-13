@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth, type AuthModalView } from '@/lib/authContext';
+import { overrideErrorMessage } from '@/lib/errorOverrides';
 import { IonIcon } from '@/components/IonIcon';
 import styles from './authModal.module.css';
 
@@ -10,7 +11,7 @@ export function Spinner() { return <span className={styles.spinner} />; }
 export function ErrorBanner({ msg }: { msg: string }) {
     return (
         <div className={styles.errorBanner}>
-            <IonIcon src="/icons/alert-circle-outline.svg" />{msg}
+            <IonIcon src="/icons/alert-circle-outline.svg" />{overrideErrorMessage(msg)}
         </div>
     );
 }

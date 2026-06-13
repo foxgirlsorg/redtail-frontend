@@ -7,6 +7,7 @@ import React, {
     useEffect,
     useCallback,
 } from 'react';
+import { overrideErrorMessage } from '@/lib/errorOverrides';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_DOMAIN!;
 
@@ -89,6 +90,10 @@ async function readJsonSafe(res: Response) {
     return res.json().catch(() => ({}));
 }
 
+function getApiErrorMessage(error: any, fallback: string): string {
+    return overrideErrorMessage(error?.error?.message ?? fallback);
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
@@ -132,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!res.ok) {
             const err = await readJsonSafe(res);
-            throw new Error(err.error?.message ?? 'Ошибка входа');
+            throw new Error(getApiErrorMessage(err, 'Ошибка входа'));
         }
 
         const data = await res.json();
@@ -163,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!res.ok) {
             const err = await readJsonSafe(res);
-            throw new Error(err.error?.message ?? 'Ошибка регистрации');
+            throw new Error(getApiErrorMessage(err, 'Ошибка регистрации'));
         }
 
         const data = await res.json();
@@ -214,7 +219,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (!pwRes.ok) {
                 const err = await readJsonSafe(pwRes);
-                throw new Error(err.error?.message ?? 'Не удалось изменить пароль');
+                throw new Error(getApiErrorMessage(err, 'Не удалось изменить пароль'));
             }
         }
         let avatarId: number | undefined;
@@ -233,7 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (!uploadRes.ok) {
                 const err = await readJsonSafe(uploadRes);
-                throw new Error(err.error?.message ?? 'Не удалось загрузить аватар');
+                throw new Error(getApiErrorMessage(err, 'Не удалось загрузить аватар'));
             }
 
             const uploaded = await uploadRes.json();
@@ -257,7 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (!res.ok) {
                 const err = await readJsonSafe(res);
-                throw new Error(err.error?.message ?? 'Не удалось обновить профиль');
+                throw new Error(getApiErrorMessage(err, 'Не удалось обновить профиль'));
             }
         }
 
@@ -275,7 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!res.ok) {
             const err = await readJsonSafe(res);
-            throw new Error(err.error?.message ?? 'Ошибка запроса сброса пароля');
+            throw new Error(getApiErrorMessage(err, 'Ошибка запроса сброса пароля'));
         }
     };
 
@@ -298,7 +303,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (!res.ok) {
             const err = await readJsonSafe(res);
-            throw new Error(err.error?.message ?? 'Ошибка сброса пароля');
+            throw new Error(getApiErrorMessage(err, 'Ошибка сброса пароля'));
         }
     };
 

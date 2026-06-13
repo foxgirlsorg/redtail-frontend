@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useAuth } from '@/lib/authContext';
+import { getErrorMessage } from '@/lib/errorOverrides';
 import { IonIcon } from '@/components/IonIcon';
 import { TextEditor } from '@/components/TextEditor';
 import {
@@ -271,8 +272,8 @@ export function Comments({ contentType, contentId, embedded = false }: CommentsP
         try {
             const data = await fetchComments(contentType, contentId, token);
             setComments(data);
-        } catch (err: any) {
-            setError(err.message ?? 'Ошибка загрузки');
+        } catch (err: unknown) {
+            setError(getErrorMessage(err, 'Ошибка загрузки'));
         } finally {
             setLoading(false);
         }

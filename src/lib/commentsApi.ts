@@ -1,3 +1,5 @@
+import { overrideErrorMessage } from '@/lib/errorOverrides';
+
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_DOMAIN!;
 
 export type CommentAuthor = {
@@ -28,6 +30,10 @@ export type Comment = {
 
 async function readJsonSafe(res: Response) {
     return res.json().catch(() => ({}));
+}
+
+function getApiErrorMessage(error: any, fallback: string): string {
+    return overrideErrorMessage(error?.error?.message ?? fallback);
 }
 
 function unwrapComment(data: any): Comment {
@@ -128,7 +134,7 @@ export async function fetchComments(
 
     if (!res.ok) {
         const err = await readJsonSafe(res);
-        throw new Error(err.error?.message ?? 'Не удалось загрузить комментарии');
+        throw new Error(getApiErrorMessage(err, 'Не удалось загрузить комментарии'));
     }
 
     const comments = unwrapComments(await res.json());
@@ -165,7 +171,7 @@ export async function postComment(
 
     if (!res.ok) {
         const err = await readJsonSafe(res);
-        throw new Error(err.error?.message ?? 'Не удалось добавить комментарий');
+        throw new Error(getApiErrorMessage(err, 'Не удалось добавить комментарий'));
     }
 
     return unwrapComment(await res.json());
@@ -192,7 +198,7 @@ export async function updateComment(
 
     if (!res.ok) {
         const err = await readJsonSafe(res);
-        throw new Error(err.error?.message ?? 'Не удалось изменить комментарий');
+        throw new Error(getApiErrorMessage(err, 'Не удалось изменить комментарий'));
     }
 
     return unwrapComment(await res.json());
@@ -217,7 +223,7 @@ export async function deleteComment(
 
     if (!res.ok) {
         const err = await readJsonSafe(res);
-        throw new Error(err.error?.message ?? 'Не удалось удалить комментарий');
+        throw new Error(getApiErrorMessage(err, 'Не удалось удалить комментарий'));
     }
 }
 
@@ -245,6 +251,6 @@ export async function reportComment(
 
     if (!res.ok) {
         const err = await readJsonSafe(res);
-        throw new Error(err.error?.message ?? 'Не удалось пожаловаться');
+        throw new Error(getApiErrorMessage(err, 'Не удалось пожаловаться'));
     }
 }

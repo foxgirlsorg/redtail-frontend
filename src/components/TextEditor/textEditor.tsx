@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { getErrorMessage } from '@/lib/errorOverrides';
 import { IonIcon } from '@/components/IonIcon';
 import styles from './textEditor.module.css';
 
@@ -75,7 +76,7 @@ export function TextEditor({
             await onSubmitAction(allowHtml ? trimmed : stripHtml(trimmed));
             setContent('');
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Ошибка отправки');
+            setError(getErrorMessage(err, 'Ошибка отправки'));
         } finally {
             setLoading(false);
         }
