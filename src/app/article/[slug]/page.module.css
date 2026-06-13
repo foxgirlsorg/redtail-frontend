@@ -73,3 +73,7 @@
 .info a:hover {
     color: var(--accent-hover);
 }
+
+.infoItem a {
+    word-break: break-all;
+}
