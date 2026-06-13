@@ -4,8 +4,8 @@
     inset: 0;
     z-index: 9000;
     background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -39,6 +39,19 @@
 @keyframes slideUp {
     from { opacity: 0; transform: translateY(20px) scale(0.97) }
     to   { opacity: 1; transform: translateY(0) scale(1) }
+}
+
+@keyframes policyModalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97) }
+    to   { opacity: 1; transform: translateY(0) scale(1) }
+}
+
+.policyModal {
+    animation: policyModalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.viewHidden {
+    display: none;
 }
 
 .modal::before {
@@ -521,6 +534,28 @@
     color: var(--accent-hover);
 }
 
+.privacyNotice {
+    margin: -0.25rem 0 -0.5rem;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.inlineLink {
+    display: inline;
+    border: none;
+    background: none;
+    color: var(--accent);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+}
+
+.inlineLink:hover {
+    color: var(--accent-hover);
+}
+
 .avatarInitial {
     font-size: 1.5rem;
     font-weight: 700;
@@ -628,5 +663,31 @@
     text-align: center;
 }
 
+.policyBody {
+    max-height: min(70vh, 560px);
+    overflow: auto;
+    scrollbar-width: none;
+    text-align: left;
+}
 
+.policyBody::-webkit-scrollbar {
+    display: none;
+}
+
+.policySection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.policySection + .policySection {
+    margin-top: 0.35rem;
+}
+
+.policyText {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.7;
+}
 

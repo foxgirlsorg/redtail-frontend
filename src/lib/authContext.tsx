@@ -19,7 +19,7 @@ export type User = {
     verified?: boolean;
 };
 
-export type AuthModalView = 'login' | 'register' | 'forgotPassword' | 'profile';
+export type AuthModalView = 'login' | 'register' | 'forgotPassword' | 'profile' | 'privacyPolicy';
 
 type UpdateProfileData = {
     username?: string;

@@ -3,14 +3,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth, type AuthModalView } from '@/lib/authContext';
 import { IonIcon } from '@/components/IonIcon';
-import { LoginView, RegisterView, ForgotPasswordView, ProfileView } from './authForms';
+import { LoginView, RegisterView, ForgotPasswordView, ProfileView, PrivacyPolicyView } from './authForms';
 import styles from './authModal.module.css';
 
 const VIEW_META: Record<AuthModalView, { title: string; subtitle: string }> = {
-    login:          { title: 'ВХОД',         subtitle: 'Войти в аккаунт RedTail' },
-    register:       { title: 'РЕГИСТРАЦИЯ',  subtitle: 'Создать аккаунт RedTail' },
+    login:          { title: 'ВХОД',         subtitle: 'Войти в аккаунт' },
+    register:       { title: 'РЕГИСТРАЦИЯ',  subtitle: 'Создать аккаунт' },
     forgotPassword: { title: 'СБРОС ПАРОЛЯ', subtitle: 'Восстановление доступа' },
     profile:        { title: 'МОЙ ПРОФИЛЬ',  subtitle: 'Управление аккаунтом' },
+    privacyPolicy:  { title: 'ПРИВАТНОСТЬ',  subtitle: 'Политика конфиденциальности' },
 };
 
 export function AuthModal() {
@@ -18,25 +19,38 @@ export function AuthModal() {
     const [view, setView] = useState<AuthModalView>(modalView ?? 'login');
     const overlayRef = useRef<HTMLDivElement>(null);
     useEffect(() => { if (modalView) setView(modalView); }, [modalView]);
+    const handleClose = () => {
+        if (view === 'privacyPolicy' && modalView && modalView !== 'privacyPolicy') {
+            setView(modalView);
+            return;
+        }
+
+        closeModal();
+    };
     useEffect(() => {
         if (!modalView) return;
-        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal(); };
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
         window.addEventListener('keydown', handler);
         return () => window.removeEventListener('keydown', handler);
-    }, [modalView, closeModal]);
+    }, [modalView, view, closeModal]);
 
     if (!modalView) return null;
 
     const { title, subtitle } = VIEW_META[view];
+    const privacyOverRegister = view === 'privacyPolicy' && modalView === 'register';
 
     return (
         <div
             className={styles.overlay}
             ref={overlayRef}
-            onClick={e => { if (e.target === overlayRef.current) closeModal(); }}
+            onClick={e => { if (e.target === overlayRef.current) handleClose(); }}
         >
             <div
-                className={`${styles.modal} ${view === 'profile' ? styles.modalWide : ''}`}
+                className={[
+                    styles.modal,
+                    view === 'profile' || view === 'privacyPolicy' ? styles.modalWide : '',
+                    view === 'privacyPolicy' ? styles.policyModal : '',
+                ].filter(Boolean).join(' ')}
                 role="dialog"
                 aria-modal="true"
                 aria-label={title}
@@ -46,7 +60,7 @@ export function AuthModal() {
                         <span className={styles.title}>{title}</span>
                         <span className={styles.subtitle}>{subtitle}</span>
                     </div>
-                    <button className={styles.closeBtn} onClick={closeModal} aria-label="Закрыть">
+                    <button className={styles.closeBtn} onClick={handleClose} aria-label="Закрыть">
                         <IonIcon src="/icons/close-outline.svg" />
                     </button>
                 </div>
@@ -66,26 +80,31 @@ export function AuthModal() {
                         }
                     />
                 )}
-                {view === 'register' && (
-                    <RegisterView
-                        onSuccessAction={closeModal}
-                        onSwitchAction={setView}
-                        footer={
-                            <div className={styles.switchRow}>
-                                Уже есть аккаунт?{' '}
-                                <button type="button" className={styles.switchLink}
-                                        onClick={() => setView('login')}>
-                                    Войти
-                                </button>
-                            </div>
-                        }
-                    />
+                {(view === 'register' || privacyOverRegister) && (
+                    <div className={privacyOverRegister ? styles.viewHidden : undefined}>
+                        <RegisterView
+                            onSuccessAction={closeModal}
+                            onSwitchAction={setView}
+                            footer={
+                                <div className={styles.switchRow}>
+                                    Уже есть аккаунт?{' '}
+                                    <button type="button" className={styles.switchLink}
+                                            onClick={() => setView('login')}>
+                                        Войти
+                                    </button>
+                                </div>
+                            }
+                        />
+                    </div>
                 )}
                 {view === 'forgotPassword' && (
                     <ForgotPasswordView onSwitchAction={setView} />
                 )}
                 {view === 'profile' && (
                     <ProfileView onCloseAction={closeModal} />
+                )}
+                {view === 'privacyPolicy' && (
+                    <PrivacyPolicyView />
                 )}
             </div>
         </div>

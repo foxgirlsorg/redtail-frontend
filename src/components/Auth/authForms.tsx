@@ -24,6 +24,14 @@ export function SuccessBanner({ msg }: { msg: string }) {
     );
 }
 
+function PrivacyPolicyInlineButton({ onClickAction }: { onClickAction: () => void }) {
+    return (
+        <button type="button" className={styles.inlineLink} onClick={onClickAction}>
+            политикой конфиденциальности
+        </button>
+    );
+}
+
 export type LoginViewProps = {
     onSuccessAction: () => void;
     onSwitchAction: (v: AuthModalView) => void;
@@ -161,6 +169,11 @@ export function RegisterView({ onSuccessAction, onSwitchAction, footer }: Regist
                     autoComplete="new-password" required />
             </div>
 
+            <p className={styles.privacyNotice}>
+                Создавая аккаунт, вы соглашаетесь с нашей{' '}
+                <PrivacyPolicyInlineButton onClickAction={() => onSwitchAction('privacyPolicy')} />.
+            </p>
+
             <button type="submit" className={styles.submitBtn} disabled={loading}>
                 {loading ? <Spinner /> : <IonIcon src="/icons/person-add-outline.svg" />}
                 Создать аккаунт
@@ -234,6 +247,48 @@ export function ForgotPasswordView({ onSwitchAction, footer }: ForgotPasswordVie
                 </div>
             )}
         </form>
+    );
+}
+
+export function PrivacyPolicyView() { // TODO: fetch this from the backend
+    return (
+        <div className={`${styles.body} ${styles.policyBody}`}>
+            <section className={styles.policySection}>
+                <span className={styles.sectionLabel}>Какие данные мы собираем</span>
+                <p className={styles.policyText}>
+                    Мы собираем данные аккаунта: имя пользователя, email и пароль в защищенном виде. Также
+                    обрабатываются публичные действия, например комментарии, ответы и данные профиля, которые вы
+                    сами публикуете. Для работы сайта могут использоваться cookies авторизации, базовые данные
+                    сессии и статистика посещений, если аналитика включена.
+                </p>
+            </section>
+
+            <section className={styles.policySection}>
+                <span className={styles.sectionLabel}>Зачем это нужно</span>
+                <p className={styles.policyText}>
+                    Эти данные нужны, чтобы создать аккаунт, выполнить вход и поддерживать авторизованную сессию.
+                    Они также используются для отображения ваших комментариев, аватара и имени пользователя в
+                    интерфейсе сайта, а также для защиты от спама, злоупотреблений и несанкционированного доступа.
+                </p>
+            </section>
+
+            <section className={styles.policySection}>
+                <span className={styles.sectionLabel}>Доступ и хранение</span>
+                <p className={styles.policyText}>
+                    Мы не продаем персональные данные. Доступ к данным используется только для работы сайта,
+                    модерации и технической поддержки. Данные хранятся до удаления аккаунта или до момента, когда
+                    они больше не нужны для работы сервиса.
+                </p>
+            </section>
+
+            <section className={styles.policySection}>
+                <span className={styles.sectionLabel}>Ваши права</span>
+                <p className={styles.policyText}>
+                    Вы можете изменить данные профиля в аккаунте, запросить сброс пароля или обратиться к нам для
+                    удаления данных, связанных с аккаунтом.
+                </p>
+            </section>
+        </div>
     );
 }
 
