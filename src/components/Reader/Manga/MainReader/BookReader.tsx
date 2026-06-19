@@ -9,6 +9,8 @@ import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
 import { IonIcon } from '@/components/IonIcon';
 import '@/styles/markdown.css';
 import {Comments} from "@/components/Comments";
+import rehypeRaw from "rehype-raw";
+import remarkBreaks from "remark-breaks";
 
 type Title = {
     slug: string;
@@ -137,7 +139,7 @@ export function BookReader({ chapters, chapter }: BookReaderProps) {
                     />
 
                     <div className={`markdown-body ${styles.markdown}`}>
-                        <ReactMarkdown>{currentChapter.content}</ReactMarkdown>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]} remarkPlugins={[remarkBreaks]}>{currentChapter.content}</ReactMarkdown>
                     </div>
 
                     <ChapterControls

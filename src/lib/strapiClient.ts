@@ -1,8 +1,54 @@
 import { strapi } from '@strapi/client';
 import { cache } from 'react';
 
+const STRAPI_API_URL = process.env.PUBLIC_STRAPI_API_URL!;
+
+function installStrapiRequestLogger() {
+    if (typeof globalThis.fetch !== 'function' || !STRAPI_API_URL) return;
+
+    const apiBase = STRAPI_API_URL.replace(/\/$/, '');
+    const apiOrigin = new URL(STRAPI_API_URL).origin;
+    const nativeFetch = globalThis.fetch.bind(globalThis);
+
+    if ((globalThis as typeof globalThis & { __strapiFetchLoggerInstalled?: boolean }).__strapiFetchLoggerInstalled) {
+        return;
+    }
+
+    globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+        const request = input instanceof Request ? input : null;
+        const url = typeof input === 'string'
+            ? input
+            : input instanceof URL
+                ? input.href
+                : request!.url;
+        const method = init?.method ?? request?.method ?? 'GET';
+        const resolvedUrl = url.startsWith('/') ? `${apiOrigin}${url}` : url;
+        const isStrapiRequest = resolvedUrl.startsWith(apiBase) || resolvedUrl.startsWith(`${apiOrigin}/api`);
+
+        if (!isStrapiRequest) {
+            return nativeFetch(input, init);
+        }
+
+        const started = Date.now();
+        console.log(`[Strapi] → ${method} ${resolvedUrl}`);
+
+        try {
+            const response = await nativeFetch(input, init);
+            console.log(`[Strapi] ← ${response.status} ${method} ${resolvedUrl} (${Date.now() - started}ms)`);
+            return response;
+        } catch (error) {
+            console.error(`[Strapi] ✗ ${method} ${resolvedUrl} (${Date.now() - started}ms)`, error);
+            throw error;
+        }
+    };
+
+    (globalThis as typeof globalThis & { __strapiFetchLoggerInstalled?: boolean }).__strapiFetchLoggerInstalled = true;
+}
+
+installStrapiRequestLogger();
+
 const client = strapi({
-    baseURL: process.env.PUBLIC_STRAPI_API_URL!,
+    baseURL: STRAPI_API_URL,
 });
 
 export const getTitleList = cache(async () => {
