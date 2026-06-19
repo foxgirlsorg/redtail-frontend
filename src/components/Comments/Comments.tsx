@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { useAuth } from '@/lib/authContext';
 import { getErrorMessage } from '@/lib/errorOverrides';
 import { IonIcon } from '@/components/IonIcon';
 import { TextEditor } from '@/components/TextEditor';
+import { remarkSpoiler, spoilerHastHandler } from '@/lib/remarkSpoiler';
+import { Spoiler } from '@/components/MarkdownComponents/SpoilerText/Spoiler';
 import {
     fetchComments,
     postComment,
@@ -15,6 +18,19 @@ import {
     type Comment,
 } from '@/lib/commentsApi';
 import styles from './Comments.module.css';
+import '@/styles/markdown.css';
+
+const MAX_COMMENT_LENGTH = 4500;
+// Raw character threshold before collapsing
+const COLLAPSE_THRESHOLD = 600;
+// Height (px) the comment is clamped to while collapsed
+const COLLAPSED_HEIGHT = 144;
+
+const remarkSpoilerPlugins = [remarkSpoiler];
+const remarkRehypeOptions = { handlers: { spoiler: spoilerHastHandler } };
+const markdownComponents = {
+    'spoiler-text': Spoiler,
+} as unknown as Components;
 
 type CommentsProps = {
     contentType: string;
@@ -54,10 +70,19 @@ function CommentAvatar({ avatar, name, size = 34 }: { avatar?: string; name?: st
 }
 
 function CommentMarkdown({ content, allowHtml }: { content: string; allowHtml: boolean }) {
+
     return (
-        <ReactMarkdown rehypePlugins={allowHtml ? [rehypeRaw] : undefined}>
-            {content}
-        </ReactMarkdown>
+        <div className="markdown-body">
+            <ReactMarkdown
+                remarkPlugins={remarkSpoilerPlugins}
+                rehypePlugins={allowHtml ? [rehypeRaw] : undefined}
+                // @ts-ignore
+                remarkRehypeOptions={remarkRehypeOptions}
+                components={markdownComponents}
+            >
+                {content}
+            </ReactMarkdown>
+        </div>
     );
 }
 
@@ -66,6 +91,89 @@ function VerifiedBadge() {
         <span className={styles.verifiedBadge} title="Член команды" aria-label="Член команды">
             <IonIcon src="/icons/checkmark-sharp.svg" />
         </span>
+    );
+}
+
+function CollapsibleCommentContent({
+                                       content,
+                                       allowHtml,
+                                       isRemoved,
+                                   }: {
+    content: string;
+    allowHtml: boolean;
+    isRemoved: boolean;
+}) {
+    const isLong = content.length > COLLAPSE_THRESHOLD;
+    const [expanded, setExpanded] = useState(!isLong);
+    const [maxHeight, setMaxHeight] = useState<number | 'none'>(
+        isLong ? COLLAPSED_HEIGHT : 'none',
+    );
+    const innerRef = useRef<HTMLDivElement>(null);
+
+
+    useEffect(() => {
+        setExpanded(!isLong);
+        setMaxHeight(isLong ? COLLAPSED_HEIGHT : 'none');
+    }, [content, isLong]);
+
+    const toggle = () => {
+        const el = innerRef.current;
+        if (!el) return;
+        const fullHeight = el.scrollHeight;
+
+        if (expanded) {
+            setMaxHeight(fullHeight);
+            setExpanded(false);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setMaxHeight(COLLAPSED_HEIGHT));
+            });
+        } else {
+           setExpanded(true);
+            setMaxHeight(fullHeight);
+        }
+    };
+
+    const handleTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+        if (e.propertyName !== 'max-height') return;
+        if (expanded) setMaxHeight('none');
+    };
+
+    if (isRemoved) {
+        return (
+            <div className={styles.commentContent}>
+                <span className={styles.removedText}>Комментарий удалён.</span>
+            </div>
+        );
+    }
+
+    return (
+        <div className={styles.commentContent}>
+            <div
+                ref={innerRef}
+                className={[
+                    styles.commentContentInner,
+                    isLong ? styles.commentContentAnimated : '',
+                    isLong && !expanded ? styles.commentContentCollapsed : '',
+                ].filter(Boolean).join(' ')}
+                style={isLong ? { maxHeight: maxHeight === 'none' ? undefined : `${maxHeight}px` } : undefined}
+                onTransitionEnd={handleTransitionEnd}
+            >
+                <CommentMarkdown content={content} allowHtml={allowHtml} />
+            </div>
+            {isLong && (
+                <button
+                    type="button"
+                    className={styles.expandBtn}
+                    onClick={toggle}
+                >
+                    <IonIcon
+                        src={expanded ? '/icons/chevron-up-outline.svg' : '/icons/chevron-down-outline.svg'}
+                        className={styles.expandBtnIcon}
+                    />
+                    {expanded ? 'Свернуть' : 'Показать полностью'}
+                </button>
+            )}
+        </div>
     );
 }
 
@@ -163,22 +271,17 @@ function CommentItem({
                         compact
                         initialValue={editContent}
                         allowHtml={currentUserCanUseHtml}
+                        maxLength={MAX_COMMENT_LENGTH}
                         onCancelAction={() => setEditing(false)}
                         onSubmitAction={handleEditSave}
                         submitLabel="Сохранить"
                     />
                 ) : (
-                    <div className={styles.commentContent}>
-                        {isRemoved
-                            ? <span className={styles.removedText}>Комментарий удалён.</span>
-                            : (
-                                <CommentMarkdown
-                                    content={comment.content}
-                                    allowHtml={authorCanRenderHtml}
-                                />
-                            )
-                        }
-                    </div>
+                    <CollapsibleCommentContent
+                        content={comment.content}
+                        allowHtml={authorCanRenderHtml}
+                        isRemoved={isRemoved}
+                    />
                 )}
 
                 {!isRemoved && !editing && (
@@ -235,6 +338,7 @@ function CommentItem({
                             compact
                             placeholder={`Ответ для ${comment.author?.name ?? 'пользователя'}…`}
                             allowHtml={user.verified === true}
+                            maxLength={MAX_COMMENT_LENGTH}
                             onCancelAction={() => setReplying(false)}
                             onSubmitAction={handleReply}
                             submitLabel="Ответить"
@@ -333,6 +437,7 @@ export function Comments({ contentType, contentId, embedded = false }: CommentsP
                 <TextEditor
                     placeholder="Оставьте комментарий…"
                     allowHtml={user.verified === true}
+                    maxLength={MAX_COMMENT_LENGTH}
                     onSubmitAction={handleNewComment}
                 />
             ) : (

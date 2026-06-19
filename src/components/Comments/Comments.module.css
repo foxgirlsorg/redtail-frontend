@@ -230,12 +230,55 @@
     color: var(--text-muted);
     font-style: italic;
 }
+
 .commentContent {
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.7;
     word-break: break-word;
     overflow-wrap: anywhere;
+}
+
+.commentContentAnimated {
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.commentContentCollapsed {
+    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+}
+
+.expandBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 0.4rem;
+    padding: 3px 0;
+    border: none;
+    background: transparent;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s, opacity 0.15s;
+    opacity: 0.8;
+}
+
+.expandBtn:hover {
+    opacity: 1;
+    color: var(--accent-hover);
+}
+
+.expandBtn :global(.app-ion-icon) {
+    --ionicon-size: 12px;
+}
+
+.expandBtnIcon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .commentContent p { margin: 0 0 0.5em }

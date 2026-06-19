@@ -1,0 +1,52 @@
+.spoiler {
+    display: inline;
+    border-radius: 4px;
+    padding: 0 0.3em;
+    margin: 0 0.1em;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    user-select: none;
+    -webkit-user-select: none;
+
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+
+    transition: border-color 0.2s ease;
+}
+
+.spoiler:hover {
+    border-color: var(--border-hover);
+}
+.spoilerContent {
+    display: inline;
+
+    color: transparent;
+    text-shadow: 0 0 6px rgb(255 255 255 / 0.65);
+
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+
+    transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+.spoilerContentRevealed {
+    color: inherit;
+    text-shadow: none;
+}
+.spoilerRevealed {
+    background-color: rgba(222, 97, 97, 0.1);
+    cursor: text;
+
+    user-select: text;
+    -webkit-user-select: text;
+
+    animation: spoilerReveal 0.25s ease;
+}
+
+@keyframes spoilerReveal {
+    from {
+        background-color: rgb(222 97 97 / 0);
+    }
+    to {
+        background-color: rgba(222, 97, 97, 0.1);
+    }
+}
