@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { setCookie, getCookie } from '@/lib/cookies';
-import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
+import Navbar from '@/components/Reader/Navbar/Navbar';
 import {Comments} from "@/components/Comments";
 
 type Page = {

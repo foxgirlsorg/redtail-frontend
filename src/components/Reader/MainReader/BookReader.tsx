@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import styles from './Reader.module.css';
 import { getCookie, setCookie } from '@/lib/cookies';
-import Navbar from '@/components/Reader/Manga/Navbar/Navbar';
+import Navbar from '@/components/Reader/Navbar/Navbar';
 import { IonIcon } from '@/components/IonIcon';
 import '@/styles/markdown.css';
 import {Comments} from "@/components/Comments";

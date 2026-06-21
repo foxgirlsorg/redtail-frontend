@@ -1,9 +1,9 @@
 import { getBookChaptersFromSlug as getChaptersFromSlug } from '@/lib/strapiClient';
 import { notFound } from 'next/navigation';
 
-import {BookReader} from "@/components/Reader/Manga/MainReader/BookReader";
+import {BookReader} from "@/components/Reader/MainReader/BookReader";
 import {Metadata} from "next";
-import type { Chapter } from '@/components/Reader/Manga/MainReader/BookReader';
+import type { Chapter } from '@/components/Reader/MainReader/BookReader';
 
 const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN;
 
