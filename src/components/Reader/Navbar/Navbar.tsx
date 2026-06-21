@@ -9,12 +9,18 @@ import { IonIcon } from '@/components/IonIcon';
 type Title = { slug: string; name: string; type: string };
 type Chapter = { number: number; name?: string; title: Title };
 
+export type ReadingMode = 'paged' | 'strip';
+
+const STRIP_MODE_TYPES = ['Манхва', 'Маньхуа'];
+
 type NavbarProps = {
     chapters: Chapter[];
     chapterIndex: number;
     conetntWidth: number;
     setContentWidthAction: React.Dispatch<React.SetStateAction<number>>;
     NavigateToAction: (chapterIndex: number, pageIndex: number) => void;
+    readingMode?: ReadingMode;
+    setReadingModeAction?: React.Dispatch<React.SetStateAction<ReadingMode>>;
 };
 
 export default function Navbar({
@@ -23,6 +29,8 @@ export default function Navbar({
                                    NavigateToAction,
                                    setContentWidthAction,
                                    conetntWidth,
+                                   readingMode = 'paged',
+                                   setReadingModeAction,
                                }: NavbarProps) {
     const router = useRouter();
     const [navbarVisible,  setNavbarVisible]  = useState(true);
@@ -35,6 +43,7 @@ export default function Navbar({
     const type    = ['Книга', 'Ранобэ', 'Рассказ'].includes(currentChapter?.title.type)
         ? 'book'
         : 'manga';
+    const supportsStripMode = STRIP_MODE_TYPES.includes(currentChapter?.title.type);
     const sortedChapters = React.useMemo(
         () => [...chapters].sort((a, b) => b.number - a.number),
         [chapters],
@@ -76,20 +85,17 @@ export default function Navbar({
 
     return (
         <>
-            {}
             <div className={`${styles.navbar} ${navbarVisible ? styles.visible : styles.hidden}`}>
 
-                {}
                 <div className={styles.leftSide}>
                     <div className={styles.backContainer} onClick={handleBack}>
                         <IonIcon src="/icons/arrow-back-outline.svg" className={styles.backButton} />
-                        <div>
+                        <div className={styles.textBlock}>
                             <h3 className={styles.titleName}>{currentChapter.title.name}</h3>
                             <span className={styles.chapterTitleMobile}>Глава {currentChapter.number} - {currentChapter.name}</span>
                         </div>
                     </div>
 
-                    {}
                     <div className={styles.chapterSwitch}>
                         <IonIcon
                             src="/icons/chevron-back-outline.svg"
@@ -111,7 +117,6 @@ export default function Navbar({
                     </div>
                 </div>
 
-                {}
                 <div className={styles.rightSide}>
                     <div className={styles.slider}>
                         <span className={styles.widthSliderLabel}>
@@ -126,9 +131,19 @@ export default function Navbar({
                             onChange={e => setContentWidthAction(Number(e.target.value))}
                         />
                     </div>
+                    {supportsStripMode && setReadingModeAction && (
+                        <button
+                            type="button"
+                            className={`${styles.modeToggle} ${readingMode === 'strip' ? styles.modeToggleActive : ''}`}
+                            onClick={() => setReadingModeAction(m => m === 'strip' ? 'paged' : 'strip')}
+                            title={readingMode === 'strip' ? 'Постраничный режим' : 'Режим длинной страницы'}
+                        >
+                            <IonIcon src={readingMode === 'strip' ? '/icons/book-outline.svg' : '/icons/reader-outline.svg'} />
+                            <span className={styles.modeToggleLabel}>{readingMode === 'strip' ? 'Страницы' : 'Лента'}</span>
+                        </button>
+                    )}
                 </div>
 
-                {}
                 <div
                     className={styles.burgerButton}
                     onClick={() => setSidebarOpened(true)}
@@ -138,7 +153,6 @@ export default function Navbar({
                 </div>
             </div>
 
-            {}
             <div className={`${styles.contents} ${sidebarOpened ? styles.contentsVisible : ''}`}>
                 <div
                     className={styles.overlay}

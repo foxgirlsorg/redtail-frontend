@@ -50,7 +50,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     return (
         <div className={styles.wrapper}>
 
-            {}
             {!controlsHidden && (
                 <div className={styles.controls}>
                     <div className={styles.controlsHeader}>
@@ -96,7 +95,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 </div>
             )}
 
-            {}
             {fullscreen && (
                 <button
                     className={styles.exitFullscreen}
@@ -107,7 +105,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 </button>
             )}
 
-            {}
             <div
                 className={`${styles.cardWrapper} ${fullscreen ? styles.cardWrapperFullscreen : ''}`}
                 style={fullscreen ? { transform: `scale(${scale})`, transformOrigin: 'center center' } : undefined}
