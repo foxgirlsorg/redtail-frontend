@@ -10,6 +10,7 @@ import {Comments} from "@/components/Comments";
 type Page = {
     documentId: string;
     image: { url: string };
+    number: number;
 };
 
 type Title = {
@@ -47,8 +48,9 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
     const [hoveredControl, setHoveredControl] = useState<'prev' | 'next' | null>(null);
 
     const currentChapter = chapters[chapterIndex] as Chapter | undefined;
-    const currentPage    = currentChapter?.pages?.[pageIndex];
-
+    const currentPage = currentChapter?.pages?.find(
+        page => page.number === pageIndex + 1
+    );
     const hasPrevPage = pageIndex > 0 || chapterIndex > 0;
     const hasNextPage =
         currentChapter !== undefined &&
