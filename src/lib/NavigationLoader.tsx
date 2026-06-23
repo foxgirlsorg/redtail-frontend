@@ -9,6 +9,16 @@ const FINISH_COMPLETE_MS   = 180;
 const FINISH_RESET_MS      = 450;
 const BROWSER_NAV_GUARD_MS = 1000;
 
+declare global {
+    interface Window {
+        __navLoaderSuppressNext?: boolean;
+    }
+}
+
+export function suppressNextNavigationLoader() {
+    if (typeof window !== 'undefined') window.__navLoaderSuppressNext = true;
+}
+
 function getBar(): HTMLDivElement {
     let bar = document.getElementById(BAR_ID) as HTMLDivElement | null;
     if (!bar) {
@@ -142,12 +152,22 @@ export function NavigationLoader() {
         const originalPush    = history.pushState.bind(history);
         const originalReplace = history.replaceState.bind(history);
 
+        const consumeSuppressFlag = (): boolean => {
+            if (window.__navLoaderSuppressNext) {
+                window.__navLoaderSuppressNext = false;
+                return true;
+            }
+            return false;
+        };
+
         history.pushState = (...args) => {
-            if (shouldStartForUrl(args[2])) start();
+            const suppressed = consumeSuppressFlag();
+            if (!suppressed && shouldStartForUrl(args[2])) start();
             return originalPush(...args);
         };
         history.replaceState = (...args) => {
-            if (shouldStartForUrl(args[2])) start();
+            const suppressed = consumeSuppressFlag();
+            if (!suppressed && shouldStartForUrl(args[2])) start();
             return originalReplace(...args);
         };
 

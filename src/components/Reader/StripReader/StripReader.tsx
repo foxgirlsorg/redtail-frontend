@@ -61,9 +61,17 @@ type StripReaderProps = {
     chapter: Chapter;
     strDomain?: string;
     width: number;
+    scrollTarget?: { pageNumber: number; ratio?: number } | null;
+    onActivePageChangeAction?: (pageNumber: number) => void;
 };
 
-export function StripReader({ chapter, strDomain, width }: StripReaderProps) {
+export function StripReader({
+                                chapter,
+                                strDomain,
+                                width,
+                                scrollTarget,
+                                onActivePageChangeAction,
+                            }: StripReaderProps) {
     const sortedPages = React.useMemo(
         () => [...chapter.pages].sort((a, b) => a.number - b.number),
         [chapter.pages],
@@ -135,12 +143,56 @@ export function StripReader({ chapter, strDomain, width }: StripReaderProps) {
     }, [activePage]);
 
     useEffect(() => {
+        if (activePage) onActivePageChangeAction?.(activePage.number);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activePage?.documentId]);
+
+    useEffect(() => {
         // Close the panel and reset tracking whenever the chapter changes.
         setPanelOpen(false);
         setActivePageDocId(sortedPages[0]?.documentId ?? null);
         loadedCounts.current.clear();
         setCommentCounts({});
     }, [chapter.documentId, sortedPages]);
+
+    useEffect(() => {
+        if (!scrollTarget) return;
+
+        const targetPage = sortedPages.find(p => p.number === scrollTarget.pageNumber);
+        if (!targetPage) return;
+
+        let cancelled = false;
+
+        const scrollToTarget = () => {
+            if (cancelled) return;
+            const el = pageRefs.current.get(targetPage.documentId);
+            if (!el) return;
+
+            const rect  = el.getBoundingClientRect();
+            const ratio = scrollTarget.ratio ?? 0;
+            const top   = window.scrollY + rect.top + rect.height * ratio;
+
+            window.scrollTo(0, Math.max(0, top));
+        };
+
+        scrollToTarget();
+        const raf1 = requestAnimationFrame(scrollToTarget);
+        const timeout1 = setTimeout(scrollToTarget, 150);
+        const timeout2 = setTimeout(scrollToTarget, 500);
+
+        const imgEl = pageRefs.current.get(targetPage.documentId)?.querySelector('img');
+        const handleImgLoad = () => scrollToTarget();
+        imgEl?.addEventListener('load', handleImgLoad);
+
+        return () => {
+            cancelled = true;
+            cancelAnimationFrame(raf1);
+            clearTimeout(timeout1);
+            clearTimeout(timeout2);
+            imgEl?.removeEventListener('load', handleImgLoad);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scrollTarget?.pageNumber, scrollTarget?.ratio, chapter.documentId, sortedPages]);
 
     const handleClosePanel = useCallback(() => setPanelOpen(false), []);
 
@@ -153,20 +205,33 @@ export function StripReader({ chapter, strDomain, width }: StripReaderProps) {
 
     useEffect(() => {
         const body = document.body;
+
         if (panelOpen) {
             const scrollY = window.scrollY;
             const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            body.dataset.stripScrollLock = String(scrollY);
             body.style.overflow     = 'hidden';
             body.style.paddingRight = `${scrollbarWidth}px`;
-            body.setAttribute('data-strip-scroll-lock', scrollY.toString());
-        } else if (body.hasAttribute('data-strip-scroll-lock')) {
-            const scrollY = parseInt(body.getAttribute('data-strip-scroll-lock') ?? '0');
-            body.style.overflow     = '';
-            body.style.paddingRight = '';
-            body.removeAttribute('data-strip-scroll-lock');
-            window.scrollTo(0, scrollY);
+            return;
+        }
+
+        const lockedScrollY = body.dataset.stripScrollLock;
+        body.style.overflow     = '';
+        body.style.paddingRight = '';
+        delete body.dataset.stripScrollLock;
+
+        if (lockedScrollY !== undefined) {
+            window.scrollTo(0, parseInt(lockedScrollY, 10) || 0);
         }
     }, [panelOpen]);
+
+      useEffect(() => {
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+            delete document.body.dataset.stripScrollLock;
+        };
+    }, []);
 
     const activeCount = activePage ? commentCounts[activePage.documentId] : undefined;
 

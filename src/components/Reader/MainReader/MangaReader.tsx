@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './Reader.module.css';
 import { setCookie, getCookie } from '@/lib/cookies';
+import { suppressNextNavigationLoader } from '@/lib/NavigationLoader';
 import Navbar, { type ReadingMode } from '@/components/Reader/Navbar/Navbar';
 import {Comments} from "@/components/Comments";
 import { StripReader } from '@/components/Reader/StripReader/StripReader';
@@ -54,6 +55,10 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         const stored = getCookie('reader_mode');
         return stored === 'strip' ? 'strip' : 'paged';
     });
+    const [stripScrollTarget, setStripScrollTarget] = useState<{ pageNumber: number; ratio?: number } | null>(null);
+    const pagedImageWrapRef = useRef<HTMLDivElement>(null);
+    const stripTargetChapterRef = useRef<string | null>(null);
+    const stripActivePageRef = useRef<number>(1);
 
     const currentChapter = chapters[chapterIndex] as Chapter | undefined;
     const supportsStripMode = STRIP_MODE_TYPES.includes(currentChapter?.title.type ?? '');
@@ -68,6 +73,57 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
         (pageIndex + 1 < currentChapter.pages.length ||
             chapterIndex + 1 < chapters.length);
 
+    const handleSetReadingMode = useCallback<React.Dispatch<React.SetStateAction<ReadingMode>>>((update) => {
+        let didSwitch = false;
+
+        setReadingMode(prevMode => {
+            const nextMode = typeof update === 'function' ? (update as (m: ReadingMode) => ReadingMode)(prevMode) : update;
+
+            if (prevMode === nextMode) return nextMode;
+            didSwitch = true;
+
+            if (prevMode !== 'strip' && nextMode === 'strip') {
+                const wrap = pagedImageWrapRef.current;
+                let ratio = 0;
+                if (wrap) {
+                    const rect = wrap.getBoundingClientRect();
+                    if (rect.height > 0) {
+                        ratio = Math.min(1, Math.max(0, -rect.top / rect.height));
+                    }
+                }
+                if (currentChapter) stripTargetChapterRef.current = currentChapter.documentId;
+                stripActivePageRef.current = pageIndex + 1;
+                setStripScrollTarget({ pageNumber: pageIndex + 1, ratio });
+            }
+
+            if (prevMode === 'strip' && nextMode !== 'strip' && currentChapter) {
+                const targetPageNumber = stripActivePageRef.current;
+                const targetIndex = currentChapter.pages.findIndex(p => p.number === targetPageNumber);
+                if (targetIndex !== -1) {
+                    setPageIndex(targetIndex);
+                    suppressNextNavigationLoader();
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('p', String(targetPageNumber));
+                    window.history.replaceState(window.history.state, '', url);
+                }
+            }
+
+            return nextMode;
+        });
+
+    }, [pageIndex, currentChapter]);
+
+    const handleStripActivePageChange = useCallback((pageNumber: number) => {
+        if (stripActivePageRef.current === pageNumber) return;
+        stripActivePageRef.current = pageNumber;
+
+        if (!currentChapter) return;
+        suppressNextNavigationLoader();
+        const url = new URL(window.location.href);
+        url.searchParams.set('p', String(pageNumber));
+        window.history.replaceState(window.history.state, '', url);
+    }, [currentChapter]);
+
     useEffect(() => {
         setCookie('reader_width', imageWidth.toString());
     }, [imageWidth]);
@@ -75,6 +131,22 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
     useEffect(() => {
         setCookie('reader_mode', readingMode);
     }, [readingMode]);
+
+
+    useEffect(() => {
+        if (effectiveMode !== 'strip' || !currentChapter) {
+            stripTargetChapterRef.current = null;
+            if (stripScrollTarget !== null) setStripScrollTarget(null);
+            return;
+        }
+
+        if (stripTargetChapterRef.current !== currentChapter.documentId) {
+            stripTargetChapterRef.current = currentChapter.documentId;
+            stripActivePageRef.current = pageIndex + 1;
+            setStripScrollTarget({ pageNumber: pageIndex + 1, ratio: 0 });
+
+        }
+    }, [effectiveMode, currentChapter?.documentId, pageIndex]);
 
     useEffect(() => {
         if (window.innerWidth < 800) setImageWidth(100);
@@ -87,14 +159,74 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
 
     useEffect(() => {
         let lastY = window.scrollY;
+        let ticking = false;
+
         const onScroll = () => {
-            const y = window.scrollY;
-            setPageNumVisible(y < 100 || y < lastY);
-            lastY = y;
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const y = window.scrollY;
+                setPageNumVisible(y < 100 || y < lastY);
+                lastY = y;
+                ticking = false;
+            });
         };
+
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
     }, []);
+
+
+    useEffect(() => {
+        if (!currentChapter || effectiveMode !== 'strip') return;
+
+        const SCROLL_END_THRESHOLD_PX = 24;
+        let alreadySaved = false;
+        let ticking = false;
+
+        const checkScrollEnd = () => {
+            const scrollBottom = window.scrollY + window.innerHeight;
+            const docHeight    = document.documentElement.scrollHeight;
+
+            if (docHeight - scrollBottom > SCROLL_END_THRESHOLD_PX) {
+                alreadySaved = false;
+                return;
+            }
+
+            if (alreadySaved) return;
+            alreadySaved = true;
+
+            const lastPageNumber = currentChapter.pages.length || 1;
+            setCookie(`reader_progress_${currentChapter.title.slug}`, JSON.stringify({
+                chapter: currentChapter.number,
+                page:    lastPageNumber,
+            }));
+        };
+
+        const onScrollOrResize = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                checkScrollEnd();
+                ticking = false;
+            });
+        };
+
+        window.addEventListener('scroll', onScrollOrResize, { passive: true });
+        window.addEventListener('resize', onScrollOrResize);
+        checkScrollEnd();
+
+        return () => {
+            window.removeEventListener('scroll', onScrollOrResize);
+            window.removeEventListener('resize', onScrollOrResize);
+        };
+    }, [currentChapter, effectiveMode]);
+
+    useEffect(() => {
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        document.body.removeAttribute('data-strip-scroll-lock');
+    }, [currentChapter?.documentId, effectiveMode]);
 
     const navigateTo = useCallback((targetChapterIdx: number, targetPageIdx: number) => {
         setHoveredControl(null);
@@ -173,68 +305,76 @@ export function MangaReader({ chapters, chapter, strDomain }: MangaReaderProps) 
                 conetntWidth={imageWidth}
                 setContentWidthAction={setImageWidth}
                 readingMode={effectiveMode}
-                setReadingModeAction={setReadingMode}
+                setReadingModeAction={handleSetReadingMode}
             />
 
-            {effectiveMode === 'strip' ? (
-                <div className={styles.pageContainer}>
-                    <StripReader
-                        chapter={currentChapter}
-                        strDomain={strDomain}
-                        width={imageWidth}
-                    />
-                </div>
-            ) : (
-                <>
-                    <div className={styles.pageContainer}>
-                        <div className={styles.page} style={{ maxWidth: `${imageWidth}vw` }}>
-                            <div className={styles.pageImageWrap}>
-                                <div className={styles.controls}>
-                                    <div
-                                        className={[
-                                            styles.previousPageControl,
-                                            !hasPrevPage ? styles.controlDisabled : '',
-                                            hoveredControl === 'prev' ? styles.hovered : '',
-                                        ].join(' ')}
-                                        onMouseEnter={() => hasPrevPage && setHoveredControl('prev')}
-                                        onMouseLeave={() => setHoveredControl(null)}
-                                        onClick={hasPrevPage ? goPrev : undefined}
-                                    />
-                                    <div
-                                        className={[
-                                            styles.nextPageControl,
-                                            !hasNextPage ? styles.controlDisabled : '',
-                                            hoveredControl === 'next' ? styles.hovered : '',
-                                        ].join(' ')}
-                                        onMouseEnter={() => hasNextPage && setHoveredControl('next')}
-                                        onMouseLeave={() => setHoveredControl(null)}
-                                        onClick={hasNextPage ? goNext : undefined}
-                                    />
-                                </div>
-                                <img
-                                    src={strDomain + currentPage.image.url}
-                                    className={styles.pageImage}
-                                    alt={`Страница ${pageIndex + 1}`}
-                                    draggable={false}
-                                />
-                            </div>
-                            <div className={styles.pageComments}>
-                                <Comments
-                                    contentType="api::manga-page.manga-page"
-                                    contentId={currentPage.documentId}
-                                />
-                            </div>
+            <div className={styles.pageContainer}>
+                <div className={effectiveMode === 'strip' ? styles.stripPage : styles.page} style={{ maxWidth: `${imageWidth}vw` }}>
+                    <div className={styles.pageImageWrap} ref={pagedImageWrapRef}>
+                        <div className={styles.controls}>
+                            <div
+                                className={[
+                                    styles.previousPageControl,
+                                    !(effectiveMode === 'strip' ? chapterIndex > 0 : hasPrevPage) ? styles.controlDisabled : '',
+                                    hoveredControl === 'prev' ? styles.hovered : '',
+                                ].join(' ')}
+                                onMouseEnter={() => (effectiveMode === 'strip' ? chapterIndex > 0 : hasPrevPage) && setHoveredControl('prev')}
+                                onMouseLeave={() => setHoveredControl(null)}
+                                onClick={
+                                    effectiveMode === 'strip'
+                                        ? (chapterIndex > 0 ? () => navigateTo(chapterIndex - 1, 0) : undefined)
+                                        : (hasPrevPage ? goPrev : undefined)
+                                }
+                            />
+                            <div
+                                className={[
+                                    styles.nextPageControl,
+                                    !(effectiveMode === 'strip' ? chapterIndex + 1 < chapters.length : hasNextPage) ? styles.controlDisabled : '',
+                                    hoveredControl === 'next' ? styles.hovered : '',
+                                ].join(' ')}
+                                onMouseEnter={() => (effectiveMode === 'strip' ? chapterIndex + 1 < chapters.length : hasNextPage) && setHoveredControl('next')}
+                                onMouseLeave={() => setHoveredControl(null)}
+                                onClick={
+                                    effectiveMode === 'strip'
+                                        ? (chapterIndex + 1 < chapters.length ? () => navigateTo(chapterIndex + 1, 0) : undefined)
+                                        : (hasNextPage ? goNext : undefined)
+                                }
+                            />
                         </div>
 
-
-
-
+                        {effectiveMode === 'strip' ? (
+                            <StripReader
+                                chapter={currentChapter}
+                                strDomain={strDomain}
+                                width={imageWidth}
+                                scrollTarget={stripScrollTarget}
+                                onActivePageChangeAction={handleStripActivePageChange}
+                            />
+                        ) : (
+                            <img
+                                src={strDomain + currentPage.image.url}
+                                className={styles.pageImage}
+                                alt={`Страница ${pageIndex + 1}`}
+                                draggable={false}
+                            />
+                        )}
                     </div>
 
-                    <div className={`${styles.pageNumber} ${pageNumVisible ? styles.visible : styles.hidden}`}>
-                        <span>{pageIndex + 1} / {currentChapter.pages.length}</span>
-                    </div>
-                </>
+                    {effectiveMode === 'paged' && (
+                        <div className={styles.pageComments}>
+                            <Comments
+                                contentType="api::manga-page.manga-page"
+                                contentId={currentPage.documentId}
+                            />
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {effectiveMode === 'paged' && (
+                <div className={`${styles.pageNumber} ${pageNumVisible ? styles.visible : styles.hidden}`}>
+                    <span>{pageIndex + 1} / {currentChapter.pages.length}</span>
+                </div>
             )}
         </div>
     );
