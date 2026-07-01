@@ -51,6 +51,44 @@ const client = strapi({
     baseURL: STRAPI_API_URL,
 });
 
+const PAGE_SIZE = 100;
+const MAX_PAGES_SAFETY = 1000;
+
+async function fetchAllPages<T>(
+    fetchPage: (page: number, pageSize: number) => Promise<{
+        data: T[];
+        meta?: { pagination?: { page: number; pageSize: number; pageCount: number; total: number } };
+    }>,
+): Promise<T[]> {
+    const all: T[] = [];
+    let page = 1;
+
+    while (page <= MAX_PAGES_SAFETY) {
+        const res = await fetchPage(page, PAGE_SIZE);
+        const batch = res.data ?? [];
+        all.push(...batch);
+
+        const pagination = res.meta?.pagination;
+
+        if (!pagination) break;
+
+        if (page >= pagination.pageCount) break;
+
+        if (batch.length === 0) break;
+
+        page++;
+    }
+
+    if (page > MAX_PAGES_SAFETY) {
+        console.warn(
+            `[Strapi] fetchAllPages hit the safety cap of ${MAX_PAGES_SAFETY} pages ` +
+            `(${MAX_PAGES_SAFETY * PAGE_SIZE} items). Data may be incomplete — raise MAX_PAGES_SAFETY if this is legitimate.`,
+        );
+    }
+
+    return all;
+}
+
 export const getTitleList = cache(async () => {
     const [manga, books] = await Promise.all([
         client.collection('manga-titles').find({
@@ -131,34 +169,42 @@ export const getBook = cache(async (slug: string) => {
 });
 
 export const getMangaChaptersFromSlug = cache(async (slug: string) => {
-    const chapters = await client.collection('manga-chapters').find({
-        filters: {
-            title: { slug: { $eq: slug } },
-            hidden: { $ne: true },
-        },
-        populate: {
-            title: true,
-            pages: {
-                populate: { image: true },
-                sort: [{ number: 'asc' }],
-                filters: { hidden: { $ne: true } },
+    const chapters = await fetchAllPages<any>((page, pageSize) =>
+        client.collection('manga-chapters').find({
+            filters: {
+                title: { slug: { $eq: slug } },
+                hidden: { $ne: true },
             },
-        },
-        sort: 'number:asc',
-    });
-    return chapters.data;
+            populate: {
+                title: true,
+                pages: {
+                    populate: { image: true },
+                    sort: [{ number: 'asc' }],
+                    filters: { hidden: { $ne: true } },
+                },
+            },
+            sort: 'number:asc',
+            pagination: { page, pageSize },
+        }),
+    );
+
+    return chapters.sort((a, b) => a.number - b.number);
 });
 
 export const getBookChaptersFromSlug = cache(async (slug: string) => {
-    const chapters = await client.collection('book-chapters').find({
-        filters: {
-            title: { slug: { $eq: slug } },
-            hidden: { $ne: true },
-        },
-        populate: { title: true },
-        sort: 'number:asc',
-    });
-    return chapters.data;
+    const chapters = await fetchAllPages<any>((page, pageSize) =>
+        client.collection('book-chapters').find({
+            filters: {
+                title: { slug: { $eq: slug } },
+                hidden: { $ne: true },
+            },
+            populate: { title: true },
+            sort: 'number:asc',
+            pagination: { page, pageSize },
+        }),
+    );
+
+    return chapters.sort((a, b) => a.number - b.number);
 });
 
 export const getAuthor = cache(async (nickname: string) => {
