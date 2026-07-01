@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './Navbar.module.css';
 import stylesChapterButton from '@/components/TitlePage/ChapterButton/ChapterButton.module.css';
@@ -37,6 +37,9 @@ export default function Navbar({
     const [sidebarOpened, setSidebarOpened] = useState(false);
     const [lastScroll,     setLastScroll]     = useState(0);
 
+    const sidebarListRef   = useRef<HTMLDivElement>(null);
+    const activeChapterRef = useRef<HTMLDivElement | null>(null);
+
     const currentChapter = chapters[chapterIndex];
     const hasPrev = chapterIndex > 0;
     const hasNext = chapterIndex < chapters.length - 1;
@@ -48,15 +51,28 @@ export default function Navbar({
         () => [...chapters].sort((a, b) => b.number - a.number),
         [chapters],
     );
+
     useEffect(() => {
+        let lastY = lastScroll;
+        let ticking = false;
+
         const onScroll = () => {
-            const y = window.scrollY;
-            setNavbarVisible(y < 100 || y < lastScroll);
-            setLastScroll(y);
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const y = window.scrollY;
+                setNavbarVisible(y < 100 || y < lastY);
+                setLastScroll(y);
+                lastY = y;
+                ticking = false;
+            });
         };
+
         window.addEventListener('scroll', onScroll, { passive: true });
         return () => window.removeEventListener('scroll', onScroll);
-    }, [lastScroll]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     useEffect(() => {
         const body = document.body;
         if (sidebarOpened) {
@@ -73,6 +89,26 @@ export default function Navbar({
             window.scrollTo(0, scrollY);
         }
     }, [sidebarOpened]);
+
+    useEffect(() => {
+        if (!sidebarOpened) return;
+
+        const list = sidebarListRef.current;
+        const activeEl = activeChapterRef.current;
+        if (!list || !activeEl) return;
+
+        const raf = requestAnimationFrame(() => {
+            if (list.scrollHeight > list.clientHeight) {
+                const target =
+                    activeEl.offsetTop - list.clientHeight / 2 + activeEl.clientHeight / 2;
+                list.scrollTop = Math.max(0, target);
+            } else {
+                list.scrollTop = 0;
+            }
+        });
+
+        return () => cancelAnimationFrame(raf);
+    }, [sidebarOpened, chapterIndex]);
 
     const handleBack = () => router.push(`/${type}/${currentChapter.title.slug}`);
 
@@ -169,16 +205,18 @@ export default function Navbar({
                         </div>
                     </div>
 
-                    <div className={styles.sidebarChapterList}>
+                    <div className={styles.sidebarChapterList} ref={sidebarListRef}>
                         {sortedChapters.map((chapter) => {
                             const realIndex = chapters.findIndex(c => c.number === chapter.number);
+                            const isActive = realIndex === chapterIndex;
                             return (
                                 <div
                                     key={chapter.number}
+                                    ref={isActive ? activeChapterRef : undefined}
                                     className={`${stylesChapterButton.chapterButton} ${
-                                        realIndex === chapterIndex ? stylesChapterButton.disabled : ''
+                                        isActive ? stylesChapterButton.disabled : ''
                                     }`}
-                                    onClick={() => realIndex !== chapterIndex && closeSidebarAndNavigate(realIndex)}
+                                    onClick={() => !isActive && closeSidebarAndNavigate(realIndex)}
                                 >
                                     <span className={stylesChapterButton.chapterNumber}>
                                         Глава {chapter.number}
