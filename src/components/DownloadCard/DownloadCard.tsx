@@ -33,8 +33,6 @@ export const DownloadCard = ({ files, strDomain }: DownloadCardProps) => {
     if (items.length === 0) return null;
 
     return (
-        <div className={styles.card}>
-            <span className={styles.title}>Скачать</span>
             <div className={styles.list}>
                 {items.map((item, i) => (
                     <a
@@ -53,6 +51,6 @@ export const DownloadCard = ({ files, strDomain }: DownloadCardProps) => {
                     </a>
                 ))}
             </div>
-        </div>
+
     );
 };

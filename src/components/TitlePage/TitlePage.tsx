@@ -214,7 +214,11 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                     </div>
 
                     {bookFiles.length > 0 && (
-                        <DownloadCard files={bookFiles} strDomain={strDomain} />
+                        <div className={styles.sideCard}>
+                            <span className={styles.sideCardTitle}>Скачать</span>
+                            <DownloadCard files={bookFiles} strDomain={strDomain} />
+                        </div>
+
                     )}
 
                     {membersWorkedOn.length > 0 && (
@@ -310,6 +314,7 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
 
                         {bookFiles.length > 0 && (
                             <div className={styles.mobileDownloads}>
+                                <span className={styles.sideCardTitle}>Скачать</span>
                                 <DownloadCard files={bookFiles} strDomain={strDomain} />
                             </div>
                         )}
