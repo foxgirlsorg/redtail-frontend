@@ -171,7 +171,7 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
     const thumbnail       = title.cover?.formats?.medium?.url;
     const backdropUrl     = title.backdrop?.url ?? title.cover?.url;
     const membersWorkedOn = title.members_worked_ons ?? title.members_worked_on ?? [];
-    const bookFiles       = title.book_files ?? [];
+    const downloadFiles   = title.files ?? [];
 
     const sortedChapters = [...(title.chapters ?? [])].sort(
         (a: any, b: any) => b.number - a.number,
@@ -213,12 +213,11 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                         />
                     </div>
 
-                    {bookFiles.length > 0 && (
+                    {downloadFiles.length > 0 && (
                         <div className={styles.sideCard}>
                             <span className={styles.sideCardTitle}>Скачать</span>
-                            <DownloadCard files={bookFiles} strDomain={strDomain} />
+                            <DownloadCard files={downloadFiles} strDomain={strDomain} />
                         </div>
-
                     )}
 
                     {membersWorkedOn.length > 0 && (
@@ -274,31 +273,13 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                             )}
                         </div>
 
-                        {(title.mangalib_url ||
-                            title.readmanga_url ||
-                            title.remanga_url ||
-                            title.senkuro_url) && (
+                        {title.urls?.length > 0 && (
                             <div className={styles.externalLinks}>
-                                {title.mangalib_url && (
-                                    <a href={title.mangalib_url} target="_blank" className={styles.externalLink}>
-                                        <IonIcon src="/icons/mangalib.svg" />MangaLIB
+                                {title.urls.map((u: any, i: number) => (
+                                    <a key={i} href={u.url} target="_blank" className={styles.externalLink}>
+                                        <IonIcon src={u.icon_file?.mime === 'image/svg+xml' ? strDomain + u.icon_file.url : (u.icon || '/icons/link-outline-45.svg')} />{u.label}
                                     </a>
-                                )}
-                                {title.readmanga_url && (
-                                    <a href={title.readmanga_url} target="_blank" className={styles.externalLink}>
-                                        <IonIcon src="/icons/readmanga.svg" />ReadManga
-                                    </a>
-                                )}
-                                {title.remanga_url && (
-                                    <a href={title.remanga_url} target="_blank" className={styles.externalLink}>
-                                        <IonIcon src="/icons/remanga.svg" />Remanga
-                                    </a>
-                                )}
-                                {title.senkuro_url && (
-                                    <a href={title.senkuro_url} target="_blank" className={styles.externalLink}>
-                                        <IonIcon src="/icons/senkuro.svg" />Senkuro
-                                    </a>
-                                )}
+                                ))}
                             </div>
                         )}
 
@@ -312,10 +293,10 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                             <p className={styles.description}>{title.description}</p>
                         )}
 
-                        {bookFiles.length > 0 && (
+                        {downloadFiles.length > 0 && (
                             <div className={styles.mobileDownloads}>
                                 <span className={styles.sideCardTitle}>Скачать</span>
-                                <DownloadCard files={bookFiles} strDomain={strDomain} />
+                                <DownloadCard files={downloadFiles} strDomain={strDomain} />
                             </div>
                         )}
 
@@ -374,7 +355,7 @@ export const TitlePage = ({ title, footer, strDomain }: TitlePageProps) => {
                 </div>
             </div>
 
-            <Footer footer={footer} />
+            <Footer footer={footer} strDomain={strDomain} />
         </main>
     );
 };

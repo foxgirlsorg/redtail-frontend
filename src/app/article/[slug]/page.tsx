@@ -139,7 +139,7 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
                     />
                 </div>
             </div>
-            <Footer footer={footer} />
+            <Footer footer={footer} strDomain={STRAPI_DOMAIN} />
         </main>
     );
 }

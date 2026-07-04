@@ -152,7 +152,7 @@ export function TextEditor({
                         <IonIcon src="/icons/chatbox-outline.svg" />
                     </button>
                     <button type="button" className={styles.toolbarBtn} title="Ссылка" aria-label="Ссылка" onClick={() => insert('[', '](url)')}>
-                        <IonIcon src="/icons/link-outline.svg" />
+                        <IonIcon src="/icons/link-outline-45.svg" />
                     </button>
                     <button type="button" className={styles.toolbarBtn} title="Спойлер" aria-label="Спойлер" onClick={insertSpoiler}>
                         <IonIcon src="/icons/eye-off-outline.svg" />

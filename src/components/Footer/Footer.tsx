@@ -3,9 +3,10 @@ import { IonIcon } from '../IonIcon';
 
 type FooterProps = {
     footer: any;
+    strDomain?: string;
 };
 
-export const Footer = ({ footer }: FooterProps) => {
+export const Footer = ({ footer, strDomain }: FooterProps) => {
     const year = new Date().getFullYear();
 
     return (
@@ -18,35 +19,19 @@ export const Footer = ({ footer }: FooterProps) => {
                     )}
                 </div>
 
-                <div className={styles.linkGroup}>
-                    <span className={styles.groupLabel}>Ссылки</span>
-                    <div className={styles.iconRow}>
-                        {footer.mangalib_url && (
-                            <a href={footer.mangalib_url} target="_blank" rel="noopener noreferrer"
-                               className={styles.iconLink} title="Мы на MangaLIB">
-                                <IonIcon src="/icons/mangalib.svg" />
-                            </a>
-                        )}
-                        {footer.remanga_url && (
-                            <a href={footer.remanga_url} target="_blank" rel="noopener noreferrer"
-                               className={styles.iconLink} title="Мы на Remanga">
-                                <IonIcon src="/icons/remanga.svg" />
-                            </a>
-                        )}
-                        {footer.readmanga_url && (
-                            <a href={footer.readmanga_url} target="_blank" rel="noopener noreferrer"
-                               className={styles.iconLink} title="Мы на ReadManga">
-                                <IonIcon src="/icons/readmanga.svg" />
-                            </a>
-                        )}
-                        {footer.telegram_url && (
-                            <a href={footer.telegram_url} target="_blank" rel="noopener noreferrer"
-                               className={styles.iconLink} title="Наш Telegram канал">
-                                <IonIcon src="/icons/telegram.svg" />
-                            </a>
-                        )}
+                {footer.urls?.length > 0 && (
+                    <div className={styles.linkGroup}>
+                        <span className={styles.groupLabel}>Ссылки</span>
+                        <div className={styles.iconRow}>
+                            {footer.urls.map((u: any, i: number) => (
+                                <a key={i} href={u.url} target="_blank" rel="noopener noreferrer"
+                                   className={styles.iconLink} title={u.label}>
+                                    <IonIcon src={u.icon_file?.mime === 'image/svg+xml' ? (strDomain ?? '') + u.icon_file.url : (u.icon || '/icons/link-outline-45.svg')} />
+                                </a>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className={styles.linkGroup}>
                     <span className={styles.groupLabel}>Контакты</span>

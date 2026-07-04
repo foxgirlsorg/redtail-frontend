@@ -92,7 +92,7 @@ export default async function HomePage() {
                 </div>
             </section>
 
-            <Footer footer={footer} />
+            <Footer footer={footer} strDomain={STRAPI_DOMAIN} />
         </main>
     );
 }

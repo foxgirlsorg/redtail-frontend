@@ -92,11 +92,17 @@ async function fetchAllPages<T>(
 export const getTitleList = cache(async () => {
     const [manga, books] = await Promise.all([
         client.collection('manga-titles').find({
-            populate: ['cover'],
+            populate: {
+                cover: true,
+                urls: { populate: '*' },
+            },
             filters: { hidden: { $ne: true } },
         }),
         client.collection('book-titles').find({
-            populate: ['cover'],
+            populate: {
+                cover: true,
+                urls: { populate: '*' },
+            },
             filters: { hidden: { $ne: true } },
         }),
     ]);
@@ -124,7 +130,11 @@ export const getTeamMembersAll = cache(async () => {
 });
 
 export const getFooter = cache(async () => {
-    const footer = await client.single('Footer').find();
+    const footer = await client.single('Footer').find({
+        populate: {
+            urls: { populate: '*' },
+        },
+    });
     return footer.data;
 });
 
@@ -140,6 +150,12 @@ export const getManga = cache(async (slug: string) => {
             },
             chapters: {
                 sort: [{ number: 'desc' }],
+            },
+            urls: {
+                populate: '*',
+            },
+            files: {
+                populate: ['file'],
             },
         },
     });
@@ -159,9 +175,11 @@ export const getBook = cache(async (slug: string) => {
             chapters: {
                 sort: [{ number: 'desc' }],
             },
-            book_files: {
-                filters: { hidden: { $ne: true } },
-                populate: { file: true },
+            urls: {
+                populate: '*',
+            },
+            files: {
+                populate: ['file'],
             },
         },
     });
@@ -218,12 +236,12 @@ export const getAuthor = cache(async (nickname: string) => {
             manga_titles: {
                 filters: { hidden: { $ne: true } },
                 sort: [{ createdAt: 'asc' }],
-                populate: { cover: true },
+                populate: { cover: true, urls: { populate: '*' } },
             },
             book_titles: {
                 filters: { hidden: { $ne: true } },
                 sort: [{ createdAt: 'asc' }],
-                populate: { cover: true },
+                populate: { cover: true, urls: { populate: '*' } },
             },
             articles: {
                 filters: { hidden: { $ne: true } },

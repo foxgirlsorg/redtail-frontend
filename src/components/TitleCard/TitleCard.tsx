@@ -23,28 +23,15 @@ export const TitleCard = ({ title, strDomain }: TitleCardProps) => {
             <div className={styles.info}>
                 <h3 className={styles.name}>{title.name}</h3>
                 <span className={styles.description}>{title.description}</span>
-                <div className={styles.links}>
-                    {title.mangalib_url && (
-                        <a href={title.mangalib_url} target="_blank">
-                            <IonIcon src="/icons/mangalib.svg" />
-                        </a>
-                    )}
-                    {title.readmanga_url && (
-                        <a href={title.readmanga_url} target="_blank">
-                            <IonIcon src="/icons/readmanga.svg" />
-                        </a>
-                    )}
-                    {title.remanga_url && (
-                        <a href={title.remanga_url} target="_blank">
-                            <IonIcon src="/icons/remanga.svg" />
-                        </a>
-                    )}
-                    {title.senkuro_url && (
-                        <a href={title.senkuro_url} target="_blank">
-                            <IonIcon src="/icons/senkuro.svg" />
-                        </a>
-                    )}
-                </div>
+                {title.urls?.length > 0 && (
+                    <div className={styles.links}>
+                        {title.urls.map((u: any, i: number) => (
+                            <a key={i} href={u.url} target="_blank">
+                                <IonIcon src={u.icon_file?.mime === 'image/svg+xml' ? strDomain + u.icon_file.url : (u.icon || '/icons/link-outline-45.svg')} />
+                            </a>
+                        ))}
+                    </div>
+                )}
                 <RouterButton
                     text="Читать у нас"
                     iconSrc="/icons/arrow-forward-outline.svg"

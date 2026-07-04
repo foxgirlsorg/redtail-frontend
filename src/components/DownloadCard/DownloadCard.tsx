@@ -1,14 +1,14 @@
 import styles from './DownloadCard.module.css';
 import { IonIcon } from '@/components/IonIcon';
 
-type BookFile = {
-    documentId: string;
+type TitleFile = {
     file_type: string;
-    file: { url: string; name: string }[];
+    hidden?: boolean;
+    file?: { url: string; name: string } | null;
 };
 
 type DownloadCardProps = {
-    files: BookFile[];
+    files: TitleFile[];
     strDomain?: string;
 };
 
@@ -22,35 +22,34 @@ const iconForType: Record<string, string> = {
 export const DownloadCard = ({ files, strDomain }: DownloadCardProps) => {
     if (!files || files.length === 0) return null;
 
-    const items = files.flatMap(bookFile =>
-        bookFile.file.map(f => ({
-            url: (strDomain ?? '') + f.url,
-            name: f.name,
-            type: bookFile.file_type,
-        }))
-    );
+    const items = files
+        .filter(f => !f.hidden && f.file)
+        .map(f => ({
+            url: (strDomain ?? '') + f.file!.url,
+            name: f.file!.name,
+            type: f.file_type,
+        }));
 
     if (items.length === 0) return null;
 
     return (
-            <div className={styles.list}>
-                {items.map((item, i) => (
-                    <a
-                        key={i}
-                        href={item.url}
-                        className={styles.item}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <IonIcon
-                            src={iconForType[item.type] ?? '/icons/download-outline.svg'}
-                            className={styles.icon}
-                        />
-                        <span className={styles.badge}>{item.type}</span>
-                    </a>
-                ))}
-            </div>
-
+        <div className={styles.list}>
+            {items.map((item, i) => (
+                <a
+                    key={i}
+                    href={item.url}
+                    className={styles.item}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <IonIcon
+                        src={iconForType[item.type] ?? '/icons/download-outline.svg'}
+                        className={styles.icon}
+                    />
+                    <span className={styles.badge}>{item.type}</span>
+                </a>
+            ))}
+        </div>
     );
 };
