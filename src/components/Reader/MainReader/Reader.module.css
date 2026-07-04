@@ -200,13 +200,12 @@
         padding: 1.5rem 1.25rem;
     }
 
-    .chapterControls {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
 
     .previousChapterControl,
     .nextChapterControl {
         justify-content: center;
+    }
+    .textChapter {
+        padding: 2.5rem 1rem 6rem;
     }
 }

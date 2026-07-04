@@ -72,6 +72,7 @@ export function BookReader({ chapters, chapter }: BookReaderProps) {
         const stored = getCookie('reader_text_width');
         return stored ? Number(stored) : 40;
     });
+    const [isMobile, setIsMobile] = useState(false);
 
     const currentChapter = chapters[chapterIndex] as Chapter | undefined;
     const hasPrev = chapterIndex > 0;
@@ -80,7 +81,9 @@ export function BookReader({ chapters, chapter }: BookReaderProps) {
         setCookie('reader_text_width', textWidth.toString());
     }, [textWidth]);
     useEffect(() => {
-        if (window.innerWidth < 800) setTextWidth(90);
+        const mobile = window.innerWidth < 800;
+        setIsMobile(mobile);
+        if (mobile) setTextWidth(90);
 
         const html = document.documentElement;
         const prev = html.style.scrollbarGutter;
@@ -130,7 +133,7 @@ export function BookReader({ chapters, chapter }: BookReaderProps) {
             />
 
             <div className={styles.pageContainer}>
-                <div className={styles.textChapter} style={{ maxWidth: `${textWidth}vw` }}>
+                <div className={styles.textChapter} style={isMobile ? undefined : { maxWidth: `${textWidth}vw` }}>
                     <ChapterControls
                         hasPrev={hasPrev}
                         hasNext={hasNext}
