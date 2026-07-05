@@ -80,7 +80,7 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
                         </div>
                     )}
 
-                    {article.authors && (
+                    {article.authors.length > 0 && (
                         <div className={styles.infoItem}>
                             <h3 className={styles.title}>{article.authors.length > 1 ? "Авторы" : "Автор"}</h3>
                             <div className={styles.smallCards}>
@@ -97,7 +97,7 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
                         </div>
                     )}
 
-                    {article.related_authors && (
+                    {article.related_authors.length > 0 && (
                         <div className={styles.infoItem}>
                             <h3 className={styles.title}>Связано с</h3>
                             <div className={styles.smallCards}>
@@ -115,7 +115,7 @@ export default async function MangaPage({ params }:{ params: pageProps}) {
                     )}
 
 
-                    {article.members_worked_on && (
+                    {article.members_worked_on.length > 0 && (
                         <div className={styles.infoItem}>
                             <h3 className={styles.title}>{article.members_worked_on.length > 1 ? "Переводчики" : "Переводчик"}</h3>
                             <div className={styles.smallCards}>

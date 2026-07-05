@@ -61,19 +61,19 @@ export default async function ArticleIVPage({ params }: { params: pageProps }) {
                         {article.source_url && (
                             <p><strong>Источник:</strong> <a href={article.source_url}>{article.source_url}</a></p>
                         )}
-                        {article.authors && (
+                        {article.authors.length > 0 && (
                             <p>
                                 <strong>{article.authors.length > 1 ? 'Авторы' : 'Автор'}:</strong>{' '}
                                 {article.authors.map((a: any) => a.name).join(', ')}
                             </p>
                         )}
-                        {article.related_authors && (
+                        {article.related_authors.length > 0 && (
                             <p>
                                 <strong>Связано с:</strong>{' '}
                                 {article.related_authors.map((a: any) => a.name).join(', ')}
                             </p>
                         )}
-                        {article.members_worked_on && (
+                        {article.members_worked_on.length > 0 && (
                             <p>
                                 <strong>{article.members_worked_on.length > 1 ? 'Переводчики' : 'Переводчик'}:</strong>{' '}
                                 {article.members_worked_on.map((m: any) => m.nickname).join(', ')}
