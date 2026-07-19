@@ -29,7 +29,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const cardBgRef = useRef<HTMLDivElement>(null);
     const dividerRef = useRef<HTMLDivElement>(null);
 
     const toggle = (id: number) =>
@@ -74,63 +73,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         return () => window.removeEventListener('resize', computeFsScale);
     }, [fullscreen, visibleMembers.length, computeFsScale]);
 
-    const createBlurredBg = (
-        imageUrl: string,
-        blurPxAt680: number,
-        outW: number,
-        outH: number
-    ): Promise<string> =>
-        new Promise((resolve, reject) => {
-            const img = new window.Image();
-            img.crossOrigin = "anonymous";
-
-            img.onload = () => {
-                const blurPx = Math.min(blurPxAt680 * Math.sqrt(outW / CARD_W), 7);
-
-                const scale = 0.35; // lower = smoother/less noisy
-                const smallW = Math.max(1, Math.round(outW * scale));
-                const smallH = Math.max(1, Math.round(outH * scale));
-
-                const smallCanvas = document.createElement("canvas");
-                smallCanvas.width = smallW;
-                smallCanvas.height = smallH;
-
-                const smallCtx = smallCanvas.getContext("2d");
-                if (!smallCtx) return reject("no small ctx");
-
-                const coverScale = Math.max(smallW / img.width, smallH / img.height);
-                const drawW = img.width * coverScale;
-                const drawH = img.height * coverScale;
-                const dx = (smallW - drawW) / 2;
-                const dy = (smallH - drawH) / 2;
-
-                smallCtx.imageSmoothingEnabled = true;
-                smallCtx.imageSmoothingQuality = "high";
-                smallCtx.filter = `blur(${blurPx * scale}px) brightness(0.85) saturate(0.95)`;
-                smallCtx.drawImage(img, dx, dy, drawW, drawH);
-
-                const canvas = document.createElement("canvas");
-                canvas.width = outW;
-                canvas.height = outH;
-
-                const ctx = canvas.getContext("2d");
-                if (!ctx) return reject("no ctx");
-
-                ctx.imageSmoothingEnabled = true;
-                ctx.imageSmoothingQuality = "high";
-                ctx.drawImage(smallCanvas, 0, 0, outW, outH);
-
-                // subtle smoothing veil
-                ctx.fillStyle = "rgba(255,255,255,0.035)";
-                ctx.fillRect(0, 0, outW, outH);
-
-                resolve(canvas.toDataURL("image/png"));
-            };
-
-            img.onerror = reject;
-            img.src = imageUrl;
-        });
-
     const handleRender = useCallback(async () => {
         if (!cardRef.current || rendering) return;
 
@@ -139,7 +81,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setRenderMsg('Загрузка...');
 
         const cardEl = cardRef.current;
-        const bgEl = cardBgRef.current;
         const dividerEl = dividerRef.current;
 
         const originalBorder = cardEl.style.border;
@@ -147,12 +88,8 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         const originalOutline = cardEl.style.outline;
         const originalTransform = cardEl.style.transform;
 
-        const originalBg = bgEl?.style.backgroundImage ?? '';
-        const originalBgFilter = bgEl?.style.filter ?? '';
         const originalDividerHeight = dividerEl?.style.height ?? '';
 
-        const originalBgInset = bgEl?.style.inset ?? '';
-        const originalBgSize = bgEl?.style.backgroundSize ?? '';
         const originalDividerBackground = dividerEl?.style.background ?? '';
         const originalDividerBackgroundImage = dividerEl?.style.backgroundImage ?? '';
         const originalDividerMinHeight = dividerEl?.style.minHeight ?? '';
@@ -162,29 +99,10 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
             const naturalH = cardEl.scrollHeight;
             const dpr = renderWidth / naturalW;
 
-            const outputW = Math.round(naturalW * dpr);
-            const outputH = Math.round(naturalH * dpr);
-
             cardEl.style.border = 'none';
             cardEl.style.boxShadow = 'none';
             cardEl.style.outline = 'none';
             cardEl.style.transform = 'none';
-
-            if (bgEl) {
-                setRenderMsg('Обработка фона...');
-
-                const blurredDataUrl = await createBlurredBg(
-                    '/teamcard/pattern.png',
-                    4,
-                    outputW,
-                    outputH
-                );
-
-                bgEl.style.inset = '0';
-                bgEl.style.backgroundImage = `url(${blurredDataUrl})`;
-                bgEl.style.backgroundSize = '100% 100%';
-                bgEl.style.filter = 'none';
-            }
 
             if (dividerEl) {
                 dividerEl.style.height = '2px';
@@ -246,13 +164,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
             cardEl.style.boxShadow = originalBoxShadow;
             cardEl.style.outline = originalOutline;
             cardEl.style.transform = originalTransform;
-
-            if (bgEl) {
-                bgEl.style.backgroundImage = originalBg;
-                bgEl.style.backgroundSize = originalBgSize;
-                bgEl.style.filter = originalBgFilter;
-                bgEl.style.inset = originalBgInset;
-            }
 
             if (dividerEl) {
                 dividerEl.style.background = originalDividerBackground;
@@ -409,7 +320,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         transformOrigin: fullscreen ? 'center center' : 'top left',
                     }}
                 >
-                    <div className={styles.cardBg} ref={cardBgRef} />
+                    <div className={styles.cardBg} />
 
                     <div className={styles.header}>
                         <div className={styles.headerLeft}>
