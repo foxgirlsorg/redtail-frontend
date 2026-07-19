@@ -299,7 +299,7 @@ export type ProfileViewProps = {
 const CROP_SIZE = 280;
 const AVATAR_OUTPUT_SIZE = 256;
 
-function AvatarCropper({
+export function AvatarCropper({
     sourceUrl,
     onCancelAction,
     onApplyAction,

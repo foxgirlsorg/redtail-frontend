@@ -4,6 +4,7 @@ export {
     RegisterView,
     ForgotPasswordView,
     ProfileView,
+    AvatarCropper,
     Spinner,
     ErrorBanner,
     SuccessBanner,

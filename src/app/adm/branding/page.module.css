@@ -1,0 +1,132 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.backdropImage {
+    position: absolute;
+    inset: 0;
+    background-image: url('/teamcard/pattern_small.jpg');
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    filter: blur(10px) saturate(1.4);
+    transform: scale(1.05);
+}
+
+.backdropVignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(22, 22, 22, 0.29) 0%, rgba(22, 22, 22, 0.83) 100%);
+}
+
+.backdropNoise {
+    position: absolute;
+    inset: 0;
+    background-image: url('/noise.svg');
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    gap: 32px;
+    padding: 100px 20px 40px;
+    box-sizing: border-box;
+}
+
+.title {
+    font-family: "Mukta", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.06em;
+}
+
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 480px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.cardTitle {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.cardPreview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 16px;
+    min-height: 100px;
+    overflow: hidden;
+}
+
+.imgPreview {
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 6px;
+    object-fit: contain;
+}
+
+.svgPreview {
+    max-width: 80px;
+    max-height: 80px;
+    font-size: 80px;
+    color: #de6161;
+}
+
+.svgPreviewWide {
+    max-width: 260px;
+    max-height: 60px;
+}
+
+.cardDownloads {
+    display: flex;
+    gap: 6px;
+}
+
+.dlBtn {
+    flex: 1;
+    padding: 7px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(222, 97, 97, 0.4);
+    background: rgba(222, 97, 97, 0.1);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.dlBtn:hover {
+    background: rgba(222, 97, 97, 0.2);
+    border-color: rgba(222, 97, 97, 0.65);
+}

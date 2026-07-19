@@ -34,7 +34,7 @@ export default async function HomePage() {
 
             <section className={styles.hero} id="home">
                 <div className={styles.heroContent}>
-                    <img src="/redtail.svg" alt="REDTAIL" className={styles.heroLogo} />
+                    <img src="/wordmark.svg" alt="REDTAIL" className={styles.heroLogo} />
                 </div>
                 <a href="#titles" className={styles.scrollIndicator} aria-label="Прокрутить вниз">
                     <IonIcon src="/icons/arrow-down-outline.svg" />
