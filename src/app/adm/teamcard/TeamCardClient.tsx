@@ -145,6 +145,11 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         return () => window.removeEventListener('resize', computeFsScale);
     }, [fullscreen, visibleMembers.length, computeFsScale]);
 
+    useEffect(() => {
+        document.body.style.overflow = fullscreen ? 'hidden' : '';
+        return () => { document.body.style.overflow = ''; };
+    }, [fullscreen]);
+
     const checkScroll = useCallback(() => {
         const el = toggleListRef.current;
         if (!el) return;
