@@ -29,7 +29,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
-    const dividerRef = useRef<HTMLDivElement>(null);
 
     const toggle = (id: number) =>
         setVisible(prev => ({ ...prev, [id]: !prev[id] }));
@@ -80,63 +79,38 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setRenderStatus('loading');
         setRenderMsg('Загрузка...');
 
-        const cardEl = cardRef.current;
-        const dividerEl = dividerRef.current;
-
-        const originalBorder = cardEl.style.border;
-        const originalBoxShadow = cardEl.style.boxShadow;
-        const originalOutline = cardEl.style.outline;
-        const originalTransform = cardEl.style.transform;
-
-        const originalDividerHeight = dividerEl?.style.height ?? '';
-
-        const originalDividerBackground = dividerEl?.style.background ?? '';
-        const originalDividerBackgroundImage = dividerEl?.style.backgroundImage ?? '';
-        const originalDividerMinHeight = dividerEl?.style.minHeight ?? '';
-
         try {
-            const naturalW = cardEl.scrollWidth;
-            const naturalH = cardEl.scrollHeight;
-            const dpr = renderWidth / naturalW;
-
-            cardEl.style.border = 'none';
-            cardEl.style.boxShadow = 'none';
-            cardEl.style.outline = 'none';
-            cardEl.style.transform = 'none';
-
-            if (dividerEl) {
-                dividerEl.style.height = '2px';
-                dividerEl.style.minHeight = '2px';
-                dividerEl.style.backgroundImage =
-                    'linear-gradient(to right, #de6161 0%, rgba(222, 97, 97, 0.35) 45%, rgba(222, 97, 97, 0) 100%)';
-            }
-
-            const mod = await import('html2canvas' as any);
-            const html2canvas = mod.default ?? mod;
+            const { domToPng, domToJpeg } = await import('modern-screenshot');
 
             setRenderMsg('Рендеринг...');
 
-            const canvas = await html2canvas(cardEl, {
-                scale: dpr,
-                useCORS: true,
-                allowTaint: true,
+            const scale = renderWidth / cardRef.current.scrollWidth;
+
+            const dataUrl = await (renderFormat === 'jpg' ? domToJpeg : domToPng)(cardRef.current, {
+                scale,
                 backgroundColor: renderFormat === 'jpg' ? '#161616' : null,
-                width: naturalW,
-                height: naturalH,
-                x: 0,
-                y: 0,
-                scrollX: 0,
-                scrollY: 0,
-                logging: false,
+                quality: 0.98,
+                style: {
+                    border: 'none',
+                    boxShadow: 'none',
+                    outline: 'none',
+                    transform: 'none',
+                },
+                fetch: { requestInit: { mode: 'cors' } },
+                onCloneNode: (node: Node) => {
+                    const el = node as Element;
+                    const divider = el.querySelector(`.${styles.divider}`) as HTMLElement | undefined;
+                    if (divider) {
+                        divider.style.height = '2px';
+                        divider.style.minHeight = '2px';
+                        divider.style.background = '';
+                        divider.style.backgroundImage =
+                            'linear-gradient(to right, #de6161 0%, rgba(222, 97, 97, 0.35) 45%, rgba(222, 97, 97, 0) 100%)';
+                    }
+                },
             });
 
             setRenderMsg('Сохранение...');
-
-            const mimeType = renderFormat === 'jpg' ? 'image/jpeg' : 'image/png';
-            const dataUrl =
-                renderFormat === 'jpg'
-                    ? canvas.toDataURL(mimeType, 0.98)
-                    : canvas.toDataURL(mimeType);
 
             const a = document.createElement('a');
             a.href = dataUrl;
@@ -160,18 +134,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 setRenderMsg('');
             }, 3000);
         } finally {
-            cardEl.style.border = originalBorder;
-            cardEl.style.boxShadow = originalBoxShadow;
-            cardEl.style.outline = originalOutline;
-            cardEl.style.transform = originalTransform;
-
-            if (dividerEl) {
-                dividerEl.style.background = originalDividerBackground;
-                dividerEl.style.backgroundImage = originalDividerBackgroundImage;
-                dividerEl.style.height = originalDividerHeight;
-                dividerEl.style.minHeight = originalDividerMinHeight;
-            }
-
             setRendering(false);
         }
     }, [rendering, renderWidth, renderFormat]);
@@ -333,7 +295,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         <IonIcon src="/icons/redtail.svg" className={styles.headerIcon} />
                     </div>
 
-                    <div ref={dividerRef} className={styles.divider} />
+                    <div className={styles.divider} />
 
                     <ul className={styles.grid}>
                         {visibleMembers.map(member => {
