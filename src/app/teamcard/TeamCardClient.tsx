@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { IonIcon } from '@/components/IonIcon';
+import { AvatarCropper } from '@/components/Auth';
 import styles from './page.module.css';
 
 type TeamCardClientProps = {
@@ -9,7 +10,15 @@ type TeamCardClientProps = {
     strDomain?: string;
 };
 
+type CustomMember = {
+    id: number;
+    nickname: string;
+    role: string;
+    avatarUrl: string | null;
+};
+
 const CARD_W = 680;
+let nextCustomId = -1;
 
 export default function TeamCardClient({ team, strDomain }: TeamCardClientProps) {
     const [visible, setVisible] = useState<Record<number, boolean>>(
@@ -27,8 +36,21 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const [renderStatus, setRenderStatus] = useState<'idle' | 'loading' | 'ok' | 'err'>('idle');
     const [renderMsg, setRenderMsg] = useState('');
 
+    const [customMembers, setCustomMembers] = useState<CustomMember[]>([]);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newNickname, setNewNickname] = useState('');
+    const [newRole, setNewRole] = useState('');
+    const [newAvatarUrl, setNewAvatarUrl] = useState('');
+    const [newAvatarMode, setNewAvatarMode] = useState<'url' | 'upload'>('url');
+    const [newAvatarFile, setNewAvatarFile] = useState<string | null>(null);
+    const [cropSourceUrl, setCropSourceUrl] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const toggleListRef = useRef<HTMLDivElement>(null);
+    const [scrolledTop, setScrolledTop] = useState(true);
+    const [scrolledBottom, setScrolledBottom] = useState(false);
 
     const toggle = (id: number) =>
         setVisible(prev => ({ ...prev, [id]: !prev[id] }));
@@ -36,7 +58,58 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const setOverride = (id: number, value: string) =>
         setOverrides(prev => ({ ...prev, [id]: value }));
 
-    const visibleMembers = team.filter(m => visible[m.id]);
+    const addCustomMember = () => {
+        if (!newNickname.trim()) return;
+        const id = nextCustomId--;
+        setCustomMembers(prev => [
+            ...prev,
+            {
+                id,
+                nickname: newNickname.trim(),
+                role: newRole.trim(),
+                avatarUrl: newAvatarMode === 'url' ? (newAvatarUrl.trim() || null) : newAvatarFile,
+            },
+        ]);
+        setVisible(prev => ({ ...prev, [id]: true }));
+        resetAddForm();
+    };
+
+    const removeCustomMember = (id: number) => {
+        setCustomMembers(prev => prev.filter(m => m.id !== id));
+        setVisible(prev => { const n = { ...prev }; delete n[id]; return n; });
+        setOverrides(prev => { const n = { ...prev }; delete n[id]; return n; });
+    };
+
+    const resetAddForm = () => {
+        setNewNickname('');
+        setNewRole('');
+        setNewAvatarUrl('');
+        setNewAvatarFile(null);
+        setCropSourceUrl(null);
+        setShowAddForm(false);
+    };
+
+    const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (cropSourceUrl) URL.revokeObjectURL(cropSourceUrl);
+        setCropSourceUrl(URL.createObjectURL(file));
+        e.target.value = '';
+    };
+
+    const fileToDataUrl = (file: File): Promise<string> =>
+        new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+
+    useEffect(() => () => { if (cropSourceUrl) URL.revokeObjectURL(cropSourceUrl); }, [cropSourceUrl]);
+
+    const visibleTeamMembers = team.filter(m => visible[m.id]);
+    const visibleCustomMembers = customMembers.filter(m => visible[m.id]);
+    const visibleMembers = [...visibleTeamMembers, ...visibleCustomMembers];
 
     const computeScale = useCallback(() => {
         if (!wrapperRef.current) return;
@@ -71,6 +144,21 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         window.addEventListener('resize', computeFsScale);
         return () => window.removeEventListener('resize', computeFsScale);
     }, [fullscreen, visibleMembers.length, computeFsScale]);
+
+    const checkScroll = useCallback(() => {
+        const el = toggleListRef.current;
+        if (!el) return;
+        setScrolledTop(el.scrollTop <= 0);
+        setScrolledBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+    }, []);
+
+    useEffect(() => {
+        checkScroll();
+        const el = toggleListRef.current;
+        if (!el) return;
+        el.addEventListener('scroll', checkScroll, { passive: true });
+        return () => el.removeEventListener('scroll', checkScroll);
+    }, [checkScroll, visibleMembers.length]);
 
     const handleRender = useCallback(async () => {
         if (!cardRef.current || rendering) return;
@@ -142,6 +230,11 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
     return (
         <div className={`${styles.wrapper} ${fullscreen ? styles.wrapperFullscreen : ''}`}>
+            <div className={styles.backdrop}>
+                <div className={styles.backdropImage} />
+                <div className={styles.backdropVignette} />
+                <div className={styles.backdropNoise} />
+            </div>
             {!fullscreen && (
                 <div className={styles.controls}>
                     <div className={styles.controlsHeader}>
@@ -157,13 +250,15 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         </div>
                     </div>
 
-                    <div className={styles.toggleList}>
-                        {team.map(member => (
+                    <div className={styles.toggleListWrap}>
+                        <div className={styles.scrollFadeTop} style={{ opacity: scrolledTop ? 0 : 1 }} />
+                        <div className={styles.toggleList} ref={toggleListRef}>
+                            {team.map(member => (
                             <div key={member.id} className={styles.memberControl}>
                                 <label className={styles.toggleRow}>
                                     <span className={`${styles.toggleName} ${member.hidden ? styles.toggleNameMuted : ''}`}>
                                         {member.nickname}
-                                        {member.hidden && <span className={styles.hiddenBadge}>скрыт</span>}
+                                        {member.hidden && <span className={styles.badge}>скрыт</span>}
                                     </span>
                                     <button
                                         role="switch"
@@ -175,7 +270,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                                     </button>
                                 </label>
                                 <input
-                                    className={styles.roleOverride}
+                                    className={styles.fieldInput}
                                     type="text"
                                     placeholder={member.role ?? 'Роль...'}
                                     value={overrides[member.id] ?? member.role ?? ''}
@@ -183,7 +278,148 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                                 />
                             </div>
                         ))}
+                        {customMembers.map(member => (
+                            <div key={member.id} className={styles.memberControl}>
+                                <div className={styles.toggleRow}>
+                                    <span className={styles.toggleName}>
+                                        {member.nickname}
+                                        <span className={`${styles.badge} ${styles.badgeAccent}`}>локальный</span>
+                                    </span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <button
+                                            className={styles.removeMemberBtn}
+                                            onClick={() => removeCustomMember(member.id)}
+                                            title="Удалить"
+                                        >
+                                            <IonIcon src="/icons/close-outline.svg" />
+                                        </button>
+                                        <button
+                                            role="switch"
+                                            aria-checked={visible[member.id]}
+                                            className={`${styles.switch} ${visible[member.id] ? styles.switchOn : ''}`}
+                                            onClick={() => toggle(member.id)}
+                                        >
+                                            <span className={styles.switchThumb} />
+                                        </button>
+                                    </div>
+                                </div>
+                                <input
+                                    className={styles.fieldInput}
+                                    type="text"
+                                    placeholder="Роль..."
+                                    value={overrides[member.id] ?? member.role ?? ''}
+                                    onChange={e => setOverride(member.id, e.target.value)}
+                                />
+                            </div>
+                        ))}
+                        </div>
+                        <div className={styles.scrollFadeBottom} style={{ opacity: scrolledBottom ? 0 : 1 }} />
                     </div>
+
+                    {!showAddForm ? (
+                        <button className={styles.addMemberBtn} onClick={() => setShowAddForm(true)}>
+                            <IonIcon src="/icons/add-outline.svg" />
+                            Добавить участника
+                        </button>
+                    ) : (
+                        <div className={styles.addMemberForm}>
+                            <div className={styles.addMemberFormHeader}>
+                                <span className={styles.addMemberFormTitle}>Новый участник</span>
+                                <button className={styles.addMemberCloseBtn} onClick={resetAddForm}>
+                                    <IonIcon src="/icons/close-outline.svg" />
+                                </button>
+                            </div>
+
+                            <div className={styles.addMemberField}>
+                                <label className={styles.addMemberLabel}>Никнейм</label>
+                                <input
+                                    className={styles.fieldInput}
+                                    type="text"
+                                    placeholder="Никнейм..."
+                                    value={newNickname}
+                                    onChange={e => setNewNickname(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div className={styles.addMemberField}>
+                                <label className={styles.addMemberLabel}>Роль</label>
+                                <input
+                                    className={styles.fieldInput}
+                                    type="text"
+                                    placeholder="Роль..."
+                                    value={newRole}
+                                    onChange={e => setNewRole(e.target.value)}
+                                />
+                            </div>
+
+                            <div className={styles.addMemberField}>
+                                <label className={styles.addMemberLabel}>Аватар</label>
+                                <div className={styles.avatarSourceToggle}>
+                                    <button
+                                        className={`${styles.segBtn} ${newAvatarMode === 'url' ? styles.segBtnActive : ''}`}
+                                        onClick={() => setNewAvatarMode('url')}
+                                    >
+                                        URL
+                                    </button>
+                                    <button
+                                        className={`${styles.segBtn} ${newAvatarMode === 'upload' ? styles.segBtnActive : ''}`}
+                                        onClick={() => setNewAvatarMode('upload')}
+                                    >
+                                        Загрузить
+                                    </button>
+                                </div>
+                                {newAvatarMode === 'url' ? (
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="url"
+                                        placeholder="https://..."
+                                        value={newAvatarUrl}
+                                        onChange={e => setNewAvatarUrl(e.target.value)}
+                                    />
+                                ) : (
+                                    <div className={styles.avatarRow}>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            onChange={handleAvatarFileChange}
+                                        />
+                                        <button
+                                            className={styles.avatarUploadBtn}
+                                            onClick={() => fileInputRef.current?.click()}
+                                        >
+                                            <IonIcon src="/icons/image-outline.svg" />
+                                            {newAvatarFile ? 'Заменить' : 'Выбрать файл'}
+                                        </button>
+                                    </div>
+                                )}
+                                {(newAvatarMode === 'url' ? newAvatarUrl : newAvatarFile) && (
+                                    <div className={styles.avatarPreviewSmall}>
+                                        <img
+                                            src={newAvatarMode === 'url' ? newAvatarUrl : newAvatarFile!}
+                                            alt=""
+                                            className={styles.avatarPreviewSmallImg}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className={styles.addMemberActions}>
+                                <button className={styles.addMemberCancelBtn} onClick={resetAddForm}>
+                                    Отмена
+                                </button>
+                                <button
+                                    className={`${styles.btnAccent} ${styles.addMemberSaveBtn}`}
+                                    onClick={addCustomMember}
+                                    disabled={!newNickname.trim()}
+                                >
+                                    Добавить
+                                </button>
+                            </div>
+                        </div>
+                    )}
 
                     <div className={styles.renderPanel}>
                         <div className={styles.renderPanelHeader}>
@@ -194,7 +430,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         <div className={styles.renderField}>
                             <label className={styles.renderLabel}>Ширина (px)</label>
                             <input
-                                className={styles.renderInput}
+                                className={styles.fieldInput}
                                 type="number"
                                 min={400}
                                 max={6000}
@@ -210,13 +446,13 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                             <label className={styles.renderLabel}>Формат</label>
                             <div className={styles.formatToggle}>
                                 <button
-                                    className={`${styles.formatBtn} ${renderFormat === 'png' ? styles.formatBtnActive : ''}`}
+                                    className={`${styles.segBtn} ${renderFormat === 'png' ? styles.segBtnActive : ''}`}
                                     onClick={() => setRenderFormat('png')}
                                 >
                                     PNG
                                 </button>
                                 <button
-                                    className={`${styles.formatBtn} ${renderFormat === 'jpg' ? styles.formatBtnActive : ''}`}
+                                    className={`${styles.segBtn} ${renderFormat === 'jpg' ? styles.segBtnActive : ''}`}
                                     onClick={() => setRenderFormat('jpg')}
                                 >
                                     JPG
@@ -225,7 +461,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         </div>
 
                         <button
-                            className={`${styles.renderBtn} ${rendering ? styles.renderBtnLoading : ''} ${renderStatus === 'ok' ? styles.renderBtnOk : ''} ${renderStatus === 'err' ? styles.renderBtnErr : ''}`}
+                            className={`${styles.btnAccent} ${styles.renderBtn} ${rendering ? styles.renderBtnLoading : ''} ${renderStatus === 'ok' ? styles.renderBtnOk : ''} ${renderStatus === 'err' ? styles.renderBtnErr : ''}`}
                             onClick={handleRender}
                             disabled={rendering}
                         >
@@ -269,6 +505,18 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 </button>
             )}
 
+            {cropSourceUrl && (
+                <AvatarCropper
+                    sourceUrl={cropSourceUrl}
+                    onCancelAction={() => { URL.revokeObjectURL(cropSourceUrl); setCropSourceUrl(null); }}
+                    onApplyAction={async file => {
+                        URL.revokeObjectURL(cropSourceUrl);
+                        setCropSourceUrl(null);
+                        setNewAvatarFile(await fileToDataUrl(file));
+                    }}
+                />
+            )}
+
             <div
                 ref={wrapperRef}
                 className={`${styles.cardWrapper} ${fullscreen ? styles.cardWrapperFullscreen : ''}`}
@@ -299,7 +547,8 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                     <ul className={styles.grid}>
                         {visibleMembers.map(member => {
-                            const imgUrl = member.image?.url;
+                            const isCustom = member.id < 0;
+                            const imgUrl = isCustom ? member.avatarUrl : member.image?.url;
                             const role =
                                 overrides[member.id] !== undefined && overrides[member.id] !== ''
                                     ? overrides[member.id]
@@ -307,16 +556,16 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                             return (
                                 <li key={member.id} className={styles.member}>
-                                    {imgUrl && (
-                                        <div className={styles.avatar}>
+                                    <div className={`${styles.avatar} ${!imgUrl ? styles.avatarEmpty : ''}`}>
+                                        {imgUrl && (
                                             <img
-                                                src={strDomain + imgUrl}
+                                                src={isCustom ? imgUrl : strDomain + imgUrl}
                                                 alt={member.nickname}
                                                 className={styles.avatarImg}
-                                                crossOrigin="anonymous"
+                                                crossOrigin={isCustom ? undefined : 'anonymous'}
                                             />
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                     <div className={styles.info}>
                                         <span className={styles.nickname}>{member.nickname}</span>
                                         <span className={styles.role}>{role}</span>
