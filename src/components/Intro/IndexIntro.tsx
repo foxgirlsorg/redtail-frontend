@@ -9,7 +9,7 @@ export const IntroSection = () => {
             <div className={styles.introbg}></div>
             <div className={styles.introinner}>
                 <div className={styles.introtitle}>
-                    <img src="/redtail.svg" alt="REDTAIL" />
+                    <img src="/wordmark.svg" alt="REDTAIL" />
                 </div>
             </div>
             <div className={styles.introarrowdown}>

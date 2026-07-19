@@ -9,6 +9,7 @@ const STRAPI_DOMAIN = process.env.NEXT_PUBLIC_STRAPI_DOMAIN;
 
 const HIDDEN: { name: string; description: string; href: string }[] = [
     { name: 'Teamcard', description: 'Генератор карточек команды', href: '/adm/teamcard' },
+    { name: 'Branding', description: 'Ассеты: паттерн, логотип, интро', href: '/adm/branding' },
 ];
 
 export default async function AdmPage() {
