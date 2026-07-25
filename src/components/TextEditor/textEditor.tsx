@@ -19,10 +19,13 @@ export type TextEditorProps = {
     placeholder?: string;
     allowHtml?: boolean;
     compact?: boolean;
+    hideFooter?: boolean;
     maxLength?: number;
     onCancelAction?: () => void;
-    onSubmitAction: (content: string) => Promise<void>;
+    onSubmitAction?: (content: string) => Promise<void>;
+    onChange?: (value: string) => void;
     submitLabel?: string;
+    className?: string;
 };
 
 function stripHtml(input: string): string {
@@ -34,10 +37,13 @@ export function TextEditor({
                                placeholder = 'Напишите текст…',
                                allowHtml = false,
                                compact = false,
+                               hideFooter = false,
                                maxLength,
                                onCancelAction,
                                onSubmitAction,
+                               onChange,
                                submitLabel = 'Отправить',
+                               className,
                            }: TextEditorProps) {
     const [content, setContent] = useState(initialValue);
     const [tab, setTab] = useState<'write' | 'preview'>('write');
@@ -109,11 +115,12 @@ export function TextEditor({
     const handleChange = (value: string) => {
         if (maxLength && value.length > maxLength) return;
         setContent(value);
+        onChange?.(value);
     };
 
     const handleSubmit = async () => {
         const trimmed = content.trim();
-        if (!trimmed) return;
+        if (!trimmed || !onSubmitAction) return;
 
         setError('');
         setLoading(true);
@@ -132,7 +139,7 @@ export function TextEditor({
     const isOverLimit = remaining !== null && remaining < 0;
 
     return (
-        <div className={`${styles.editor} ${compact ? styles.compact : ''}`}>
+        <div className={[styles.editor, compact ? styles.compact : '', className].filter(Boolean).join(' ')}>
             <div className={styles.toolbar}>
                 <div className={styles.formatRow}>
                     <button type="button" className={styles.toolbarBtn} title="Жирный" aria-label="Жирный" onClick={() => insert('**', '**')}>
@@ -207,34 +214,36 @@ export function TextEditor({
                 </div>
             )}
 
-            <div className={styles.footer}>
-                {isNearLimit && remaining !== null && (
-                    <span
-                        className={[
-                            styles.charCounter,
-                            isOverLimit ? styles.charCounterOver : '',
-                        ].filter(Boolean).join(' ')}
-                    >
-                        {remaining}
-                    </span>
-                )}
-                <div className={styles.actions}>
-                    {onCancelAction && (
-                        <button type="button" className={styles.cancelBtn} onClick={onCancelAction}>
-                            Отмена
-                        </button>
+            {!hideFooter && (
+                <div className={styles.footer}>
+                    {isNearLimit && remaining !== null && (
+                        <span
+                            className={[
+                                styles.charCounter,
+                                isOverLimit ? styles.charCounterOver : '',
+                            ].filter(Boolean).join(' ')}
+                        >
+                            {remaining}
+                        </span>
                     )}
-                    <button
-                        type="button"
-                        className={styles.submitBtn}
-                        onClick={() => void handleSubmit()}
-                        disabled={loading || !content.trim() || isOverLimit === true}
-                    >
-                        {loading ? <span className={styles.spinner} /> : <IonIcon src="/icons/send-outline.svg" />}
-                        {submitLabel}
-                    </button>
+                    <div className={styles.actions}>
+                        {onCancelAction && (
+                            <button type="button" className={styles.cancelBtn} onClick={onCancelAction}>
+                                Отмена
+                            </button>
+                        )}
+                        <button
+                            type="button"
+                            className={styles.submitBtn}
+                            onClick={() => void handleSubmit()}
+                            disabled={loading || !content.trim() || isOverLimit === true}
+                        >
+                            {loading ? <span className={styles.spinner} /> : <IonIcon src="/icons/send-outline.svg" />}
+                            {submitLabel}
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }
