@@ -226,9 +226,15 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
             setRenderMsg('Рендеринг...');
 
-            const scale = renderWidth / cardRef.current.scrollWidth;
+            const cardEl = cardRef.current;
+            const prevTransform = cardEl.style.transform;
+            const prevOrigin = cardEl.style.transformOrigin;
+            cardEl.style.transform = 'none';
+            cardEl.style.transformOrigin = 'unset';
 
-            const dataUrl = await (renderFormat === 'jpg' ? domToJpeg : domToPng)(cardRef.current, {
+            const scale = renderWidth / cardEl.scrollWidth;
+
+            const dataUrl = await (renderFormat === 'jpg' ? domToJpeg : domToPng)(cardEl, {
                 scale,
                 backgroundColor: renderFormat === 'jpg' ? '#161616' : null,
                 quality: 0.98,
@@ -236,7 +242,6 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     border: 'none',
                     boxShadow: 'none',
                     outline: 'none',
-                    transform: 'none',
                 },
                 fetch: { requestInit: { mode: 'cors' } },
                 onCloneNode: (node: Node) => {
@@ -251,6 +256,9 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     }
                 },
             });
+
+            cardEl.style.transform = prevTransform;
+            cardEl.style.transformOrigin = prevOrigin;
 
             setRenderMsg('Сохранение...');
 
