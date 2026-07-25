@@ -34,8 +34,8 @@
 
 .wrapper {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 24px;
     padding: 40px 20px;
     min-height: 100vh;
@@ -49,19 +49,38 @@
 }
 
 /* ── Controls sidebar ────────────────────────────────────── */
+.panelsCombined {
+    display: flex;
+    gap: 0;
+    flex-shrink: 0;
+    height: 600px;
+    margin-top: 100px
+}
+
 .controls {
     width: 240px;
     flex-shrink: 0;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    position: sticky;
-    top: 20px;
-    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.controlsTextBlocks {
+    width: 720px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
     overflow-y: auto;
 }
 
@@ -71,6 +90,7 @@
     justify-content: space-between;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border);
+    height: 35px;
 }
 
 .controlsLabel {
@@ -110,14 +130,19 @@
 /* ── Toggle list ─────────────────────────────────────────── */
 .toggleListWrap {
     position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .toggleList {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 40vh;
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .scrollFadeTop,
@@ -789,11 +814,23 @@
         gap: 20px;
     }
 
-    .controls {
+    .panelsCombined {
+        flex-direction: column;
         width: 100%;
         max-width: 680px;
-        position: static;
-        max-height: none;
+        height: auto;
+    }
+
+    .controls {
+        width: 100%;
+        border-radius: var(--radius-lg);
+    }
+
+    .controlsTextBlocks {
+        width: 100%;
+        border-left: 1px solid var(--border);
+        border-top: none;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
 
     .cardWrapper {
@@ -801,4 +838,106 @@
         max-width: 680px;
         overflow: visible;
     }
+}
+
+/* ── Text blocks (inside the card) ──────────────────────── */
+.textBlockGroupBefore {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 1.75rem;
+}
+
+.textBlockGroupAfter {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 1.75rem;
+}
+
+.textBlockWrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.textBlock {
+    position: relative;
+    z-index: 1;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+
+}
+
+.textBlockTitle {
+    font-family: "Mukta", sans-serif;
+    font-size: 2rem;
+    line-height: 1.2;
+    color: var(--text-primary);
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    transform: translateX(-.04em);
+}
+
+
+.textBlockContent {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+.divider.tb {
+    margin: 1.5rem 0;
+}
+
+
+
+/* ── Text block sidebar controls ─────────────────────────── */
+.blockList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.blockControl {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.blockControlHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.blockTextarea {
+    width: 100%;
+    min-height: 70px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    outline: none;
+    resize: both;
+    min-width: 180px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.blockTextarea:focus {
+    border-color: rgba(222, 97, 97, 0.35);
+}
+
+.blockTextEditor {
+    border-radius: 10px;
+    overflow: hidden;
 }

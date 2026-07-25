@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { IonIcon } from '@/components/IonIcon';
 import { AvatarCropper } from '@/components/Auth';
+import { TextEditor } from '@/components/TextEditor/textEditor';
 import styles from './page.module.css';
 
 type TeamCardClientProps = {
@@ -17,8 +20,17 @@ type CustomMember = {
     avatarUrl: string | null;
 };
 
+type TextBlock = {
+    id: number;
+    title: string;
+    subtitle: string;
+    content: string;
+    position: 'before' | 'after';
+};
+
 const CARD_W = 680;
 let nextCustomId = -1;
+let nextBlockId = 1;
 
 export default function TeamCardClient({ team, strDomain }: TeamCardClientProps) {
     const [visible, setVisible] = useState<Record<number, boolean>>(
@@ -45,6 +57,13 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const [newAvatarFile, setNewAvatarFile] = useState<string | null>(null);
     const [cropSourceUrl, setCropSourceUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [textBlocks, setTextBlocks] = useState<TextBlock[]>([]);
+    const [showAddBlock, setShowAddBlock] = useState(false);
+    const [newBlockTitle, setNewBlockTitle] = useState('');
+    const [newBlockSubtitle, setNewBlockSubtitle] = useState('');
+    const [newBlockContent, setNewBlockContent] = useState('');
+    const [newBlockPosition, setNewBlockPosition] = useState<'before' | 'after'>('before');
 
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -89,6 +108,33 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setShowAddForm(false);
     };
 
+    const addTextBlock = () => {
+        setTextBlocks(prev => [...prev, {
+            id: nextBlockId++,
+            title: newBlockTitle.trim(),
+            subtitle: newBlockSubtitle.trim(),
+            content: newBlockContent.trim(),
+            position: newBlockPosition,
+        }]);
+        resetBlockForm();
+    };
+
+    const removeTextBlock = (id: number) => {
+        setTextBlocks(prev => prev.filter(b => b.id !== id));
+    };
+
+    const updateTextBlock = (id: number, field: keyof TextBlock, value: any) => {
+        setTextBlocks(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+    };
+
+    const resetBlockForm = () => {
+        setNewBlockTitle('');
+        setNewBlockSubtitle('');
+        setNewBlockContent('');
+        setNewBlockPosition('before');
+        setShowAddBlock(false);
+    };
+
     const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -110,6 +156,9 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const visibleTeamMembers = team.filter(m => visible[m.id]);
     const visibleCustomMembers = customMembers.filter(m => visible[m.id]);
     const visibleMembers = [...visibleTeamMembers, ...visibleCustomMembers];
+
+    const beforeBlocks = textBlocks.filter(b => b.position === 'before');
+    const afterBlocks = textBlocks.filter(b => b.position === 'after');
 
     const computeScale = useCallback(() => {
         if (!wrapperRef.current) return;
@@ -136,14 +185,14 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
     useEffect(() => {
         if (cardRef.current) setCardHeight(cardRef.current.offsetHeight);
-    }, [visibleMembers.length, overrides]);
+    }, [visibleMembers.length, overrides, textBlocks]);
 
     useEffect(() => {
         if (!fullscreen) return;
         computeFsScale();
         window.addEventListener('resize', computeFsScale);
         return () => window.removeEventListener('resize', computeFsScale);
-    }, [fullscreen, visibleMembers.length, computeFsScale]);
+    }, [fullscreen, visibleMembers.length, textBlocks, computeFsScale]);
 
     useEffect(() => {
         document.body.style.overflow = fullscreen ? 'hidden' : '';
@@ -241,7 +290,8 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 <div className={styles.backdropNoise} />
             </div>
             {!fullscreen && (
-                <div className={styles.controls}>
+                <div className={styles.panelsCombined}>
+                    <div className={styles.controls}>
                     <div className={styles.controlsHeader}>
                         <span className={styles.controlsLabel}>Участники</span>
                         <div className={styles.controlsActions}>
@@ -497,6 +547,86 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                             Высота определяется автоматически · {renderWidth}×auto px
                         </p>
                     </div>
+                    </div>
+
+                    <div className={styles.controlsTextBlocks}>                        <div className={styles.controlsHeader}>
+                            <span className={styles.controlsLabel}>Текстовые блоки</span>
+                        </div>
+
+                        {textBlocks.length === 0 && (
+                            <p className={styles.renderHint}>
+                                Блоков пока нет.
+                            </p>
+                        )}
+
+                        {textBlocks.length > 0 && (
+                            <div className={styles.blockList}>
+                                {textBlocks.map(block => (
+                                    <div key={block.id} className={styles.blockControl}>
+                                        <div className={styles.blockControlHeader}>
+                                            <span className={styles.badge}>
+                                                {block.position === 'before' ? 'над карточкой' : 'под карточкой'}
+                                            </span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <button
+                                                    className={styles.removeMemberBtn}
+                                                    onClick={() => removeTextBlock(block.id)}
+                                                    title="Удалить"
+                                                >
+                                                    <IonIcon src="/icons/close-outline.svg" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.formatToggle}>
+                                            <button
+                                                className={`${styles.segBtn} ${block.position === 'before' ? styles.segBtnActive : ''}`}
+                                                onClick={() => updateTextBlock(block.id, 'position', 'before')}
+                                            >
+                                                Сверху
+                                            </button>
+                                            <button
+                                                className={`${styles.segBtn} ${block.position === 'after' ? styles.segBtnActive : ''}`}
+                                                onClick={() => updateTextBlock(block.id, 'position', 'after')}
+                                            >
+                                                Снизу
+                                            </button>
+                                        </div>
+
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="text"
+                                            placeholder="Заголовок..."
+                                            value={block.title}
+                                            onChange={e => updateTextBlock(block.id, 'title', e.target.value)}
+                                        />
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="text"
+                                            placeholder="Подзаголовок..."
+                                            value={block.subtitle}
+                                            onChange={e => updateTextBlock(block.id, 'subtitle', e.target.value)}
+                                        />
+                                        <TextEditor
+                                            key={block.id}
+                                            compact
+                                            allowHtml
+                                            hideFooter
+                                            initialValue={block.content}
+                                            placeholder="Текст..."
+                                            className={styles.blockTextEditor}
+                                            onChange={(value) => updateTextBlock(block.id, 'content', value)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <button className={styles.addMemberBtn} onClick={addTextBlock}>
+                            <IonIcon src="/icons/add-outline.svg" />
+                            Добавить блок
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -536,6 +666,23 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     }}
                 >
                     <div className={styles.cardBg} />
+
+                    {beforeBlocks.length > 0 && (
+                        <div className={styles.textBlockGroupBefore}>
+                            {beforeBlocks.map(block => (
+                                <div key={block.id} className={styles.textBlockWrap}>
+                                    {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
+                                    {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
+                                    {(block.title || block.subtitle) && <div className={`${styles.divider} ${styles.tb}`} />}
+                                    {block.content && <div className={styles.textBlock}>
+                                        <div className={styles.textBlockContent}>
+                                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
+                                        </div>
+                                    </div>}
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     <div className={styles.header}>
                         <div className={styles.headerLeft}>
@@ -579,6 +726,23 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                             );
                         })}
                     </ul>
+
+                    {afterBlocks.length > 0 && (
+                        <div className={styles.textBlockGroupAfter}>
+                            {afterBlocks.map(block => (
+                                <div key={block.id} className={styles.textBlockWrap}>
+                                    {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
+                                    {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
+                                    {(block.title || block.subtitle) && <div className={`${styles.divider} ${styles.tb}`} />}
+                                    {block.content && <div className={styles.textBlock}>
+                                        <div className={styles.textBlockContent}>
+                                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
+                                        </div>
+                                    </div>}
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </main>
             </div>
         </div>
