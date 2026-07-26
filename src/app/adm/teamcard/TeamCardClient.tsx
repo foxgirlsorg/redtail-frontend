@@ -59,6 +59,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const [cropSourceUrl, setCropSourceUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const [teamcardEnabled, setTeamcardEnabled] = useState(true);
     const [textBlocks, setTextBlocks] = useState<TextBlock[]>([]);
     const [showAddBlock, setShowAddBlock] = useState(false);
     const [newBlockTitle, setNewBlockTitle] = useState('');
@@ -124,7 +125,11 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     };
 
     const removeTextBlock = (id: number) => {
-        setTextBlocks(prev => prev.filter(b => b.id !== id));
+        setTextBlocks(prev => {
+            const next = prev.filter(b => b.id !== id);
+            if (next.length === 0) setTeamcardEnabled(true);
+            return next;
+        });
     };
 
     const updateTextBlock = (id: number, field: keyof TextBlock, value: any) => {
@@ -323,11 +328,14 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         <span className={styles.controlsLabel}>Участники</span>
                         <div className={styles.controlsActions}>
                             <button
-                                className={styles.actionBtn}
-                                onClick={() => setFullscreen(true)}
-                                title="Полноэкранный режим"
+                                role="switch"
+                                aria-checked={teamcardEnabled}
+                                className={`${styles.switch} ${teamcardEnabled ? styles.switchOn : ''}`}
+                                onClick={() => setTeamcardEnabled(prev => !prev)}
+                                disabled={textBlocks.length === 0}
+                                title={textBlocks.length === 0 ? 'Добавьте блок для управления' : 'Показать/скрыть карточку команды'}
                             >
-                                <IonIcon src="/icons/expand-outline.svg" />
+                                <span className={styles.switchThumb} />
                             </button>
                         </div>
                     </div>
@@ -579,6 +587,15 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     <div className={styles.controlsTextBlocks}>
                         <div className={styles.controlsHeader}>
                             <span className={styles.controlsLabel}>Текстовые блоки</span>
+                            <div className={styles.controlsActions}>
+                                <button
+                                    className={styles.actionBtn}
+                                    onClick={() => setFullscreen(true)}
+                                    title="Полноэкранный режим"
+                                >
+                                    <IonIcon src="/icons/expand-outline.svg" />
+                                </button>
+                            </div>
                         </div>
 
                         <div className={styles.toggleListWrap}>
@@ -693,7 +710,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
             >
                 <main
                     ref={cardRef}
-                    className={styles.card}
+                    className={`${styles.card} ${!teamcardEnabled ? styles.cardNoTeam : ''}`}
                     style={{
                         transform: `scale(${fullscreen ? fsScale : scale})`,
                         transformOrigin: fullscreen ? 'center center' : 'top left',
@@ -702,7 +719,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     <div className={styles.cardBg} />
 
                     {beforeBlocks.length > 0 && (
-                        <div className={styles.textBlockGroupBefore}>
+                        <div className={`${styles.textBlockGroupBefore} ${!teamcardEnabled ? styles.textBlockGroupBeforeNoTeam : ''}`}>
                             {beforeBlocks.map(block => (
                                 <div key={block.id} className={styles.textBlockWrap}>
                                     {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
@@ -718,51 +735,55 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         </div>
                     )}
 
-                    <div className={styles.header}>
-                        <div className={styles.headerLeft}>
-                            <a href="https://redtail.foxgirls.org" className={styles.brandUrl}>
-                                redtail.foxgirls.org
-                            </a>
-                            <span className={styles.brandName}>REDTAIL</span>
-                            <span className={styles.brandSub}>Команда переводчиков</span>
-                        </div>
-                        <IonIcon src="/icons/redtail.svg" className={styles.headerIcon} />
-                    </div>
+                    {teamcardEnabled && (
+                        <>
+                            <div className={styles.header}>
+                                <div className={styles.headerLeft}>
+                                    <a href="https://redtail.foxgirls.org" className={styles.brandUrl}>
+                                        redtail.foxgirls.org
+                                    </a>
+                                    <span className={styles.brandName}>REDTAIL</span>
+                                    <span className={styles.brandSub}>Команда переводчиков</span>
+                                </div>
+                                <IonIcon src="/icons/redtail.svg" className={styles.headerIcon} />
+                            </div>
 
-                    <div className={styles.divider} />
+                            <div className={styles.divider} />
 
-                    <ul className={styles.grid}>
-                        {visibleMembers.map(member => {
-                            const isCustom = member.id < 0;
-                            const imgUrl = isCustom ? member.avatarUrl : member.image?.url;
-                            const role =
-                                overrides[member.id] !== undefined && overrides[member.id] !== ''
-                                    ? overrides[member.id]
-                                    : member.role;
+                            <ul className={styles.grid}>
+                                {visibleMembers.map(member => {
+                                    const isCustom = member.id < 0;
+                                    const imgUrl = isCustom ? member.avatarUrl : member.image?.url;
+                                    const role =
+                                        overrides[member.id] !== undefined && overrides[member.id] !== ''
+                                            ? overrides[member.id]
+                                            : member.role;
 
-                            return (
-                                <li key={member.id} className={styles.member}>
-                                    <div className={`${styles.avatar} ${!imgUrl ? styles.avatarEmpty : ''}`}>
-                                        {imgUrl && (
-                                            <img
-                                                src={isCustom ? imgUrl : strDomain + imgUrl}
-                                                alt={member.nickname}
-                                                className={styles.avatarImg}
-                                                crossOrigin={isCustom ? undefined : 'anonymous'}
-                                            />
-                                        )}
-                                    </div>
-                                    <div className={styles.info}>
-                                        <span className={styles.nickname}>{member.nickname}</span>
-                                        <span className={styles.role}>{role}</span>
-                                    </div>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                                    return (
+                                        <li key={member.id} className={styles.member}>
+                                            <div className={`${styles.avatar} ${!imgUrl ? styles.avatarEmpty : ''}`}>
+                                                {imgUrl && (
+                                                    <img
+                                                        src={isCustom ? imgUrl : strDomain + imgUrl}
+                                                        alt={member.nickname}
+                                                        className={styles.avatarImg}
+                                                        crossOrigin={isCustom ? undefined : 'anonymous'}
+                                                    />
+                                                )}
+                                            </div>
+                                            <div className={styles.info}>
+                                                <span className={styles.nickname}>{member.nickname}</span>
+                                                <span className={styles.role}>{role}</span>
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </>
+                    )}
 
                     {afterBlocks.length > 0 && (
-                        <div className={styles.textBlockGroupAfter}>
+                        <div className={`${styles.textBlockGroupAfter} ${!teamcardEnabled ? styles.textBlockGroupAfterNoTeam : ''}`}>
                             {afterBlocks.map(block => (
                                 <div key={block.id} className={styles.textBlockWrap}>
                                     {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
