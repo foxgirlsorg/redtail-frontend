@@ -58,14 +58,15 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const [newAvatarFile, setNewAvatarFile] = useState<string | null>(null);
     const [cropSourceUrl, setCropSourceUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const importInputRef = useRef<HTMLInputElement>(null);
 
     const [teamcardEnabled, setTeamcardEnabled] = useState(true);
     const [textBlocks, setTextBlocks] = useState<TextBlock[]>([]);
-    const [showAddBlock, setShowAddBlock] = useState(false);
     const [newBlockTitle, setNewBlockTitle] = useState('');
     const [newBlockSubtitle, setNewBlockSubtitle] = useState('');
     const [newBlockContent, setNewBlockContent] = useState('');
     const [newBlockPosition, setNewBlockPosition] = useState<'before' | 'after'>('before');
+    const [configName, setConfigName] = useState('teamcard_config');
 
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -141,7 +142,92 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setNewBlockSubtitle('');
         setNewBlockContent('');
         setNewBlockPosition('before');
-        setShowAddBlock(false);
+    };
+
+    const handleExportConfig = () => {
+        const config = {
+            teamcardEnabled,
+            team: team.map(m => ({
+                id: m.id,
+                visible: !!visible[m.id],
+                override: overrides[m.id] ?? '',
+            })),
+            customMembers: customMembers.map(m => ({
+                nickname: m.nickname,
+                role: m.role,
+                avatarUrl: m.avatarUrl || null,
+            })),
+            textBlocks: textBlocks.map(b => ({
+                title: b.title,
+                subtitle: b.subtitle,
+                content: b.content,
+                position: b.position,
+            })),
+        };
+        const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${configName || 'teamcard_config'}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const config = JSON.parse(reader.result as string);
+
+                if (typeof config.teamcardEnabled === 'boolean') {
+                    setTeamcardEnabled(config.teamcardEnabled);
+                }
+
+                if (Array.isArray(config.team)) {
+                    const v: Record<number, boolean> = {};
+                    const o: Record<number, string> = {};
+                    for (const m of config.team) {
+                        if (typeof m.id === 'number') {
+                            v[m.id] = m.visible !== false;
+                            if (m.override) o[m.id] = String(m.override);
+                        }
+                    }
+                    setVisible(prev => ({ ...prev, ...v }));
+                    setOverrides(prev => ({ ...prev, ...o }));
+                }
+
+                if (Array.isArray(config.customMembers)) {
+                    const newCustoms: CustomMember[] = config.customMembers.map((m: any) => ({
+                        id: nextCustomId--,
+                        nickname: String(m.nickname || ''),
+                        role: String(m.role || ''),
+                        avatarUrl: m.avatarUrl && typeof m.avatarUrl === 'string' ? m.avatarUrl : null,
+                    }));
+                    setCustomMembers(newCustoms);
+                    const cv: Record<number, boolean> = {};
+                    for (const c of newCustoms) cv[c.id] = true;
+                    setVisible(prev => ({ ...prev, ...cv }));
+                }
+
+                if (Array.isArray(config.textBlocks)) {
+                    setTextBlocks(config.textBlocks.map((b: any) => ({
+                        id: nextBlockId++,
+                        title: String(b.title || ''),
+                        subtitle: String(b.subtitle || ''),
+                        content: String(b.content || ''),
+                        position: b.position === 'after' ? 'after' as const : 'before' as const,
+                    })));
+                }
+            } catch {
+                console.error('Invalid config file');
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
     };
 
     const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -677,7 +763,35 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                             <IonIcon src="/icons/add-outline.svg" />
                             Добавить блок
                         </button>
+
+                        <div className={styles.renderPanel}>
+                        <input
+                            ref={importInputRef}
+                            type="file"
+                            accept=".json"
+                            hidden
+                            onChange={handleImportConfig}
+                        />
+                        <div className={styles.configRow}>
+                            <div className={styles.configInputWrap}>
+                                <input
+                                    className={styles.configInput}
+                                    type="text"
+                                    value={configName}
+                                    onChange={e => setConfigName(e.target.value)}
+                                />
+                            </div>
+                            <button className={`${styles.configBtn} ${styles.configBtnAccent}`} onClick={handleExportConfig}>
+                                <IonIcon src="/icons/file-down.svg" />
+                                <span>Экспорт</span>
+                            </button>
+                            <button className={styles.configBtn} onClick={() => importInputRef.current?.click()}>
+                                <IonIcon src="/icons/file-up.svg" />
+                                <span>Импорт</span>
+                            </button>
+                        </div>
                     </div>
+                </div>
                 </div>
             )}
 
