@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import { IonIcon } from '@/components/IonIcon';
 import { AvatarCropper } from '@/components/Auth';
 import { TextEditor } from '@/components/TextEditor/textEditor';
+import '@/styles/markdown.css';
 import styles from './page.module.css';
 
 type TeamCardClientProps = {
@@ -68,8 +69,11 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const toggleListRef = useRef<HTMLDivElement>(null);
+    const blockListRef = useRef<HTMLDivElement>(null);
     const [scrolledTop, setScrolledTop] = useState(true);
     const [scrolledBottom, setScrolledBottom] = useState(false);
+    const [scrolledBlockTop, setScrolledBlockTop] = useState(true);
+    const [scrolledBlockBottom, setScrolledBlockBottom] = useState(false);
 
     const toggle = (id: number) =>
         setVisible(prev => ({ ...prev, [id]: !prev[id] }));
@@ -213,6 +217,21 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         el.addEventListener('scroll', checkScroll, { passive: true });
         return () => el.removeEventListener('scroll', checkScroll);
     }, [checkScroll, visibleMembers.length]);
+
+    const checkBlockScroll = useCallback(() => {
+        const el = blockListRef.current;
+        if (!el) return;
+        setScrolledBlockTop(el.scrollTop <= 0);
+        setScrolledBlockBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+    }, []);
+
+    useEffect(() => {
+        checkBlockScroll();
+        const el = blockListRef.current;
+        if (!el) return;
+        el.addEventListener('scroll', checkBlockScroll, { passive: true });
+        return () => el.removeEventListener('scroll', checkBlockScroll);
+    }, [checkBlockScroll, textBlocks.length]);
 
     const handleRender = useCallback(async () => {
         if (!cardRef.current || rendering) return;
@@ -557,78 +576,85 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     </div>
                     </div>
 
-                    <div className={styles.controlsTextBlocks}>                        <div className={styles.controlsHeader}>
+                    <div className={styles.controlsTextBlocks}>
+                        <div className={styles.controlsHeader}>
                             <span className={styles.controlsLabel}>Текстовые блоки</span>
                         </div>
 
-                        {textBlocks.length === 0 && (
-                            <p className={styles.renderHint}>
-                                Блоков пока нет.
-                            </p>
-                        )}
+                        <div className={styles.toggleListWrap}>
+                            <div className={styles.scrollFadeTop} style={{ opacity: scrolledBlockTop ? 0 : 1 }} />
+                            <div className={styles.toggleList} ref={blockListRef}>
+                                {textBlocks.length === 0 && (
+                                    <p className={styles.renderHint}>
+                                        Блоков пока нет.
+                                    </p>
+                                )}
 
-                        {textBlocks.length > 0 && (
-                            <div className={styles.blockList}>
-                                {textBlocks.map(block => (
-                                    <div key={block.id} className={styles.blockControl}>
-                                        <div className={styles.blockControlHeader}>
-                                            <span className={styles.badge}>
-                                                {block.position === 'before' ? 'над карточкой' : 'под карточкой'}
-                                            </span>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <button
-                                                    className={styles.removeMemberBtn}
-                                                    onClick={() => removeTextBlock(block.id)}
-                                                    title="Удалить"
-                                                >
-                                                    <IonIcon src="/icons/close-outline.svg" />
-                                                </button>
+                                {textBlocks.length > 0 && (
+                                    <div className={styles.blockList}>
+                                        {textBlocks.map(block => (
+                                            <div key={block.id} className={styles.blockControl}>
+                                                <div className={styles.blockControlHeader}>
+                                                    <span className={styles.badge}>
+                                                        {block.position === 'before' ? 'над карточкой' : 'под карточкой'}
+                                                    </span>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                        <button
+                                                            className={styles.removeMemberBtn}
+                                                            onClick={() => removeTextBlock(block.id)}
+                                                            title="Удалить"
+                                                        >
+                                                            <IonIcon src="/icons/close-outline.svg" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className={styles.formatToggle}>
+                                                    <button
+                                                        className={`${styles.segBtn} ${block.position === 'before' ? styles.segBtnActive : ''}`}
+                                                        onClick={() => updateTextBlock(block.id, 'position', 'before')}
+                                                    >
+                                                        Сверху
+                                                    </button>
+                                                    <button
+                                                        className={`${styles.segBtn} ${block.position === 'after' ? styles.segBtnActive : ''}`}
+                                                        onClick={() => updateTextBlock(block.id, 'position', 'after')}
+                                                    >
+                                                        Снизу
+                                                    </button>
+                                                </div>
+
+                                                <input
+                                                    className={styles.fieldInput}
+                                                    type="text"
+                                                    placeholder="Заголовок..."
+                                                    value={block.title}
+                                                    onChange={e => updateTextBlock(block.id, 'title', e.target.value)}
+                                                />
+                                                <input
+                                                    className={styles.fieldInput}
+                                                    type="text"
+                                                    placeholder="Подзаголовок..."
+                                                    value={block.subtitle}
+                                                    onChange={e => updateTextBlock(block.id, 'subtitle', e.target.value)}
+                                                />
+                                                <TextEditor
+                                                    key={block.id}
+                                                    compact
+                                                    allowHtml
+                                                    hideFooter
+                                                    initialValue={block.content}
+                                                    placeholder="Текст..."
+                                                    className={styles.blockTextEditor}
+                                                    onChange={(value) => updateTextBlock(block.id, 'content', value)}
+                                                />
                                             </div>
-                                        </div>
-
-                                        <div className={styles.formatToggle}>
-                                            <button
-                                                className={`${styles.segBtn} ${block.position === 'before' ? styles.segBtnActive : ''}`}
-                                                onClick={() => updateTextBlock(block.id, 'position', 'before')}
-                                            >
-                                                Сверху
-                                            </button>
-                                            <button
-                                                className={`${styles.segBtn} ${block.position === 'after' ? styles.segBtnActive : ''}`}
-                                                onClick={() => updateTextBlock(block.id, 'position', 'after')}
-                                            >
-                                                Снизу
-                                            </button>
-                                        </div>
-
-                                        <input
-                                            className={styles.fieldInput}
-                                            type="text"
-                                            placeholder="Заголовок..."
-                                            value={block.title}
-                                            onChange={e => updateTextBlock(block.id, 'title', e.target.value)}
-                                        />
-                                        <input
-                                            className={styles.fieldInput}
-                                            type="text"
-                                            placeholder="Подзаголовок..."
-                                            value={block.subtitle}
-                                            onChange={e => updateTextBlock(block.id, 'subtitle', e.target.value)}
-                                        />
-                                        <TextEditor
-                                            key={block.id}
-                                            compact
-                                            allowHtml
-                                            hideFooter
-                                            initialValue={block.content}
-                                            placeholder="Текст..."
-                                            className={styles.blockTextEditor}
-                                            onChange={(value) => updateTextBlock(block.id, 'content', value)}
-                                        />
+                                        ))}
                                     </div>
-                                ))}
+                                )}
                             </div>
-                        )}
+                            <div className={styles.scrollFadeBottom} style={{ opacity: scrolledBlockBottom ? 0 : 1 }} />
+                        </div>
 
                         <button className={styles.addMemberBtn} onClick={addTextBlock}>
                             <IonIcon src="/icons/add-outline.svg" />
@@ -683,7 +709,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                                     {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
                                     {(block.title || block.subtitle) && <div className={`${styles.divider} ${styles.tb}`} />}
                                     {block.content && <div className={styles.textBlock}>
-                                        <div className={styles.textBlockContent}>
+                                        <div className={`${styles.textBlockContent} markdown-body`}>
                                             <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
                                         </div>
                                     </div>}
@@ -743,7 +769,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                                     {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
                                     {(block.title || block.subtitle) && <div className={`${styles.divider} ${styles.tb}`} />}
                                     {block.content && <div className={styles.textBlock}>
-                                        <div className={styles.textBlockContent}>
+                                        <div className={`${styles.textBlockContent} markdown-body`}>
                                             <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
                                         </div>
                                     </div>}
