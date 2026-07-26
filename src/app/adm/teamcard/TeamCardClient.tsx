@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, type RefObject, type DependencyList, type ChangeEvent } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { IonIcon } from '@/components/IonIcon';
@@ -9,8 +9,16 @@ import { TextEditor } from '@/components/TextEditor/textEditor';
 import '@/styles/markdown.css';
 import styles from './page.module.css';
 
+type TeamMember = {
+    id: number;
+    nickname: string;
+    role?: string;
+    hidden?: boolean;
+    image?: { url: string };
+};
+
 type TeamCardClientProps = {
-    team: any[];
+    team: TeamMember[];
     strDomain?: string;
 };
 
@@ -29,9 +37,98 @@ type TextBlock = {
     position: 'before' | 'after';
 };
 
+type NewMemberForm = {
+    nickname: string;
+    role: string;
+    avatarUrl: string;
+    avatarMode: 'url' | 'upload';
+    avatarFile: string | null;
+};
+
+type NewBlockForm = {
+    title: string;
+    subtitle: string;
+    content: string;
+    position: 'before' | 'after';
+};
+
 const CARD_W = 680;
-let nextCustomId = -1;
-let nextBlockId = 1;
+
+const emptyNewMember: NewMemberForm = {
+    nickname: '',
+    role: '',
+    avatarUrl: '',
+    avatarMode: 'url',
+    avatarFile: null,
+};
+
+const emptyNewBlock: NewBlockForm = {
+    title: '',
+    subtitle: '',
+    content: '',
+    position: 'before',
+};
+
+const isCustomMember = (id: number) => id < 0;
+
+function cx(...classes: Array<string | false | null | undefined>) {
+    return classes.filter(Boolean).join(' ');
+}
+
+function useScrollShadow(ref: RefObject<HTMLDivElement | null>, deps: DependencyList = []) {
+    const [atTop, setAtTop] = useState(true);
+    const [atBottom, setAtBottom] = useState(false);
+
+    const check = useCallback(() => {
+        const el = ref.current;
+        if (!el) return;
+        setAtTop(el.scrollTop <= 0);
+        setAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+    }, [ref]);
+
+    useEffect(() => {
+        check();
+        const el = ref.current;
+        if (!el) return;
+        el.addEventListener('scroll', check, { passive: true });
+        return () => el.removeEventListener('scroll', check);
+    }, [check, ...deps]);
+
+    return { atTop, atBottom };
+}
+
+function TextBlockGroup({
+                            blocks,
+                            groupClass,
+                            hiddenClass,
+                            hidden,
+                        }: {
+    blocks: TextBlock[];
+    groupClass: string;
+    hiddenClass: string;
+    hidden: boolean;
+}) {
+    if (blocks.length === 0) return null;
+
+    return (
+        <div className={cx(groupClass, hidden && hiddenClass)}>
+            {blocks.map(block => (
+                <div key={block.id} className={styles.textBlockWrap}>
+                    {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
+                    {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
+                    {(block.title || block.subtitle) && <div className={cx(styles.divider, styles.tb)} />}
+                    {block.content && (
+                        <div className={styles.textBlock}>
+                            <div className={cx(styles.textBlockContent, 'markdown-body')}>
+                                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}
 
 export default function TeamCardClient({ team, strDomain }: TeamCardClientProps) {
     const [visible, setVisible] = useState<Record<number, boolean>>(
@@ -48,34 +145,35 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const [rendering, setRendering] = useState(false);
     const [renderStatus, setRenderStatus] = useState<'idle' | 'loading' | 'ok' | 'err'>('idle');
     const [renderMsg, setRenderMsg] = useState('');
+    const renderStatusTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [customMembers, setCustomMembers] = useState<CustomMember[]>([]);
     const [showAddForm, setShowAddForm] = useState(false);
-    const [newNickname, setNewNickname] = useState('');
-    const [newRole, setNewRole] = useState('');
-    const [newAvatarUrl, setNewAvatarUrl] = useState('');
-    const [newAvatarMode, setNewAvatarMode] = useState<'url' | 'upload'>('url');
-    const [newAvatarFile, setNewAvatarFile] = useState<string | null>(null);
+    const [newMember, setNewMember] = useState<NewMemberForm>(emptyNewMember);
     const [cropSourceUrl, setCropSourceUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const importInputRef = useRef<HTMLInputElement>(null);
 
     const [teamcardEnabled, setTeamcardEnabled] = useState(true);
     const [textBlocks, setTextBlocks] = useState<TextBlock[]>([]);
-    const [newBlockTitle, setNewBlockTitle] = useState('');
-    const [newBlockSubtitle, setNewBlockSubtitle] = useState('');
-    const [newBlockContent, setNewBlockContent] = useState('');
-    const [newBlockPosition, setNewBlockPosition] = useState<'before' | 'after'>('before');
+    const [newBlock, setNewBlock] = useState<NewBlockForm>(emptyNewBlock);
     const [configName, setConfigName] = useState('teamcard_config');
+
+    const nextCustomId = useRef(-1);
+    const nextBlockId = useRef(1);
 
     const cardRef = useRef<HTMLElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const toggleListRef = useRef<HTMLDivElement>(null);
     const blockListRef = useRef<HTMLDivElement>(null);
-    const [scrolledTop, setScrolledTop] = useState(true);
-    const [scrolledBottom, setScrolledBottom] = useState(false);
-    const [scrolledBlockTop, setScrolledBlockTop] = useState(true);
-    const [scrolledBlockBottom, setScrolledBlockBottom] = useState(false);
+
+    const { atTop: scrolledTop, atBottom: scrolledBottom } = useScrollShadow(toggleListRef, [
+        team.length,
+        customMembers.length,
+    ]);
+    const { atTop: scrolledBlockTop, atBottom: scrolledBlockBottom } = useScrollShadow(blockListRef, [
+        textBlocks.length,
+    ]);
 
     const toggle = (id: number) =>
         setVisible(prev => ({ ...prev, [id]: !prev[id] }));
@@ -84,15 +182,15 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setOverrides(prev => ({ ...prev, [id]: value }));
 
     const addCustomMember = () => {
-        if (!newNickname.trim()) return;
-        const id = nextCustomId--;
+        if (!newMember.nickname.trim()) return;
+        const id = nextCustomId.current--;
         setCustomMembers(prev => [
             ...prev,
             {
                 id,
-                nickname: newNickname.trim(),
-                role: newRole.trim(),
-                avatarUrl: newAvatarMode === 'url' ? (newAvatarUrl.trim() || null) : newAvatarFile,
+                nickname: newMember.nickname.trim(),
+                role: newMember.role.trim(),
+                avatarUrl: newMember.avatarMode === 'url' ? (newMember.avatarUrl.trim() || null) : newMember.avatarFile,
             },
         ]);
         setVisible(prev => ({ ...prev, [id]: true }));
@@ -106,21 +204,18 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     };
 
     const resetAddForm = () => {
-        setNewNickname('');
-        setNewRole('');
-        setNewAvatarUrl('');
-        setNewAvatarFile(null);
+        setNewMember(emptyNewMember);
         setCropSourceUrl(null);
         setShowAddForm(false);
     };
 
     const addTextBlock = () => {
         setTextBlocks(prev => [...prev, {
-            id: nextBlockId++,
-            title: newBlockTitle.trim(),
-            subtitle: newBlockSubtitle.trim(),
-            content: newBlockContent.trim(),
-            position: newBlockPosition,
+            id: nextBlockId.current++,
+            title: newBlock.title.trim(),
+            subtitle: newBlock.subtitle.trim(),
+            content: newBlock.content.trim(),
+            position: newBlock.position,
         }]);
         resetBlockForm();
     };
@@ -137,14 +232,10 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         setTextBlocks(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
     };
 
-    const resetBlockForm = () => {
-        setNewBlockTitle('');
-        setNewBlockSubtitle('');
-        setNewBlockContent('');
-        setNewBlockPosition('before');
-    };
+    const resetBlockForm = () => setNewBlock(emptyNewBlock);
 
     const handleExportConfig = () => {
+        // noinspection PointlessBooleanExpressionJS
         const config = {
             teamcardEnabled,
             team: team.map(m => ({
@@ -175,7 +266,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         URL.revokeObjectURL(url);
     };
 
-    const handleImportConfig = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImportConfig = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         const reader = new FileReader();
@@ -202,7 +293,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                 if (Array.isArray(config.customMembers)) {
                     const newCustoms: CustomMember[] = config.customMembers.map((m: any) => ({
-                        id: nextCustomId--,
+                        id: nextCustomId.current--,
                         nickname: String(m.nickname || ''),
                         role: String(m.role || ''),
                         avatarUrl: m.avatarUrl && typeof m.avatarUrl === 'string' ? m.avatarUrl : null,
@@ -215,7 +306,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                 if (Array.isArray(config.textBlocks)) {
                     setTextBlocks(config.textBlocks.map((b: any) => ({
-                        id: nextBlockId++,
+                        id: nextBlockId.current++,
                         title: String(b.title || ''),
                         subtitle: String(b.subtitle || ''),
                         content: String(b.content || ''),
@@ -230,7 +321,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         e.target.value = '';
     };
 
-    const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAvatarFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         if (cropSourceUrl) URL.revokeObjectURL(cropSourceUrl);
@@ -294,35 +385,19 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
         return () => { document.body.style.overflow = ''; };
     }, [fullscreen]);
 
-    const checkScroll = useCallback(() => {
-        const el = toggleListRef.current;
-        if (!el) return;
-        setScrolledTop(el.scrollTop <= 0);
-        setScrolledBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+    useEffect(() => () => {
+        if (renderStatusTimeout.current) clearTimeout(renderStatusTimeout.current);
     }, []);
 
-    useEffect(() => {
-        checkScroll();
-        const el = toggleListRef.current;
-        if (!el) return;
-        el.addEventListener('scroll', checkScroll, { passive: true });
-        return () => el.removeEventListener('scroll', checkScroll);
-    }, [checkScroll, visibleMembers.length]);
-
-    const checkBlockScroll = useCallback(() => {
-        const el = blockListRef.current;
-        if (!el) return;
-        setScrolledBlockTop(el.scrollTop <= 0);
-        setScrolledBlockBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
-    }, []);
-
-    useEffect(() => {
-        checkBlockScroll();
-        const el = blockListRef.current;
-        if (!el) return;
-        el.addEventListener('scroll', checkBlockScroll, { passive: true });
-        return () => el.removeEventListener('scroll', checkBlockScroll);
-    }, [checkBlockScroll, textBlocks.length]);
+    const flashRenderStatus = (status: 'ok' | 'err', msg: string, delay: number) => {
+        if (renderStatusTimeout.current) clearTimeout(renderStatusTimeout.current);
+        setRenderStatus(status);
+        setRenderMsg(msg);
+        renderStatusTimeout.current = setTimeout(() => {
+            setRenderStatus('idle');
+            setRenderMsg('');
+        }, delay);
+    };
 
     const handleRender = useCallback(async () => {
         if (!cardRef.current || rendering) return;
@@ -379,20 +454,10 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
             a.click();
             document.body.removeChild(a);
 
-            setRenderStatus('ok');
-            setRenderMsg('Сохранено!');
-            setTimeout(() => {
-                setRenderStatus('idle');
-                setRenderMsg('');
-            }, 2500);
+            flashRenderStatus('ok', 'Сохранено!', 2500);
         } catch (e) {
             console.error(e);
-            setRenderStatus('err');
-            setRenderMsg('Ошибка');
-            setTimeout(() => {
-                setRenderStatus('idle');
-                setRenderMsg('');
-            }, 3000);
+            flashRenderStatus('err', 'Ошибка', 3000);
         } finally {
             setRendering(false);
         }
@@ -401,7 +466,7 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
     const scaledHeight = cardHeight > 0 ? cardHeight * scale : 'auto';
 
     return (
-        <div className={`${styles.wrapper} ${fullscreen ? styles.wrapperFullscreen : ''}`}>
+        <div className={cx(styles.wrapper, fullscreen && styles.wrapperFullscreen)}>
             <div className={styles.backdrop}>
                 <div className={styles.backdropImage} />
                 <div className={styles.backdropVignette} />
@@ -410,264 +475,270 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
             {!fullscreen && (
                 <div className={styles.panelsCombined}>
                     <div className={styles.controls}>
-                    <div className={styles.controlsHeader}>
-                        <span className={styles.controlsLabel}>Участники</span>
-                        <div className={styles.controlsActions}>
-                            <button
-                                role="switch"
-                                aria-checked={teamcardEnabled}
-                                className={`${styles.switch} ${teamcardEnabled ? styles.switchOn : ''}`}
-                                onClick={() => setTeamcardEnabled(prev => !prev)}
-                                disabled={textBlocks.length === 0}
-                                title={textBlocks.length === 0 ? 'Добавьте блок для управления' : 'Показать/скрыть карточку команды'}
-                            >
-                                <span className={styles.switchThumb} />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className={styles.toggleListWrap}>
-                        <div className={styles.scrollFadeTop} style={{ opacity: scrolledTop ? 0 : 1 }} />
-                        <div className={styles.toggleList} ref={toggleListRef}>
-                            {team.map(member => (
-                            <div key={member.id} className={styles.memberControl}>
-                                <label className={styles.toggleRow}>
-                                    <span className={`${styles.toggleName} ${member.hidden ? styles.toggleNameMuted : ''}`}>
-                                        {member.nickname}
-                                        {member.hidden && <span className={styles.badge}>скрыт</span>}
-                                    </span>
-                                    <button
-                                        role="switch"
-                                        aria-checked={visible[member.id]}
-                                        className={`${styles.switch} ${visible[member.id] ? styles.switchOn : ''}`}
-                                        onClick={() => toggle(member.id)}
-                                    >
-                                        <span className={styles.switchThumb} />
-                                    </button>
-                                </label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="text"
-                                    placeholder={member.role ?? 'Роль...'}
-                                    value={overrides[member.id] ?? member.role ?? ''}
-                                    onChange={e => setOverride(member.id, e.target.value)}
-                                />
-                            </div>
-                        ))}
-                        {customMembers.map(member => (
-                            <div key={member.id} className={styles.memberControl}>
-                                <div className={styles.toggleRow}>
-                                    <span className={styles.toggleName}>
-                                        {member.nickname}
-                                        <span className={`${styles.badge} ${styles.badgeAccent}`}>локальный</span>
-                                    </span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        <button
-                                            className={styles.removeMemberBtn}
-                                            onClick={() => removeCustomMember(member.id)}
-                                            title="Удалить"
-                                        >
-                                            <IonIcon src="/icons/close-outline.svg" />
-                                        </button>
-                                        <button
-                                            role="switch"
-                                            aria-checked={visible[member.id]}
-                                            className={`${styles.switch} ${visible[member.id] ? styles.switchOn : ''}`}
-                                            onClick={() => toggle(member.id)}
-                                        >
-                                            <span className={styles.switchThumb} />
-                                        </button>
-                                    </div>
-                                </div>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="text"
-                                    placeholder="Роль..."
-                                    value={overrides[member.id] ?? member.role ?? ''}
-                                    onChange={e => setOverride(member.id, e.target.value)}
-                                />
-                            </div>
-                        ))}
-                        </div>
-                        <div className={styles.scrollFadeBottom} style={{ opacity: scrolledBottom ? 0 : 1 }} />
-                    </div>
-
-                    {!showAddForm ? (
-                        <button className={styles.addMemberBtn} onClick={() => setShowAddForm(true)}>
-                            <IonIcon src="/icons/add-outline.svg" />
-                            Добавить участника
-                        </button>
-                    ) : (
-                        <div className={styles.addMemberForm}>
-                            <div className={styles.addMemberFormHeader}>
-                                <span className={styles.addMemberFormTitle}>Новый участник</span>
-                                <button className={styles.addMemberCloseBtn} onClick={resetAddForm}>
-                                    <IonIcon src="/icons/close-outline.svg" />
+                        <div className={styles.controlsHeader}>
+                            <span className={styles.controlsLabel}>Участники</span>
+                            <div className={styles.controlsActions}>
+                                <button
+                                    role="switch"
+                                    aria-checked={teamcardEnabled}
+                                    className={cx(styles.switch, teamcardEnabled && styles.switchOn)}
+                                    onClick={() => setTeamcardEnabled(prev => !prev)}
+                                    disabled={textBlocks.length === 0}
+                                    title={textBlocks.length === 0 ? 'Добавьте блок для управления' : 'Показать/скрыть карточку команды'}
+                                >
+                                    <span className={styles.switchThumb} />
                                 </button>
                             </div>
+                        </div>
 
-                            <div className={styles.addMemberField}>
-                                <label className={styles.addMemberLabel}>Никнейм</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="text"
-                                    placeholder="Никнейм..."
-                                    value={newNickname}
-                                    onChange={e => setNewNickname(e.target.value)}
-                                    autoFocus
-                                />
+                        <div className={styles.toggleListWrap}>
+                            <div className={styles.scrollFadeTop} style={{ opacity: scrolledTop ? 0 : 1 }} />
+                            <div className={styles.toggleList} ref={toggleListRef}>
+                                {team.map(member => (
+                                    <div key={member.id} className={styles.memberControl}>
+                                        <label className={styles.toggleRow}>
+                                            <span className={cx(styles.toggleName, member.hidden && styles.toggleNameMuted)}>
+                                                {member.nickname}
+                                                {member.hidden && <span className={styles.badge}>скрыт</span>}
+                                            </span>
+                                            <button
+                                                role="switch"
+                                                aria-checked={visible[member.id]}
+                                                className={cx(styles.switch, visible[member.id] && styles.switchOn)}
+                                                onClick={() => toggle(member.id)}
+                                            >
+                                                <span className={styles.switchThumb} />
+                                            </button>
+                                        </label>
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="text"
+                                            placeholder={member.role ?? 'Роль...'}
+                                            value={overrides[member.id] ?? member.role ?? ''}
+                                            onChange={e => setOverride(member.id, e.target.value)}
+                                        />
+                                    </div>
+                                ))}
+                                {customMembers.map(member => (
+                                    <div key={member.id} className={styles.memberControl}>
+                                        <div className={styles.toggleRow}>
+                                            <span className={styles.toggleName}>
+                                                {member.nickname}
+                                                <span className={cx(styles.badge, styles.badgeAccent)}>локальный</span>
+                                            </span>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <button
+                                                    className={styles.removeMemberBtn}
+                                                    onClick={() => removeCustomMember(member.id)}
+                                                    title="Удалить"
+                                                >
+                                                    <IonIcon src="/icons/close-outline.svg" />
+                                                </button>
+                                                <button
+                                                    role="switch"
+                                                    aria-checked={visible[member.id]}
+                                                    className={cx(styles.switch, visible[member.id] && styles.switchOn)}
+                                                    onClick={() => toggle(member.id)}
+                                                >
+                                                    <span className={styles.switchThumb} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="text"
+                                            placeholder="Роль..."
+                                            value={overrides[member.id] ?? member.role ?? ''}
+                                            onChange={e => setOverride(member.id, e.target.value)}
+                                        />
+                                    </div>
+                                ))}
                             </div>
+                            <div className={styles.scrollFadeBottom} style={{ opacity: scrolledBottom ? 0 : 1 }} />
+                        </div>
 
-                            <div className={styles.addMemberField}>
-                                <label className={styles.addMemberLabel}>Роль</label>
-                                <input
-                                    className={styles.fieldInput}
-                                    type="text"
-                                    placeholder="Роль..."
-                                    value={newRole}
-                                    onChange={e => setNewRole(e.target.value)}
-                                />
-                            </div>
-
-                            <div className={styles.addMemberField}>
-                                <label className={styles.addMemberLabel}>Аватар</label>
-                                <div className={styles.avatarSourceToggle}>
-                                    <button
-                                        className={`${styles.segBtn} ${newAvatarMode === 'url' ? styles.segBtnActive : ''}`}
-                                        onClick={() => setNewAvatarMode('url')}
-                                    >
-                                        URL
-                                    </button>
-                                    <button
-                                        className={`${styles.segBtn} ${newAvatarMode === 'upload' ? styles.segBtnActive : ''}`}
-                                        onClick={() => setNewAvatarMode('upload')}
-                                    >
-                                        Загрузить
+                        {!showAddForm ? (
+                            <button className={styles.addMemberBtn} onClick={() => setShowAddForm(true)}>
+                                <IonIcon src="/icons/add-outline.svg" />
+                                Добавить участника
+                            </button>
+                        ) : (
+                            <div className={styles.addMemberForm}>
+                                <div className={styles.addMemberFormHeader}>
+                                    <span className={styles.addMemberFormTitle}>Новый участник</span>
+                                    <button className={styles.addMemberCloseBtn} onClick={resetAddForm}>
+                                        <IonIcon src="/icons/close-outline.svg" />
                                     </button>
                                 </div>
-                                {newAvatarMode === 'url' ? (
+
+                                <div className={styles.addMemberField}>
+                                    <label className={styles.addMemberLabel}>Никнейм</label>
                                     <input
                                         className={styles.fieldInput}
-                                        type="url"
-                                        placeholder="https://..."
-                                        value={newAvatarUrl}
-                                        onChange={e => setNewAvatarUrl(e.target.value)}
+                                        type="text"
+                                        placeholder="Никнейм..."
+                                        value={newMember.nickname}
+                                        onChange={e => setNewMember(prev => ({ ...prev, nickname: e.target.value }))}
+                                        autoFocus
                                     />
-                                ) : (
-                                    <div className={styles.avatarRow}>
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            accept="image/*"
-                                            hidden
-                                            onChange={handleAvatarFileChange}
-                                        />
+                                </div>
+
+                                <div className={styles.addMemberField}>
+                                    <label className={styles.addMemberLabel}>Роль</label>
+                                    <input
+                                        className={styles.fieldInput}
+                                        type="text"
+                                        placeholder="Роль..."
+                                        value={newMember.role}
+                                        onChange={e => setNewMember(prev => ({ ...prev, role: e.target.value }))}
+                                    />
+                                </div>
+
+                                <div className={styles.addMemberField}>
+                                    <label className={styles.addMemberLabel}>Аватар</label>
+                                    <div className={styles.avatarSourceToggle}>
                                         <button
-                                            className={styles.avatarUploadBtn}
-                                            onClick={() => fileInputRef.current?.click()}
+                                            className={cx(styles.segBtn, newMember.avatarMode === 'url' && styles.segBtnActive)}
+                                            onClick={() => setNewMember(prev => ({ ...prev, avatarMode: 'url' }))}
                                         >
-                                            <IonIcon src="/icons/image-outline.svg" />
-                                            {newAvatarFile ? 'Заменить' : 'Выбрать файл'}
+                                            URL
+                                        </button>
+                                        <button
+                                            className={cx(styles.segBtn, newMember.avatarMode === 'upload' && styles.segBtnActive)}
+                                            onClick={() => setNewMember(prev => ({ ...prev, avatarMode: 'upload' }))}
+                                        >
+                                            Загрузить
                                         </button>
                                     </div>
-                                )}
-                                {(newAvatarMode === 'url' ? newAvatarUrl : newAvatarFile) && (
-                                    <div className={styles.avatarPreviewSmall}>
-                                        <img
-                                            src={newAvatarMode === 'url' ? newAvatarUrl : newAvatarFile!}
-                                            alt=""
-                                            className={styles.avatarPreviewSmallImg}
+                                    {newMember.avatarMode === 'url' ? (
+                                        <input
+                                            className={styles.fieldInput}
+                                            type="url"
+                                            placeholder="https://..."
+                                            value={newMember.avatarUrl}
+                                            onChange={e => setNewMember(prev => ({ ...prev, avatarUrl: e.target.value }))}
                                         />
-                                    </div>
+                                    ) : (
+                                        <div className={styles.avatarRow}>
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                onChange={handleAvatarFileChange}
+                                            />
+                                            <button
+                                                className={styles.avatarUploadBtn}
+                                                onClick={() => fileInputRef.current?.click()}
+                                            >
+                                                <IonIcon src="/icons/image-outline.svg" />
+                                                {newMember.avatarFile ? 'Заменить' : 'Выбрать файл'}
+                                            </button>
+                                        </div>
+                                    )}
+                                    {(newMember.avatarMode === 'url' ? newMember.avatarUrl : newMember.avatarFile) && (
+                                        <div className={styles.avatarPreviewSmall}>
+                                            <img
+                                                src={newMember.avatarMode === 'url' ? newMember.avatarUrl : newMember.avatarFile!}
+                                                alt=""
+                                                className={styles.avatarPreviewSmallImg}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className={styles.addMemberActions}>
+                                    <button className={styles.addMemberCancelBtn} onClick={resetAddForm}>
+                                        Отмена
+                                    </button>
+                                    <button
+                                        className={cx(styles.btnAccent, styles.addMemberSaveBtn)}
+                                        onClick={addCustomMember}
+                                        disabled={!newMember.nickname.trim()}
+                                    >
+                                        Добавить
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className={styles.renderPanel}>
+                            <div className={styles.renderPanelHeader}>
+                                <IonIcon src="/icons/image-outline.svg" className={styles.renderPanelIcon} />
+                                <span className={styles.controlsLabel}>Экспорт изображения</span>
+                            </div>
+
+                            <div className={styles.renderField}>
+                                <label className={styles.renderLabel}>Ширина (px)</label>
+                                <input
+                                    className={styles.fieldInput}
+                                    type="number"
+                                    min={400}
+                                    max={6000}
+                                    step={100}
+                                    value={renderWidth}
+                                    onChange={e =>
+                                        setRenderWidth(Math.max(400, Math.min(6000, Number(e.target.value))))
+                                    }
+                                />
+                            </div>
+
+                            <div className={styles.renderField}>
+                                <label className={styles.renderLabel}>Формат</label>
+                                <div className={styles.formatToggle}>
+                                    <button
+                                        className={cx(styles.segBtn, renderFormat === 'png' && styles.segBtnActive)}
+                                        onClick={() => setRenderFormat('png')}
+                                    >
+                                        PNG
+                                    </button>
+                                    <button
+                                        className={cx(styles.segBtn, renderFormat === 'jpg' && styles.segBtnActive)}
+                                        onClick={() => setRenderFormat('jpg')}
+                                    >
+                                        JPG
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                className={cx(
+                                    styles.btnAccent,
+                                    styles.renderBtn,
+                                    rendering && styles.renderBtnLoading,
+                                    renderStatus === 'ok' && styles.renderBtnOk,
+                                    renderStatus === 'err' && styles.renderBtnErr,
                                 )}
-                            </div>
+                                onClick={handleRender}
+                                disabled={rendering}
+                            >
+                                {rendering ? (
+                                    <>
+                                        <span className={styles.renderSpinner} />
+                                        {renderMsg}
+                                    </>
+                                ) : renderStatus === 'ok' ? (
+                                    <>
+                                        <IonIcon src="/icons/checkmark-outline.svg" />
+                                        {renderMsg}
+                                    </>
+                                ) : renderStatus === 'err' ? (
+                                    <>
+                                        <IonIcon src="/icons/close-outline.svg" />
+                                        {renderMsg}
+                                    </>
+                                ) : (
+                                    <>
+                                        <IonIcon src="/icons/download-outline.svg" />
+                                        Сохранить {renderFormat.toUpperCase()}
+                                    </>
+                                )}
+                            </button>
 
-                            <div className={styles.addMemberActions}>
-                                <button className={styles.addMemberCancelBtn} onClick={resetAddForm}>
-                                    Отмена
-                                </button>
-                                <button
-                                    className={`${styles.btnAccent} ${styles.addMemberSaveBtn}`}
-                                    onClick={addCustomMember}
-                                    disabled={!newNickname.trim()}
-                                >
-                                    Добавить
-                                </button>
-                            </div>
+                            <p className={styles.renderHint}>
+                                Высота определяется автоматически · {renderWidth}×auto px
+                            </p>
                         </div>
-                    )}
-
-                    <div className={styles.renderPanel}>
-                        <div className={styles.renderPanelHeader}>
-                            <IonIcon src="/icons/image-outline.svg" className={styles.renderPanelIcon} />
-                            <span className={styles.controlsLabel}>Экспорт изображения</span>
-                        </div>
-
-                        <div className={styles.renderField}>
-                            <label className={styles.renderLabel}>Ширина (px)</label>
-                            <input
-                                className={styles.fieldInput}
-                                type="number"
-                                min={400}
-                                max={6000}
-                                step={100}
-                                value={renderWidth}
-                                onChange={e =>
-                                    setRenderWidth(Math.max(400, Math.min(6000, Number(e.target.value))))
-                                }
-                            />
-                        </div>
-
-                        <div className={styles.renderField}>
-                            <label className={styles.renderLabel}>Формат</label>
-                            <div className={styles.formatToggle}>
-                                <button
-                                    className={`${styles.segBtn} ${renderFormat === 'png' ? styles.segBtnActive : ''}`}
-                                    onClick={() => setRenderFormat('png')}
-                                >
-                                    PNG
-                                </button>
-                                <button
-                                    className={`${styles.segBtn} ${renderFormat === 'jpg' ? styles.segBtnActive : ''}`}
-                                    onClick={() => setRenderFormat('jpg')}
-                                >
-                                    JPG
-                                </button>
-                            </div>
-                        </div>
-
-                        <button
-                            className={`${styles.btnAccent} ${styles.renderBtn} ${rendering ? styles.renderBtnLoading : ''} ${renderStatus === 'ok' ? styles.renderBtnOk : ''} ${renderStatus === 'err' ? styles.renderBtnErr : ''}`}
-                            onClick={handleRender}
-                            disabled={rendering}
-                        >
-                            {rendering ? (
-                                <>
-                                    <span className={styles.renderSpinner} />
-                                    {renderMsg}
-                                </>
-                            ) : renderStatus === 'ok' ? (
-                                <>
-                                    <IonIcon src="/icons/checkmark-outline.svg" />
-                                    {renderMsg}
-                                </>
-                            ) : renderStatus === 'err' ? (
-                                <>
-                                    <IonIcon src="/icons/close-outline.svg" />
-                                    {renderMsg}
-                                </>
-                            ) : (
-                                <>
-                                    <IonIcon src="/icons/download-outline.svg" />
-                                    Сохранить {renderFormat.toUpperCase()}
-                                </>
-                            )}
-                        </button>
-
-                        <p className={styles.renderHint}>
-                            Высота определяется автоматически · {renderWidth}×auto px
-                        </p>
-                    </div>
                     </div>
 
                     <div className={styles.controlsTextBlocks}>
@@ -714,13 +785,13 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                                                 <div className={styles.formatToggle}>
                                                     <button
-                                                        className={`${styles.segBtn} ${block.position === 'before' ? styles.segBtnActive : ''}`}
+                                                        className={cx(styles.segBtn, block.position === 'before' && styles.segBtnActive)}
                                                         onClick={() => updateTextBlock(block.id, 'position', 'before')}
                                                     >
                                                         Сверху
                                                     </button>
                                                     <button
-                                                        className={`${styles.segBtn} ${block.position === 'after' ? styles.segBtnActive : ''}`}
+                                                        className={cx(styles.segBtn, block.position === 'after' && styles.segBtnActive)}
                                                         onClick={() => updateTextBlock(block.id, 'position', 'after')}
                                                     >
                                                         Снизу
@@ -765,33 +836,33 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         </button>
 
                         <div className={styles.renderPanel}>
-                        <input
-                            ref={importInputRef}
-                            type="file"
-                            accept=".json"
-                            hidden
-                            onChange={handleImportConfig}
-                        />
-                        <div className={styles.configRow}>
-                            <div className={styles.configInputWrap}>
-                                <input
-                                    className={styles.configInput}
-                                    type="text"
-                                    value={configName}
-                                    onChange={e => setConfigName(e.target.value)}
-                                />
+                            <input
+                                ref={importInputRef}
+                                type="file"
+                                accept=".json"
+                                hidden
+                                onChange={handleImportConfig}
+                            />
+                            <div className={styles.configRow}>
+                                <div className={styles.configInputWrap}>
+                                    <input
+                                        className={styles.configInput}
+                                        type="text"
+                                        value={configName}
+                                        onChange={e => setConfigName(e.target.value)}
+                                    />
+                                </div>
+                                <button className={cx(styles.configBtn, styles.configBtnAccent)} onClick={handleExportConfig}>
+                                    <IonIcon src="/icons/file-down.svg" />
+                                    <span>Экспорт</span>
+                                </button>
+                                <button className={styles.configBtn} onClick={() => importInputRef.current?.click()}>
+                                    <IonIcon src="/icons/file-up.svg" />
+                                    <span>Импорт</span>
+                                </button>
                             </div>
-                            <button className={`${styles.configBtn} ${styles.configBtnAccent}`} onClick={handleExportConfig}>
-                                <IonIcon src="/icons/file-down.svg" />
-                                <span>Экспорт</span>
-                            </button>
-                            <button className={styles.configBtn} onClick={() => importInputRef.current?.click()}>
-                                <IonIcon src="/icons/file-up.svg" />
-                                <span>Импорт</span>
-                            </button>
                         </div>
                     </div>
-                </div>
                 </div>
             )}
 
@@ -812,19 +883,21 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                     onApplyAction={async file => {
                         URL.revokeObjectURL(cropSourceUrl);
                         setCropSourceUrl(null);
-                        setNewAvatarFile(await fileToDataUrl(file));
+                        setNewMember(prev => ({ ...prev, avatarFile: null }));
+                        const dataUrl = await fileToDataUrl(file);
+                        setNewMember(prev => ({ ...prev, avatarFile: dataUrl }));
                     }}
                 />
             )}
 
             <div
                 ref={wrapperRef}
-                className={`${styles.cardWrapper} ${fullscreen ? styles.cardWrapperFullscreen : ''}`}
+                className={cx(styles.cardWrapper, fullscreen && styles.cardWrapperFullscreen)}
                 style={!fullscreen && cardHeight > 0 ? { height: scaledHeight } : undefined}
             >
                 <main
                     ref={cardRef}
-                    className={`${styles.card} ${!teamcardEnabled ? styles.cardNoTeam : ''}`}
+                    className={cx(styles.card, !teamcardEnabled && styles.cardNoTeam)}
                     style={{
                         transform: `scale(${fullscreen ? fsScale : scale})`,
                         transformOrigin: fullscreen ? 'center center' : 'top left',
@@ -832,22 +905,12 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                 >
                     <div className={styles.cardBg} />
 
-                    {beforeBlocks.length > 0 && (
-                        <div className={`${styles.textBlockGroupBefore} ${!teamcardEnabled ? styles.textBlockGroupBeforeNoTeam : ''}`}>
-                            {beforeBlocks.map(block => (
-                                <div key={block.id} className={styles.textBlockWrap}>
-                                    {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
-                                    {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
-                                    {(block.title || block.subtitle) && <div className={`${styles.divider} ${styles.tb}`} />}
-                                    {block.content && <div className={styles.textBlock}>
-                                        <div className={`${styles.textBlockContent} markdown-body`}>
-                                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
-                                        </div>
-                                    </div>}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <TextBlockGroup
+                        blocks={beforeBlocks}
+                        groupClass={styles.textBlockGroupBefore}
+                        hiddenClass={styles.textBlockGroupBeforeNoTeam}
+                        hidden={!teamcardEnabled}
+                    />
 
                     {teamcardEnabled && (
                         <>
@@ -866,8 +929,8 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                             <ul className={styles.grid}>
                                 {visibleMembers.map(member => {
-                                    const isCustom = member.id < 0;
-                                    const imgUrl = isCustom ? member.avatarUrl : member.image?.url;
+                                    const custom = isCustomMember(member.id);
+                                    const imgUrl = custom ? (member as CustomMember).avatarUrl : (member as TeamMember).image?.url;
                                     const role =
                                         overrides[member.id] !== undefined && overrides[member.id] !== ''
                                             ? overrides[member.id]
@@ -875,13 +938,13 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
 
                                     return (
                                         <li key={member.id} className={styles.member}>
-                                            <div className={`${styles.avatar} ${!imgUrl ? styles.avatarEmpty : ''}`}>
+                                            <div className={cx(styles.avatar, !imgUrl && styles.avatarEmpty)}>
                                                 {imgUrl && (
                                                     <img
-                                                        src={isCustom ? imgUrl : strDomain + imgUrl}
+                                                        src={custom ? imgUrl : strDomain + imgUrl}
                                                         alt={member.nickname}
                                                         className={styles.avatarImg}
-                                                        crossOrigin={isCustom ? undefined : 'anonymous'}
+                                                        crossOrigin={custom ? undefined : 'anonymous'}
                                                     />
                                                 )}
                                             </div>
@@ -896,22 +959,12 @@ export default function TeamCardClient({ team, strDomain }: TeamCardClientProps)
                         </>
                     )}
 
-                    {afterBlocks.length > 0 && (
-                        <div className={`${styles.textBlockGroupAfter} ${!teamcardEnabled ? styles.textBlockGroupAfterNoTeam : ''}`}>
-                            {afterBlocks.map(block => (
-                                <div key={block.id} className={styles.textBlockWrap}>
-                                    {block.title && <div className={styles.textBlockTitle}>{block.title}</div>}
-                                    {block.subtitle && <div className={styles.brandSub}>{block.subtitle}</div>}
-                                    {(block.title || block.subtitle) && <div className={`${styles.divider} ${styles.tb}`} />}
-                                    {block.content && <div className={styles.textBlock}>
-                                        <div className={`${styles.textBlockContent} markdown-body`}>
-                                            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{block.content}</ReactMarkdown>
-                                        </div>
-                                    </div>}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                    <TextBlockGroup
+                        blocks={afterBlocks}
+                        groupClass={styles.textBlockGroupAfter}
+                        hiddenClass={styles.textBlockGroupAfterNoTeam}
+                        hidden={!teamcardEnabled}
+                    />
                 </main>
             </div>
         </div>
